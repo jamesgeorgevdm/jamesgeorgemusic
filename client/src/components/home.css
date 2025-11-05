@@ -1,0 +1,66 @@
+@font-face {
+  font-family: 'BruneyClassy';
+  src: url('/fonts/BruneyClassy.ttf') format('truetype'),
+       url('/fonts/BruneyClassy.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Make sure the whole viewport is used */
+.home-container {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* full screen height */
+  overflow: hidden; /* prevent scrollbars */
+  margin: 0;
+  padding: 0;
+}
+
+/* Video covers entire background */
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* makes sure it fills screen without distortion */
+  z-index: -1; /* puts video behind text */
+}
+
+/* Overlay content centered */
+.overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #f6f2ed; /* your cream color */
+  text-align: center;
+}
+
+.overlay-content h1 {
+  font-family: 'BruneyClassy', serif;
+  font-size: 3.5rem;
+  color: white;
+  -webkit-text-stroke: 1px black; /* black outline */
+  text-shadow: 2px 2px 2px black; /* fallback for non-Webkit */
+}
+
+.overlay-content p {
+  font-size: 1.2rem;
+  color: #fdfaf3;
+}
+
+/* Prevent the body from scrolling */
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Fix navbar to top */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}

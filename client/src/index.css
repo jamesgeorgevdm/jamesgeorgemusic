@@ -1,0 +1,28 @@
+/* Colours */
+:root {
+  --navy:       #0B1C2C;
+  --gold:       #D4A455;
+  --cream:      #F6F2ED;
+  --lightText:  #FAFAF9;
+  --darkText:   #1D1D1B;
+}
+
+/* Global resets and base */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Arial, sans‑serif;
+  background-color: var(--cream);
+  color: var(--darkText);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--navy);
+  text-decoration: underline;
+}

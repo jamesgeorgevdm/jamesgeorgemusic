@@ -1,44 +1,97 @@
 .contact-container {
-  padding: 2rem;
+  min-height: 100vh;
+  padding: 13rem 2rem 3rem;      /* top padding for navbar */
   text-align: center;
   color: #fdfaf3;
   background: #0b1a2e;
+  box-sizing: border-box;
 }
 
+/* Title */
+.contact-container h2 {
+  margin-top: 0;
+  margin-bottom: 3.5rem;       /* bigger gap below title */
+  font-size: 3rem;
+  color: #f1d97c;
+  text-shadow: 0 0 5px #FFD700, 0 0 10px #D4A455;
+}
+
+/* Form */
 .contact-form {
   display: flex;
   flex-direction: column;
-  width: 60%;
+  width: 100%;
+  max-width: 700px;
   margin: 0 auto;
-  gap: 1rem;
+  gap: 2rem;                   /* larger gaps between form fields */
 }
 
 .contact-form input,
 .contact-form textarea {
-  padding: 0.8rem;
-  border-radius: 8px;
-  border: 1px solid #d4af37;
+  padding: 1.2rem;             /* bigger input area */
+  font-size: 1.15rem;           /* slightly larger text */
+  border-radius: 10px;
+  border: 2px solid #d4af37;
   background-color: #0f2240;
   color: #fdfaf3;
+}
+
+/* Make the message textarea taller */
+.contact-form textarea {
+  min-height: 200px;           /* taller space for typing a message */
+  resize: vertical;            /* allow user to resize vertically if desired */
 }
 
 .contact-form input:focus,
 .contact-form textarea:focus {
   outline: none;
-  box-shadow: 0 0 10px #d4af37;
+  box-shadow: 0 0 15px #d4af37;
 }
 
+/* Button */
 .contact-form button {
   background-color: #d4af37;
   color: #0b1a2e;
-  padding: 0.8rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .contact-form button:hover {
   background-color: #f1d97c;
-  box-shadow: 0 0 15px #f1d97c;
+  box-shadow: 0 0 20px #f1d97c;
+}
+
+/* Feedback message */
+.feedback {
+  margin-top: 1.5rem;
+  font-size: 1.2rem;
+  color: #ffd700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .contact-form {
+    max-width: 90%;
+    gap: 1.5rem;              /* slightly smaller gap on mobile */
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .contact-form textarea {
+    min-height: 150px;
+  }
+
+  .contact-form button {
+    font-size: 1rem;
+    padding: 0.9rem;
+  }
 }

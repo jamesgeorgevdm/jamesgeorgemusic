@@ -1,5 +1,5 @@
 import React from "react";
-import "./Home.css";
+import "./home.css";
 
 function Home() {
   return (
@@ -14,7 +14,6 @@ function Home() {
       {/* Overlay text */}
       <div className="overlay-content">
         <h1>James George Music</h1>
-        <p>Tenor saxophonist and vocalist performing across South Africa.</p>
       </div>
     </div>
   );

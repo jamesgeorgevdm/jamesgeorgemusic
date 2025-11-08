@@ -50,11 +50,6 @@
   color: #fdfaf3;
 }
 
-/* Prevent the body from scrolling */
-body {
-  margin: 0;
-  overflow: hidden;
-}
 
 /* Fix navbar to top */
 .navbar {

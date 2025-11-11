@@ -1,3 +1,19 @@
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/CrimsonPro-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BruneyClassy';
+  src: url('/fonts/BruneyClassy.ttf') format('truetype'),
+       url('/fonts/BruneyClassy.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 .booking-container {
   padding: 2rem;
   text-align: center;
@@ -7,12 +23,14 @@
 }
 
 .booking-container h1 {
+  font-family: 'BruneyClassy', serif;
   font-size: 2.5rem;
   margin-bottom: 1rem;
   color: #f1d97c;
 }
 
 .booking-container p {
+  font-family: 'Crimson Pro', serif;
   font-size: 1.1rem;
   margin-bottom: 2rem;
 }
@@ -28,6 +46,7 @@
 .booking-form select,
 .booking-form input,
 .booking-form textarea {
+  font-family: 'Crimson Pro', serif;
   padding: 0.8rem;
   border-radius: 8px;
   border: 1px solid #d4af37;
@@ -45,6 +64,7 @@
 
 .booking-form button {
   background-color: #d4af37;
+  font-family: 'BruneyClassy', serif;
   color: #0b1a2e;
   padding: 0.8rem;
   border: none;
@@ -61,6 +81,7 @@
 
 .feedback {
   margin-top: 1rem;
+  font-family: 'BruneyClassy', serif;
   font-weight: bold;
   color: #f1d97c;
 }

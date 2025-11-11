@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./products.css";
 
 // Packages data
@@ -50,6 +51,7 @@ const styles = [
 ];
 
 function Products() {
+  const navigate = useNavigate();
   return (
     <div className="products-container">
       <h2>Performance Packages</h2>
@@ -64,7 +66,7 @@ function Products() {
             <h3>{pkg.name}</h3>
             <p className="price">{pkg.price}</p>
             <p className="description">{pkg.description}</p>
-            <button className="book-button">Book Now</button>
+            <button className="book-button" onClick={() => navigate("/Booking")}>Book Now</button>
           </div>
         ))}
       </div>

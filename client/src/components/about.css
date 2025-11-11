@@ -1,5 +1,22 @@
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/CrimsonPro-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BruneyClassy';
+  src: url('/fonts/BruneyClassy.ttf') format('truetype'),
+       url('/fonts/BruneyClassy.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 .about-container {
   background-color: #0b1a2e;
+  font-family: 'Crimson Pro', serif;
   color: #fdfaf3;
   padding: 5rem 2rem;
   min-height: 100vh;
@@ -8,6 +25,7 @@
 
 .about-container h2 {
   font-size: 2.8rem;
+  font-family: 'BruneyClassy', serif;
   color: #f1d97c;
   text-shadow: 0 0 5px #ffd700, 0 0 10px #d4a455;
   margin-bottom: 2rem;

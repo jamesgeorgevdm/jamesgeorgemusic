@@ -1,8 +1,19 @@
 /* =============================
    Navbar Container
    ============================= */
+
+  @font-face {
+  font-family: 'BruneyClassy';
+  src: url('/fonts/BruneyClassy.ttf') format('truetype'),
+       url('/fonts/BruneyClassy.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .navbar {
   display: flex;
+   font-family: 'BruneyClassy', serif;
+   font-size: 120%;
   justify-content: space-between;
   align-items: center;
   background-color: #0B1C2C; /* navy */

@@ -1,3 +1,19 @@
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/CrimsonPro-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BruneyClassy';
+  src: url('/fonts/BruneyClassy.ttf') format('truetype'),
+       url('/fonts/BruneyClassy.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 .contact-container {
   min-height: 100vh;
   padding: 13rem 2rem 3rem;      /* top padding for navbar */
@@ -9,6 +25,7 @@
 
 /* Title */
 .contact-container h2 {
+  font-family: 'BruneyClassy', serif;
   margin-top: 0;
   margin-bottom: 3.5rem;       /* bigger gap below title */
   font-size: 3rem;
@@ -28,6 +45,7 @@
 
 .contact-form input,
 .contact-form textarea {
+  font-family: 'Crimson Pro', serif;
   padding: 1.2rem;             /* bigger input area */
   font-size: 1.15rem;           /* slightly larger text */
   border-radius: 10px;
@@ -50,6 +68,7 @@
 
 /* Button */
 .contact-form button {
+  font-family: 'BruneyClassy', serif;
   background-color: #d4af37;
   color: #0b1a2e;
   padding: 1rem 1.5rem;

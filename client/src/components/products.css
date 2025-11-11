@@ -1,4 +1,12 @@
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/CrimsonPro-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .products-container {
+  font-family: 'Crimson Pro', serif;
   padding: 4rem 2rem;
   text-align: center;
   background-color: #0b1a2e;
@@ -7,6 +15,7 @@
 }
 
 .products-container h2 {
+  font-family: 'BruneyClassy', serif;
   font-size: 2.5rem;
   margin-bottom: 1rem;
   color: #f1d97c;
@@ -42,6 +51,7 @@
 }
 
 .product-card h3 {
+  font-family: 'BruneyClassy', serif;
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
   color: #f1d97c;
@@ -148,6 +158,7 @@
 
 /* Text */
 .style-info h3 {
+  font-family: 'BruneyClassy', serif;
   font-size: 1.2rem;
   color: #f1d97c;
   margin-bottom: 0.5rem;

@@ -10,4 +10,4 @@ server/dist/
 *.env
 
 # Ignore Google API Key
-server/service-account
+server/service-account.json

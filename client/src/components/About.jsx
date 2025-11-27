@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./About.css";
 
 const About = () => {
+  // Statistic object
   const stats = [
     {
       title: "Solo Performances",
@@ -65,6 +66,7 @@ const About = () => {
 
   return (
     <div className="about-container">
+      {/* About Block */}
       <h2>About Me</h2>
       <p className="about-text">
         I'm a vocalist and saxophonist performing across a range of genres —

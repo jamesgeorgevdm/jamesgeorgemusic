@@ -8,3 +8,6 @@ server/dist/
 
 # Ignore environment files
 *.env
+
+# Ignore Google API Key
+server/service-account

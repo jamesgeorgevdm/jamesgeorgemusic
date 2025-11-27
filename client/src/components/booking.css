@@ -1,3 +1,4 @@
+/* Font imports */
 @font-face {
   font-family: 'Crimson Pro';
   src: url('/fonts/CrimsonPro-Regular.ttf') format('truetype');
@@ -11,6 +12,119 @@
        url('/fonts/BruneyClassy.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
+}
+
+
+/* Calendar container */
+.react-calendar {
+  background-color: #1a3357; /* lighter navy blue */
+  border: 2px solid #d4af37; /* gold border */
+  border-radius: 10px;
+  padding: 1rem;
+  color: #fdfaf3;
+  font-family: 'Crimson Pro', serif;
+}
+
+/* Calendar navigation (month/year header) */
+.react-calendar__navigation {
+  border-bottom: 1px solid #d4af37; /* gold line */
+  margin-bottom: 0.5rem;
+}
+
+.react-calendar__navigation button {
+  color: #fdfaf3;
+  background: none;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.react-calendar__navigation button:hover {
+  color: #f1d97c; /* lighter gold on hover */
+}
+
+/* Weekday labels */
+.react-calendar__month-view__weekdays {
+  border-bottom: 1px solid #d4af37; /* gold line under weekdays */
+  margin-bottom: 0.5rem;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  color: #f1d97c; /* gold text for weekdays */
+  font-weight: bold;
+}
+
+/* Day tiles */
+.react-calendar__tile {
+  background-color: #0f2240; /* deep blue for tiles */
+  border: 1px solid #d4af37; /* gold lines between days */
+  border-radius: 6px;
+  color: #fdfaf3;
+  padding: 0.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.react-calendar__tile:hover {
+  background-color: #1a3357; /* lighter navy on hover */
+}
+
+.react-calendar__tile--active {
+  background-color: #d4af37; /* gold highlight for selected day */
+  color: #0b1a2e;
+  font-weight: bold;
+}
+
+/* Timeslot Section */
+.timeslot-title {
+  font-family: 'BruneyClassy', serif;
+  font-size: 1.8rem;
+  margin-top: 2rem;
+  color: #f1d97c;
+}
+
+.timeslot-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin: 1.5rem auto;
+  width: 80%;
+}
+
+.timeslot {
+  padding: 0.6rem;
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  background-color: #0f2240;
+  color: #fdfaf3;
+  font-family: 'Crimson Pro', serif;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.timeslot:hover {
+  background-color: #1a3357;
+  transform: scale(1.05);
+}
+
+.timeslot.highlighted {
+  background-color: navy;
+  color: #fdfaf3;
+  font-weight: bold;
+}
+
+.selected-times {
+  margin-top: 1rem;
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.1rem;
+  color: #f1d97c;
+}
+
+.timeslot.blocked {
+  background-color: #333;
+  color: #aaa;
+  text-decoration: line-through;
+  cursor: not-allowed;
 }
 
 
@@ -85,3 +199,4 @@
   font-weight: bold;
   color: #f1d97c;
 }
+

@@ -1,8 +1,9 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b1a2e; /* matches your About / Contact background */
+  color: #fdfaf3;
+  font-family: 'Crimson Pro', serif;
 }
 
 .logo {
@@ -43,4 +44,25 @@
 
 main {
   margin-top: 80px; /* height of navbar */
+}
+
+/* index.css or App.css */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b1a2e; /* dark page background */
+  color: #fdfaf3;
+  font-family: 'Crimson Pro', serif;
+}
+
+/* Fade-in wrapper */
+.fade-in-wrapper {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in-wrapper.visible {
+  opacity: 1;
+  transform: translateY(0);
 }

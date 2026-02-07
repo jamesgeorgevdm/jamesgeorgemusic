@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./products.css";
+import FadeInWrapper from "./FadeInWrapper";
 
 // Packages data
 const packages = [
@@ -53,6 +54,7 @@ const styles = [
 function Products() {
   const navigate = useNavigate();
   return (
+    <FadeInWrapper>
     <div className="products-container">
       <h2>Performance Packages</h2>
       <p className="products-subtitle">
@@ -89,6 +91,7 @@ function Products() {
         ))}
       </div>
     </div>
+    </FadeInWrapper>
   );
 }
 

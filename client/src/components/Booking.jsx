@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./booking.css";
+import FadeInWrapper from "./FadeInWrapper";
 
 const products = [
   { name: "Restaurant", price: "R500/h" },
@@ -109,6 +110,7 @@ function Booking() {
   };
 
   return (
+    <FadeInWrapper>
     <div className="booking-container">
       <h1>Booking</h1>
       <p>Select a date, choose a product, and pick your timeslot.</p>
@@ -195,6 +197,7 @@ function Booking() {
 
       {feedback && <p className="feedback">{feedback}</p>}
     </div>
+    </FadeInWrapper>
   );
 }
 

@@ -1,23 +1,18 @@
-/* Font imports */
+/* FONTS */
 @font-face {
   font-family: 'Crimson Pro';
   src: url('/fonts/CrimsonPro-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
 }
 
 @font-face {
   font-family: 'BruneyClassy';
   src: url('/fonts/BruneyClassy.ttf') format('truetype'),
        url('/fonts/BruneyClassy.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
 }
 
-
-/* About Section */
+/* ABOUT CONTAINER */
 .about-container {
-  background-color: #0b1a2e;
+  background: linear-gradient(to bottom, #0b1a2e 0%, #091227 100%);
   font-family: 'Crimson Pro', serif;
   color: #fdfaf3;
   padding: 5rem 2rem;
@@ -25,20 +20,77 @@
   text-align: center;
 }
 
-.about-container h2 {
+/* Header */
+.about-header h2 {
   font-size: 2.8rem;
   font-family: 'BruneyClassy', serif;
   color: #f1d97c;
-  text-shadow: 0 0 5px #ffd700, 0 0 10px #d4a455;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
-.about-text {
-  max-width: 850px;
-  margin: 0 auto 2rem;
-  font-size: 1.2rem;
-  line-height: 1.8;
-  color: #fdfaf3;
+.about-divider {
+  width: 80px;
+  height: 3px;
+  margin: 0 auto 3rem;
+  background: linear-gradient(90deg, #ffd700, #f1d97c);
+  border-radius: 2px;
+}
+
+/* About Cards - Dynamic Layout */
+.about-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2.5rem;
+  margin: 3rem 5rem 5rem;
+  margin-top: 10rem;
+  position: relative;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+/* Fade-in animation */
+.about-cards.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Each card with slight rotation & staggered top */
+.about-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+}
+
+/* Alternate rotation for staggered effect */
+.about-card:nth-child(4n+1) { transform: rotate(-2deg); top: 0; }
+.about-card:nth-child(4n+2) { transform: rotate(1.5deg); top: 10px; }
+.about-card:nth-child(4n+3) { transform: rotate(-1deg); top: 5px; }
+.about-card:nth-child(4n+4) { transform: rotate(2deg); top: 0; }
+
+.about-card:hover {
+  transform: translateY(-10px) rotate(0deg);
+  box-shadow: 0 15px 40px rgba(212, 175, 55, 0.35);
+}
+
+
+.card-title {
+  font-family: 'BruneyClassy', serif;
+  font-size: 1.6rem;
+  color: #f1d97c;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.about-card p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #eae8e1;
+  text-align: center;
 }
 
 /* Stats Section */
@@ -47,10 +99,9 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 2rem;
-  margin-top: 4rem;
+  margin-top: 15rem;
 }
 
-/* Stat Cards */
 .stat-item {
   background-color: #0f2240;
   border: 1px solid #d4af37;
@@ -65,7 +116,6 @@
   box-shadow: 0 0 20px #d4af37, 0 0 40px #ffd700;
 }
 
-/* Total Gigs Special Block */
 .stat-item.total {
   background: linear-gradient(145deg, #d4af37, #f1d97c);
   color: #0b1a2e;
@@ -94,7 +144,6 @@
   color: #0b1a2e;
 }
 
-/* Standard stat text */
 .stat-item h3 {
   font-size: 2.3rem;
   color: #f1d97c;
@@ -116,6 +165,10 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .about-cards {
+    grid-template-columns: 1fr;
+  }
+
   .stat-item {
     width: 90%;
   }

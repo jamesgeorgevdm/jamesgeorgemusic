@@ -1,21 +1,31 @@
 import React from "react";
 import "./home.css";
+import FadeInWrapper from "./FadeInWrapper"; // make sure path is correct
 
 function Home() {
   return (
+    <FadeInWrapper>
     <div className="home-container">
       {/* Background video */}
-      <video className="background-video" autoPlay loop muted playsInline preload="auto">
+      <video
+        className="background-video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+      >
         <source src="/videos/banner.mp4" type="video/mp4" />
         <source src="/videos/banner.webm" type="video/webm" />
         Your browser does not support the video tag.
       </video>
 
       {/* Overlay text */}
-      <div className="overlay-content">
-        <h1>James George Music</h1>
-      </div>
+        <div className="overlay-content">
+          <h1>James George Music</h1>
+        </div>
     </div>
+    </FadeInWrapper>
   );
 }
 

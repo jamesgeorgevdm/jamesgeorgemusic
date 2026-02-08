@@ -125,6 +125,24 @@
   color: #aaa;
   text-decoration: line-through;
   cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.timeslot.blocked:hover {
+  transform: none;
+  background-color: #333;
+}
+
+@media (max-width: 768px) {
+  .timeslot-grid {
+    grid-template-columns: repeat(3, 1fr);
+    width: 95%;
+  }
+
+  .booking-form {
+    width: 90%;
+  }
 }
 
 

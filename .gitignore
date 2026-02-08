@@ -8,6 +8,7 @@ server/dist/
 
 # Ignore environment files
 *.env
+.env.local
 
 # Ignore Google API Key
-server/service-account.json
+server/jamesgeorgemusic-40567ec76f04.json

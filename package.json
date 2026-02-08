@@ -20,6 +20,12 @@
   "homepage": "https://github.com/jamesgeorgevdm/jamesgeorgemusic#readme",
   "dependencies": {
     "concurrently": "^9.2.1",
+    "cors": "^2.8.6",
+    "dayjs": "^1.11.19",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "googleapis": "^171.4.0",
+    "nodemailer": "^8.0.1",
     "react-calendar": "^6.0.0"
   }
 }

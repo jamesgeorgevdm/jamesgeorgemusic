@@ -4,14 +4,14 @@ import FadeInWrapper from "./FadeInWrapper";
 
 const About = () => {
   const stats = [
-    { title: "Solo Performances", value: 58, description: "Corporates, Private Functions, and 8 Solo Shows — 7 Sold Out." },
-    { title: "Collaborative & Band Work", value: 172, description: "Paid performances with incredible musicians of diverse musical styles." },
-    { title: "Special Appearances", value: 24, description: "Operatic soloist, jazz legends like Feya Faku, opening acts for Matthew Mole, Jeremy Loops, The Kiffness, Will Linley." },
-    { title: "Restaurants / Venues", value: 38, description: "Regular residencies at prominent restaurants and venues." },
-    { title: "Weddings", value: 7, description: "All-inclusive wedding performances — music direction, live sets, and sound setup." },
+    { title: "Solo Performances", value: 62, description: "Corporates, Private Functions, and 10 Solo Shows — 9 Sold Out." },
+    { title: "Collaborative & Band Work", value: 192, description: "Paid performances with incredible musicians of diverse musical styles." },
+    { title: "Special Appearances", value: 24, description: "Operatic soloist, performed with jazz legends like Feya Faku and Dumza Maswana, opening acts for Matthew Mole, Jeremy Loops, The Kiffness, Will Linley." },
+    { title: "Restaurants / Venues", value: 40, description: "Regular residencies at prominent restaurants and venues." },
+    { title: "Weddings", value: 12, description: "All-inclusive wedding performances — music direction, live sets, and sound setup." },
   ];
 
-  const totalGigs = 292;
+  const totalGigs = 330;
   const [counts, setCounts] = useState(new Array(stats.length + 1).fill(0));
   const [showCards, setShowCards] = useState(false);
 

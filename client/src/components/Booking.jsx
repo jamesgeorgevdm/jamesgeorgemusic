@@ -12,10 +12,11 @@ const products = [
   { name: "Solo Show / Musical Showcase", price: "Negotiable" },
 ];
 
-// Generate hourly timeslots (08:00–22:00)
 const times = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, "0")}:00`);
 
 function Booking() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [blockedTimes, setBlockedTimes] = useState([]);
   const [formData, setFormData] = useState({
@@ -30,42 +31,55 @@ function Booking() {
   const [isSending, setIsSending] = useState(false);
   const [feedback, setFeedback] = useState("");
 
-  // Fetch blocked times from backend when date changes
   useEffect(() => {
-    const fetchAvailability = async () => {
-      const dateStr = selectedDate.toISOString().split("T")[0];
-      try {
-        const res = await fetch(`http://localhost:5000/api/availability?date=${dateStr}`);
-        const data = await res.json();
-        setBlockedTimes(data.blocked || []);
-      } catch (err) {
-        console.error("Availability fetch error:", err);
-      }
-    };
-    fetchAvailability();
-  }, [selectedDate]);
+  const fetchAvailability = async () => {
+    setIsLoading(true);
+    const dateStr = selectedDate.toLocaleDateString("en-CA");
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API}/api/availability?date=${dateStr}`);
+      const data = await res.json();
+      setBlockedTimes(data.blocked || []);
+    } catch (err) {
+      console.error("Availability fetch error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  fetchAvailability();
+}, [selectedDate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Timeslot selection
   const handleTimeClick = (time) => {
-    if (blockedTimes.includes(time)) return; // prevent selecting blocked
-    if (!formData.startTime) {
+  if (blockedTimes.includes(time)) return;
+
+  if (!formData.startTime) {
+    setFormData({ ...formData, startTime: time, endTime: "" });
+    return;
+  }
+
+  if (!formData.endTime) {
+    const startIdx = times.indexOf(formData.startTime);
+    const endIdx = times.indexOf(time);
+
+    if (endIdx <= startIdx) {
       setFormData({ ...formData, startTime: time, endTime: "" });
-    } else if (!formData.endTime) {
-      if (times.indexOf(time) > times.indexOf(formData.startTime)) {
-        setFormData({ ...formData, endTime: time });
-      } else {
-        // Reset if clicked earlier time
-        setFormData({ ...formData, startTime: time, endTime: "" });
-      }
-    } else {
-      // Reset selection if both already chosen
-      setFormData({ ...formData, startTime: time, endTime: "" });
+      return;
     }
-  };
+
+    const between = times.slice(startIdx, endIdx + 1);
+    if (between.some(t => blockedTimes.includes(t))) {
+      return; // stops crossing blocked hours
+    }
+
+    setFormData({ ...formData, endTime: time });
+    return;
+  }
+
+  setFormData({ ...formData, startTime: time, endTime: "" });
+};
 
   const isHighlighted = (time) => {
     if (!formData.startTime || !formData.endTime) return false;
@@ -77,11 +91,16 @@ function Booking() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.startTime || !formData.endTime) {
+      setFeedback("Please select a timeslot.");
+      return;
+    }
+
     setIsSending(true);
     setFeedback("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/send-booking", {
+      const response = await fetch(`${import.meta.env.VITE_API}/api/send-booking`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, date: selectedDate }),
@@ -111,92 +130,65 @@ function Booking() {
 
   return (
     <FadeInWrapper>
-    <div className="booking-container">
-      <h1>Booking</h1>
-      <p>Select a date, choose a product, and pick your timeslot.</p>
+      <div className="booking-container">
+        <h1>Booking</h1>
+        <p>Select a date, choose a product, and pick your timeslot.</p>
 
-      {/* Calendar */}
-      <Calendar onChange={setSelectedDate} value={selectedDate} />
+        <Calendar onChange={setSelectedDate} value={selectedDate} minDate={new Date()} />
 
-      {/* Timeslot Grid */}
-      <h3 className="timeslot-title">Select Timeslot</h3>
-      <div className="timeslot-grid">
-        {times.map((time) => (
-          <div
-            key={time}
-            className={`timeslot 
-              ${isHighlighted(time) ? "highlighted" : ""} 
-              ${blockedTimes.includes(time) ? "blocked" : ""}`}
-            onClick={() => handleTimeClick(time)}
-          >
-            {time}
-          </div>
-        ))}
+        <h3 className="timeslot-title">Select Timeslot</h3>
+<div className="timeslot-grid">
+  {isLoading ? (
+    <p>Checking availability...</p>
+  ) : blockedTimes.length === times.length ? (
+    <p>Fully booked for this day.</p>
+  ) : (
+    times.map((time) => (
+      <div
+        key={time}
+        title={blockedTimes.includes(time) ? "Unavailable" : ""}
+        className={`timeslot 
+          ${isHighlighted(time) ? "highlighted" : ""} 
+          ${blockedTimes.includes(time) ? "blocked" : ""}`}
+        onClick={() => handleTimeClick(time)}
+      >
+        {time}
       </div>
-      <p className="selected-times">
-        {formData.startTime && formData.endTime
-          ? `Selected: ${formData.startTime} - ${formData.endTime}`
-          : formData.startTime
-          ? `Selected start: ${formData.startTime}`
-          : "No timeslot selected"}
-      </p>
+    ))
+  )}
+</div>
 
-      {/* Booking Form */}
-      <form className="booking-form" onSubmit={handleSubmit}>
-        <select
-          name="product"
-          value={formData.product}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select a product</option>
-          {products.map((prod, index) => (
-            <option key={index} value={prod.name}>
-              {prod.name} – {prod.price}
-            </option>
-          ))}
-        </select>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Your Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Your Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="tel"
-          name="phone"
-          placeholder="Your Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-        <textarea
-          name="message"
-          placeholder="Describe your event"
-          rows="6"
-          value={formData.message}
-          onChange={handleChange}
-          required
-        />
+        <p className="selected-times">
+          {formData.startTime && formData.endTime
+            ? `Selected: ${formData.startTime} - ${formData.endTime}`
+            : formData.startTime
+            ? `Selected start: ${formData.startTime}`
+            : "No timeslot selected"}
+        </p>
 
-        <button type="submit" disabled={isSending}>
-          {isSending ? "Sending..." : "Send Booking Request"}
-        </button>
-      </form>
+        <form className="booking-form" onSubmit={handleSubmit}>
+          <select name="product" value={formData.product} onChange={handleChange} required>
+            <option value="">Select a product</option>
+            {products.map((prod, index) => (
+              <option key={index} value={prod.name}>
+                {prod.name} – {prod.price}
+              </option>
+            ))}
+          </select>
 
-      {feedback && <p className="feedback">{feedback}</p>}
-    </div>
+          <input type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Your Email" value={formData.email} onChange={handleChange} required />
+          <input type="tel" name="phone" placeholder="Your Phone Number" value={formData.phone} onChange={handleChange} required />
+          <textarea name="message" placeholder="Describe your event" rows="6" value={formData.message} onChange={handleChange} required />
+
+          <button type="submit" disabled={isSending}>
+            {isSending ? "Sending..." : "Send Booking Request"}
+          </button>
+        </form>
+
+        {feedback && <p className="feedback">{feedback}</p>}
+      </div>
     </FadeInWrapper>
   );
 }

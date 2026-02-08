@@ -1,6 +1,7 @@
 # Ignore all node_modules
 client/node_modules/
 server/node_modules/
+node_modules/
 
 # Ignore build/dist folders
 client/dist/
@@ -11,4 +12,4 @@ server/dist/
 .env.local
 
 # Ignore Google API Key
-server/jamesgeorgemusic-40567ec76f04.json
+server/*jamesgeorgemusic-40567ec76f04.json

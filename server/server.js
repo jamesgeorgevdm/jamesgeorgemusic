@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import timezone from "dayjs/plugin/timezone.js";
 import dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
 dayjs.extend(utc);
@@ -15,13 +16,85 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Supabase Setup
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+
 // Google Calendar setup
 const auth = new google.auth.GoogleAuth({
-  keyFile: "jamesgeorgemusic-40567ec76f04.json", // your downloaded JSON
+  keyFile: "jamesgeorgemusic-40567ec76f04.json",
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
 });
-
 const calendar = google.calendar({ version: "v3", auth });
+
+/** * HELPER: Categorize gig based on keywords
+ */
+const categorizeGig = (summary, description, categories) => {
+  const textToSearch = `${summary} ${description || ""}`.toLowerCase();
+  
+  // Find category where at least one keyword is found in the text
+  const match = categories.find(cat => 
+    cat.keywords.some(kw => textToSearch.includes(kw.toLowerCase()))
+  );
+  
+  return match ? match.id : null;
+};
+
+// Endpoint: Get combined stats for Frontend
+app.get("/api/stats", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("gig_categories")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint: Sync Google Calendar with DB
+app.post("/api/sync-gigs", async (req, res) => {
+  try {
+    const { data: categories } = await supabase.from("gig_categories").select("*");
+    
+    // Fetch past events (e.g., from your "Fresh Start" date or last 30 days)
+    const response = await calendar.events.list({
+      calendarId: process.env.CALENDAR_ID,
+      timeMin: dayjs("2026-02-23").toISOString(), // Starting from your "today"
+      timeMax: dayjs().toISOString(),
+      singleEvents: true,
+    });
+
+    const events = response.data.items || [];
+    let added = 0;
+
+    for (const event of events) {
+      // Check if already processed
+      const { data: exists } = await supabase
+        .from("processed_events")
+        .select("google_event_id")
+        .eq("google_event_id", event.id)
+        .single();
+
+      if (!exists) {
+        const catId = categorizeGig(event.summary, event.description, categories);
+        if (catId) {
+          // 1. Increment the live count using our SQL function
+          await supabase.rpc("increment_live_count", { row_id: catId });
+          // 2. Mark as processed
+          await supabase.from("processed_events").insert([{ google_event_id: event.id }]);
+          added++;
+        }
+      }
+    }
+    res.json({ success: true, newGigsProcessed: added });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Sync failed" });
+  }
+});
 
 // Endpoint: Get blocked times for a date
 app.get("/api/availability", async (req, res) => {

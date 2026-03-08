@@ -13,3 +13,4 @@ server/dist/
 
 # Ignore Google API Key
 server/*jamesgeorgemusic-40567ec76f04.json
+minify.txt

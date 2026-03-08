@@ -13,15 +13,27 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const app = express();
-app.use(cors());
+
+// CORS
+app.use(cors({
+  origin: [
+    "http://localhost:5173", // For local development
+    "https://jamesgeorgemusic.com", 
+    "https://www.jamesgeorgemusic.com"
+  ],
+  methods: ["GET", "POST"],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Supabase Setup
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// Google Calendar setup
+// Google Calendar Setup: Use Environment Variable instead of local file
 const auth = new google.auth.GoogleAuth({
-  keyFile: "jamesgeorgemusic-40567ec76f04.json",
+  // Search for string in Render Env Vars
+  credentials: JSON.parse(process.env.GOOGLE_CREDS),
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
 });
 const calendar = google.calendar({ version: "v3", auth });
@@ -30,16 +42,14 @@ const calendar = google.calendar({ version: "v3", auth });
  */
 const categorizeGig = (summary, description, categories) => {
   const textToSearch = `${summary} ${description || ""}`.toLowerCase();
-  
-  // Find category where at least one keyword is found in the text
   const match = categories.find(cat => 
     cat.keywords.some(kw => textToSearch.includes(kw.toLowerCase()))
   );
-  
   return match ? match.id : null;
 };
 
-// Endpoint: Get combined stats for Frontend
+// --- ENDPOINTS ---
+
 app.get("/api/stats", async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -54,15 +64,12 @@ app.get("/api/stats", async (req, res) => {
   }
 });
 
-// Endpoint: Sync Google Calendar with DB
 app.post("/api/sync-gigs", async (req, res) => {
   try {
     const { data: categories } = await supabase.from("gig_categories").select("*");
-    
-    // Fetch past events (e.g., from your "Fresh Start" date or last 30 days)
     const response = await calendar.events.list({
       calendarId: process.env.CALENDAR_ID,
-      timeMin: dayjs("2026-02-23").toISOString(), // Starting from your "today"
+      timeMin: dayjs("2026-02-23").toISOString(), 
       timeMax: dayjs().toISOString(),
       singleEvents: true,
     });
@@ -71,7 +78,6 @@ app.post("/api/sync-gigs", async (req, res) => {
     let added = 0;
 
     for (const event of events) {
-      // Check if already processed
       const { data: exists } = await supabase
         .from("processed_events")
         .select("google_event_id")
@@ -81,9 +87,7 @@ app.post("/api/sync-gigs", async (req, res) => {
       if (!exists) {
         const catId = categorizeGig(event.summary, event.description, categories);
         if (catId) {
-          // 1. Increment the live count using our SQL function
           await supabase.rpc("increment_live_count", { row_id: catId });
-          // 2. Mark as processed
           await supabase.from("processed_events").insert([{ google_event_id: event.id }]);
           added++;
         }
@@ -96,7 +100,6 @@ app.post("/api/sync-gigs", async (req, res) => {
   }
 });
 
-// Endpoint: Get blocked times for a date
 app.get("/api/availability", async (req, res) => {
   const { date } = req.query;
   if (!date) return res.status(400).json({ error: "Date required" });
@@ -120,16 +123,13 @@ app.get("/api/availability", async (req, res) => {
 
     events.forEach((event) => {
       if (!event.start?.dateTime || !event.end?.dateTime) return;
-
       const start = dayjs(event.start.dateTime).tz(tz);
       const end = dayjs(event.end.dateTime).tz(tz);
-
       for (let h = start.hour(); h < end.hour(); h++) {
         blockedSet.add(`${String(h).padStart(2, "0")}:00`);
       }
     });
 
-    // Prevent booking past hours today
     const today = dayjs().tz(tz);
     if (today.format("YYYY-MM-DD") === date) {
       for (let h = 0; h <= today.hour(); h++) {
@@ -144,22 +144,19 @@ app.get("/api/availability", async (req, res) => {
   }
 });
 
-
-// Nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true,
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // set in .env
+    pass: process.env.EMAIL_PASS,
   },
   tls: {
     rejectUnauthorized: false,
   },
 });
 
-// Booking form endpoint
 app.post("/api/send-booking", async (req, res) => {
   const { name, email, phone, product, message, date, startTime, endTime } = req.body;
 
@@ -170,7 +167,6 @@ app.post("/api/send-booking", async (req, res) => {
   try {
     const dateFormatted = dayjs(date).tz("Africa/Johannesburg").format("DD MMM YYYY");
 
-    // Send booking details to yourself
     await transporter.sendMail({
       from: email,
       to: "jamesv234@gmail.com",
@@ -186,7 +182,6 @@ Message: ${message}
       `,
     });
 
-    // Auto-reply to sender
     await transporter.sendMail({
       from: { name: "James George Music", address: "jamesv234@gmail.com" },
       to: email,
@@ -201,5 +196,6 @@ Message: ${message}
   }
 });
 
-// Start server
-app.listen(5000, () => console.log("Server running on port 5000"));
+// PORT for Render deployment
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

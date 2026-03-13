@@ -16,15 +16,22 @@ const app = express();
 
 // CORS
 app.use(cors({
-  origin: [
-    "http://localhost:5173", // For local development
-    "https://jamesgeorgemusic.com", 
-    "https://www.jamesgeorgemusic.com"
-  ],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "https://jamesgeorgemusic.com",
+      "https://www.jamesgeorgemusic.com",
+    ];
+    // Allow if in list, or if it's a Vercel preview URL, or no origin (Postman/Mobile)
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST"],
   credentials: true
 }));
-
 app.use(express.json());
 
 // Supabase Setup
@@ -193,6 +200,21 @@ Message: ${message}
   } catch (error) {
     console.error("Booking email error:", error);
     res.status(500).json({ success: false, error: "Booking email failed to send." });
+  }
+});
+
+app.post("/api/contact", async (req, res) => {
+  const { email, subject, message } = req.body;
+  try {
+    await transporter.sendMail({
+      from: email,
+      to: "jamesv234@gmail.com",
+      subject: `Direct Contact: ${subject}`,
+      text: `From: ${email}\n\nMessage:\n${message}`,
+    });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to send message" });
   }
 });
 

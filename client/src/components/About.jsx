@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./About.css";
+import "./about.css";
 import FadeInWrapper from "./FadeInWrapper";
 
 const About = () => {

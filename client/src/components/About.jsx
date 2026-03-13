@@ -10,7 +10,7 @@ const About = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/stats");
+        const response = await fetch(`${import.meta.env.VITE_API}/api/stats`);
         const data = await response.json();
         
         // Transform DB data for the UI

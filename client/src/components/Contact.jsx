@@ -21,7 +21,7 @@ const Contact = () => {
     setFeedback("");
 
     try {
-      const response = await fetch("http://localhost:5000/contact", {
+      const response = await fetch(`${import.meta.env.VITE_API}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

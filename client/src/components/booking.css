@@ -1,7 +1,7 @@
 /* Font imports */
 @font-face {
   font-family: 'Crimson Pro';
-  src: url('/fonts/CrimsonPro-Regular.ttf') format('truetype');
+  src: url('/fonts/CrimsonPro-VariableFont_wght.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }

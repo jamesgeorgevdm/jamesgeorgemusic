@@ -76,22 +76,27 @@ const About = () => {
           {/* ... other cards remain the same ... */}
         </div>
 
-        <div className="stats-container">
-          <div className="stat-item total">
-            <div className="total-inner">
-              <h3>{counts[0]}</h3>
-              <p>Total Gigs</p>
-            </div>
-          </div>
+        {/* Stats Section - Scalable & Smaller */}
+<div className="flex flex-wrap justify-center gap-4 mt-16 px-4">
+  
+  {/* Total Gigs Box - Full width on mobile, smaller on desktop */}
+  <div className="w-full max-w-sm bg-gradient-to-br from-[#d4af37] to-[#f1d97c] text-[#0b1a2e] p-6 rounded-xl flex flex-col items-center shadow-lg">
+    <h3 className="text-4xl md:text-5xl font-bold leading-none">{counts[0]}</h3>
+    <p className="text-sm md:text-base font-semibold uppercase tracking-wider">Total Gigs</p>
+  </div>
 
-          {stats.map((item, index) => (
-            <div key={index} className="stat-item">
-              <h3>{counts[index + 1]}</h3>
-              <p className="stat-title">{item.title}</p>
-              <p className="stat-description">{item.description}</p>
-            </div>
-          ))}
-        </div>
+  {/* Dynamic Stat Items - 2 per row on tablet, 3-4 on desktop */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl">
+    {stats.map((item, index) => (
+      <div key={index} className="bg-[#0f2240] border border-[#d4af37]/40 rounded-lg p-4 transition-all hover:border-[#d4af37]">
+        <h3 className="text-2xl text-[#f1d97c] font-bold mb-1">{counts[index + 1]}</h3>
+        <p className="text-xs font-bold text-white uppercase mb-1">{item.title}</p>
+        <p className="text-[0.8rem] leading-snug text-gray-300">{item.description}</p>
+      </div>
+    ))}
+  </div>
+
+</div>
       </div>
     </FadeInWrapper>
   );

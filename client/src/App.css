@@ -1,9 +1,33 @@
+
+@import "tailwindcss";
 html, body {
   margin: 0;
   padding: 0;
   background-color: #0b1a2e; /* matches your About / Contact background */
   color: #fdfaf3;
   font-family: 'Crimson Pro', serif;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+
+/* Use the standard CSS layer approach */
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 .logo {

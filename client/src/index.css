@@ -1,28 +1,29 @@
-/* Colours */
+@import "tailwindcss";
+
+/* 1. Brand Variables - These are now consistent across your site */
 :root {
-  --navy:       #0B1C2C;
-  --gold:       #D4A455;
-  --cream:      #F6F2ED;
-  --lightText:  #FAFAF9;
-  --darkText:   #1D1D1B;
+  --navy: #0B1C2C;
+  --gold: #D4A455;
+  --cream: #F6F2ED;
 }
 
-/* Global resets and base */
-body {
+/* 2. Global Base - This kills the silver look at the root */
+html, body {
   margin: 0;
   padding: 0;
-  font-family: 'Helvetica Neue', Arial, sans‑serif;
-  background-color: var(--cream);
-  color: var(--darkText);
-  line-height: 1.6;
+  background-color: #0B1C2C; /* This ensures the background is ALWAYS Navy */
+  color: #F6F2ED;
+  font-family: 'Crimson Pro', serif;
+  min-height: 100vh;
 }
 
-a {
-  color: var(--gold);
-  text-decoration: none;
-}
-
-a:hover {
-  color: var(--navy);
-  text-decoration: underline;
+/* 3. Utility Layer for your specific needs */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

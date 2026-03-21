@@ -1,6 +1,7 @@
 # Ignore all node_modules
 client/node_modules/
 server/node_modules/
+server/service-account.json
 node_modules/
 
 # Ignore build/dist folders

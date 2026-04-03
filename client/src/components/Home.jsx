@@ -22,7 +22,7 @@ function Home() {
 
       {/* Overlay text */}
         <div className="overlay-content">
-          <h1>James George Music</h1>
+          <h1>James George</h1>
         </div>
     </div>
     </FadeInWrapper>

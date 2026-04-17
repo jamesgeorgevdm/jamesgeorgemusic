@@ -6,7 +6,6 @@
   font-style: normal;
 }
 
-/* Make sure the whole viewport is used */
 .home-container {
   position: relative;
   width: 100%;
@@ -16,18 +15,16 @@
   padding: 0;
 }
 
-/* Video covers entire background */
 .background-video {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* makes sure it fills screen without distortion */
+  object-fit: cover; /* makess sure it fills screen without distortion */
   z-index: -1; /* puts video behind text */
 }
 
-/* Overlay content centered */
 .overlay-content {
   position: absolute;
   top: 50%;
@@ -43,7 +40,7 @@
   font-size: 3.5rem;
   color: white;
   -webkit-text-stroke: 1px rgb(255, 255, 255); /* black outline */
-  text-shadow: 10px 10px 10px rgb(0, 0, 0); /* fallback for non-Webkit */
+  text-shadow: 10px 10px 10px rgb(0, 0, 0);
 }
 
 .overlay-content p {
@@ -52,7 +49,7 @@
 }
 
 
-/* Fix navbar to top */
+/* Fixes navbar to top */
 .navbar {
   position: fixed;
   top: 0;

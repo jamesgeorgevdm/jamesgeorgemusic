@@ -45,7 +45,7 @@ const auth = new google.auth.GoogleAuth({
 });
 const calendar = google.calendar({ version: "v3", auth });
 
-/** * HELPER: Categorize gig based on keywords
+/**Categorize gig based on keywords
  */
 const categorizeGig = (summary, description, categories) => {
   const textToSearch = `${summary} ${description || ""}`.toLowerCase();
@@ -55,7 +55,7 @@ const categorizeGig = (summary, description, categories) => {
   return match ? match.id : null;
 };
 
-// --- ENDPOINTS ---
+// ENDPOINTS
 
 app.get("/api/stats", async (req, res) => {
   try {

@@ -3,7 +3,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #0b1a2e; /* matches your About / Contact background */
+  background-color: #0b1a2e;
   color: #fdfaf3;
   font-family: 'Crimson Pro', serif;
 }
@@ -19,7 +19,7 @@ html, body {
 }
 
 
-/* Use the standard CSS layer approach */
+/* Uses the standard CSS layer approach */
 @layer utilities {
   .no-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */
@@ -70,7 +70,6 @@ main {
   margin-top: 80px; /* height of navbar */
 }
 
-/* index.css or App.css */
 body {
   margin: 0;
   padding: 0;

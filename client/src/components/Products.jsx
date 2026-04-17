@@ -21,12 +21,12 @@ function Products() {
 
   return (
     <FadeInWrapper>
-      {/* 1. Use the exact Navy Hex */}
+      {/* Navy Hex */}
       <div className="min-h-screen bg-[#0B1C2C] text-[#F6F2ED] font-['Crimson_Pro'] py-16 px-6 md:px-12">
         
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          {/* 2. Use the exact Gold Hex for Titles */}
+          {/* Gold Hex for titles */}
           <h2 className="font-['BruneyClassy'] text-4xl md:text-5xl text-[#D4A455] mb-4">
             Performance Packages
           </h2>
@@ -43,7 +43,7 @@ function Products() {
               className="group bg-[#0f2240] p-8 rounded-2xl w-full sm:w-[280px] text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(212,164,85,0.3)] border border-[#D4A455]/20"
             >
               <h3 className="font-['BruneyClassy'] text-2xl text-[#f1d97c] mb-2">{pkg.name}</h3>
-              {/* 3. Gold price text */}
+              {/* Gold price text */}
               <p className="text-xl font-bold mb-4 text-[#D4A455]">{pkg.price}</p>
               <p className="text-sm leading-relaxed mb-6 opacity-80 min-h-[60px]">{pkg.description}</p>
               <button 
@@ -63,7 +63,6 @@ function Products() {
 
         {/* Timeline Container */}
         <div className="relative max-w-5xl mx-auto space-y-12 pb-12">
-          {/* 4. Fix the Wavy Line color (Encoded #D4A455 is %23D4A455) */}
           <div className="absolute left-1/2 top-0 bottom-0 w-1 hidden md:block -translate-x-1/2 opacity-30">
              <div className="h-full w-full bg-[url('data:image/svg+xml,%3Csvg_width=%274%27_height=%271000%27_viewBox=%270_0_4_1000%27_xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath_d=%27M2_0_C3_50,_1_150,_2_200_C3_250,_1_350,_2_400_C3_450,_1_550,_2_600_C3_650,_1_750,_2_800_C3_850,_1_950,_2_1000%27_stroke=%27%23D4A455%27_stroke-width=%274%27_fill=%27transparent%27/%3E%3C/svg%3E')] bg-repeat-y"></div>
           </div>

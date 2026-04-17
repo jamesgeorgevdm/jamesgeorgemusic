@@ -1,6 +1,6 @@
 import React from "react";
 import "./home.css";
-import FadeInWrapper from "./FadeInWrapper"; // make sure path is correct
+import FadeInWrapper from "./FadeInWrapper";
 
 function Home() {
   return (

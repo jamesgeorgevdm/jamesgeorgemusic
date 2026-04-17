@@ -1,4 +1,4 @@
-/* FONTS */
+/* Fonts */
 @font-face {
   font-family: 'Crimson Pro';
   src: url('/fonts/CrimsonPro-VariableFont_wght.ttf') format('truetype');
@@ -10,7 +10,7 @@
        url('/fonts/BruneyClassy.otf') format('opentype');
 }
 
-/* ABOUT CONTAINER */
+/* About Container */
 .about-container {
   background: linear-gradient(to bottom, #0b1a2e 0%, #091227 100%);
   font-family: 'Crimson Pro', serif;
@@ -36,7 +36,7 @@
   border-radius: 2px;
 }
 
-/* BIO PILLAR CARDS (The .map() section) */
+/* Bio Pillar Cards */
 .about-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -95,7 +95,7 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* SKELETON LOADERS */
+/* Skeleton Loaders */
 .skeleton {
   background: #162c4a; 
   background: linear-gradient(
@@ -125,7 +125,7 @@
   width: 100%;
 }
 
-/* RESPONSIVE DESIGN */
+/* Responsive Design */
 @media (max-width: 1024px) {
   .about-cards {
     margin: 0 2rem 5rem;

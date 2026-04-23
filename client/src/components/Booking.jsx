@@ -129,68 +129,81 @@ function Booking() {
   };
 
   return (
-    <FadeInWrapper>
-      <div className="booking-container">
-        <h1>Booking</h1>
-        <p>Select a date, choose a product, and pick your timeslot.</p>
+  <FadeInWrapper>
+    <main className="booking-container">
+      <h1>Booking</h1>
+      <p>Select a date, choose a product, and pick your timeslot.</p>
 
+      <section aria-label="Select Date">
         <Calendar onChange={setSelectedDate} value={selectedDate} minDate={new Date()} />
+      </section>
 
-        <h3 className="timeslot-title">Select Timeslot</h3>
-<div className="timeslot-grid">
-  {isLoading ? (
-    <p>Checking availability...</p>
-  ) : blockedTimes.length === times.length ? (
-    <p>Fully booked for this day.</p>
-  ) : (
-    times.map((time) => (
-      <div
-        key={time}
-        title={blockedTimes.includes(time) ? "Unavailable" : ""}
-        className={`timeslot 
-          ${isHighlighted(time) ? "highlighted" : ""} 
-          ${blockedTimes.includes(time) ? "blocked" : ""}`}
-        onClick={() => handleTimeClick(time)}
-      >
-        {time}
-      </div>
-    ))
-  )}
-</div>
+      <h2 className="timeslot-title">Select Timeslot</h2>
+      
+      <section className="timeslot-grid" aria-live="polite">
+        {isLoading ? (
+          <p>Checking availability...</p>
+        ) : blockedTimes.length === times.length ? (
+          <p>Fully booked for this day.</p>
+        ) : (
+          times.map((time) => (
+            <button
+              type="button" 
+              key={time}
+              title={blockedTimes.includes(time) ? "Unavailable" : ""}
+              className={`timeslot 
+                ${isHighlighted(time) ? "highlighted" : ""} 
+                ${blockedTimes.includes(time) ? "blocked" : ""}`}
+              onClick={() => handleTimeClick(time)}
+              disabled={blockedTimes.includes(time)}
+            >
+              {time}
+            </button>
+          ))
+        )}
+      </section>
 
+      <p className="selected-times">
+        {formData.startTime && formData.endTime
+          ? `Selected: ${formData.startTime} - ${formData.endTime}`
+          : formData.startTime
+          ? `Selected start: ${formData.startTime}`
+          : "No timeslot selected"}
+      </p>
 
-        <p className="selected-times">
-          {formData.startTime && formData.endTime
-            ? `Selected: ${formData.startTime} - ${formData.endTime}`
-            : formData.startTime
-            ? `Selected start: ${formData.startTime}`
-            : "No timeslot selected"}
-        </p>
+      <form className="booking-form" onSubmit={handleSubmit}>
+  
+  <label htmlFor="product" className="sr-only">Select Service</label>
+  <select id="product" name="product" value={formData.product} onChange={handleChange} required>
+    <option value="">Select a product</option>
+    {products.map((prod, index) => (
+      <option key={index} value={prod.name}>
+        {prod.name} – {prod.price}
+      </option>
+    ))}
+  </select>
 
-        <form className="booking-form" onSubmit={handleSubmit}>
-          <select name="product" value={formData.product} onChange={handleChange} required>
-            <option value="">Select a product</option>
-            {products.map((prod, index) => (
-              <option key={index} value={prod.name}>
-                {prod.name} – {prod.price}
-              </option>
-            ))}
-          </select>
+  <label htmlFor="name" className="sr-only">Your Name</label>
+  <input id="name" type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} required />
+  
+  <label htmlFor="email" className="sr-only">Your Email</label>
+  <input id="email" type="email" name="email" placeholder="Your Email" value={formData.email} onChange={handleChange} required />
+  
+  <label htmlFor="phone" className="sr-only">Your Phone Number</label>
+  <input id="phone" type="tel" name="phone" placeholder="Your Phone Number" value={formData.phone} onChange={handleChange} required />
+  
+  <label htmlFor="message" className="sr-only">Message</label>
+  <textarea id="message" name="message" placeholder="Describe your event" rows="6" value={formData.message} onChange={handleChange} required />
 
-          <input type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} required />
-          <input type="email" name="email" placeholder="Your Email" value={formData.email} onChange={handleChange} required />
-          <input type="tel" name="phone" placeholder="Your Phone Number" value={formData.phone} onChange={handleChange} required />
-          <textarea name="message" placeholder="Describe your event" rows="6" value={formData.message} onChange={handleChange} required />
+  <button type="submit" disabled={isSending}>
+    {isSending ? "Sending..." : "Send Booking Request"}
+  </button>
+</form>
 
-          <button type="submit" disabled={isSending}>
-            {isSending ? "Sending..." : "Send Booking Request"}
-          </button>
-        </form>
-
-        {feedback && <p className="feedback">{feedback}</p>}
-      </div>
-    </FadeInWrapper>
-  );
+      {feedback && <output className="feedback">{feedback}</output>}
+    </main>
+  </FadeInWrapper>
+);
 }
 
 export default Booking;

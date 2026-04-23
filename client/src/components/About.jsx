@@ -109,26 +109,27 @@ const About = () => {
   };
 
   return (
-    <FadeInWrapper>
-      <div className="about-container">
-        <div className="about-header">
-          <h2>About Me</h2>
-          <div className="about-divider" />
-        </div>
+  <FadeInWrapper>
+    <main className="about-container">
+      <header className="about-header">
+        <h2>About Me</h2>
+        <div className="about-divider" aria-hidden="true" />
+      </header>
 
-        <div className="about-cards">
-          {bioPillars.map((pillar, index) => (
-            <div key={index} className="about-card">
-              <h3 className="card-title">{pillar.title}</h3>
-              <p>{pillar.desc}</p>
-            </div>
-          ))}
-        </div>
+      <section className="about-cards" aria-label="Professional Pillars">
+        {bioPillars.map((pillar, index) => (
+          <article key={index} className="about-card"> 
+            <h3 className="card-title">{pillar.title}</h3>
+            <p>{pillar.desc}</p>
+          </article>
+        ))}
+      </section>
 
+      <section aria-label="Performance Statistics">
         {renderStatsContent()}
-      </div>
-    </FadeInWrapper>
-  );
-};
-
+      </section>
+    </main>
+  </FadeInWrapper>
+);
+}
 export default About;

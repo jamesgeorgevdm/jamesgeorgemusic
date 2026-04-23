@@ -19,9 +19,9 @@ function Navbar() {
   ];
 
   return (
+  <header> 
     <nav className="fixed top-0 left-0 w-full z-[1000] bg-[#0B1C2C] px-4 py-3 md:px-8 md:py-4 flex justify-between items-center font-['BruneyClassy'] shadow-lg border-b border-[#D4A455]/20">
       
-      {/* Navigation Links - Scrollable on mobile */}
       <div className="flex-1 overflow-x-auto no-scrollbar">
         <ul className="flex items-center gap-5 md:gap-8 list-none m-0 p-0 whitespace-nowrap">
           {navItems.map((item) => (
@@ -37,14 +37,14 @@ function Navbar() {
         </ul>
       </div>
 
-      {/* Social Icons */}
-      <div className="flex items-center gap-4 md:gap-6 ml-6 flex-shrink-0">
+      <div className="flex items-center gap-4 md:gap-6 ml-6 flex-shrink-0" aria-label="Social Media Links">
         {socialLinks.map((social, i) => (
           <a 
             key={i}
             href={social.href} 
             target="_blank" 
             rel="noopener noreferrer"
+            aria-label={`Follow on ${social.href.includes('instagram') ? 'Instagram' : social.href.includes('facebook') ? 'Facebook' : 'YouTube'}`}
             className="!text-[#F6F2ED] text-lg md:text-xl transition-all duration-300 hover:!text-[#D4A455] hover:scale-110"
           >
             {social.icon}
@@ -52,7 +52,8 @@ function Navbar() {
         ))}
       </div>
     </nav>
-  );
+  </header>
+);
 }
 
 export default Navbar;

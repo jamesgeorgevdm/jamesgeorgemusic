@@ -21,77 +21,77 @@ function Products() {
 
   return (
     <FadeInWrapper>
-      {/* Navy Hex */}
-      <div className="min-h-screen bg-[#0B1C2C] text-[#F6F2ED] font-['Crimson_Pro'] py-16 px-6 md:px-12">
+      <main className="min-h-screen bg-[#0B1C2C] text-[#F6F2ED] font-['Crimson_Pro'] py-16 px-6 md:px-12">
         
         {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          {/* Gold Hex for titles */}
-          <h2 className="font-['BruneyClassy'] text-4xl md:text-5xl text-[#D4A455] mb-4">
+        <header className="text-center max-w-3xl mx-auto mb-16">
+          <h1 className="font-['BruneyClassy'] text-4xl md:text-5xl text-[#D4A455] mb-4">
             Performance Packages
-          </h2>
+          </h1>
           <p className="text-lg opacity-90">
             All packages are booked at a minimum of 3 hours and include equipment / lighting.
           </p>
-        </div>
+        </header>
 
-        {/* Packages Grid */}
-        <div className="flex flex-wrap justify-center gap-8 mb-24">
+        {/* Packages Grid - Wrapped in a section */}
+        <section className="flex flex-wrap justify-center gap-8 mb-24" aria-label="Available Packages">
           {packages.map((pkg, index) => (
-            <div 
+            <article 
               key={index}
               className="group bg-[#0f2240] p-8 rounded-2xl w-full sm:w-[280px] text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(212,164,85,0.3)] border border-[#D4A455]/20"
             >
-              <h3 className="font-['BruneyClassy'] text-2xl text-[#f1d97c] mb-2">{pkg.name}</h3>
-              {/* Gold price text */}
+              <h2 className="font-['BruneyClassy'] text-2xl text-[#f1d97c] mb-2">{pkg.name}</h2>
               <p className="text-xl font-bold mb-4 text-[#D4A455]">{pkg.price}</p>
               <p className="text-sm leading-relaxed mb-6 opacity-80 min-h-[60px]">{pkg.description}</p>
               <button 
                 onClick={() => navigate("/booking")}
                 className="w-full py-3 bg-[#D4A455] text-[#0B1C2C] rounded-lg font-bold transition-all hover:bg-[#f1d97c] hover:shadow-[0_0_15px_#f1d97c] cursor-pointer"
               >
-                Book Now
+                Book {pkg.name}
               </button>
-            </div>
+            </article>
           ))}
-        </div>
+        </section>
 
-        {/* Styles Header */}
-        <h2 className="font-['BruneyClassy'] text-4xl text-center text-[#f1d97c] mb-12">
-          Styles on Offer
-        </h2>
+        {/* Styles Section */}
+        <section aria-labelledby="styles-heading">
+          <h2 id="styles-heading" className="font-['BruneyClassy'] text-4xl text-center text-[#f1d97c] mb-12">
+            Styles on Offer
+          </h2>
 
-        {/* Timeline Container */}
-        <div className="relative max-w-5xl mx-auto space-y-12 pb-12">
-          <div className="absolute left-1/2 top-0 bottom-0 w-1 hidden md:block -translate-x-1/2 opacity-30">
-             <div className="h-full w-full bg-[url('data:image/svg+xml,%3Csvg_width=%274%27_height=%271000%27_viewBox=%270_0_4_1000%27_xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath_d=%27M2_0_C3_50,_1_150,_2_200_C3_250,_1_350,_2_400_C3_450,_1_550,_2_600_C3_650,_1_750,_2_800_C3_850,_1_950,_2_1000%27_stroke=%27%23D4A455%27_stroke-width=%274%27_fill=%27transparent%27/%3E%3C/svg%3E')] bg-repeat-y"></div>
-          </div>
+          <div className="relative max-w-5xl mx-auto space-y-12 pb-12">
+            {/* Timeline Line decorative - hidden from screen readers */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 hidden md:block -translate-x-1/2 opacity-30" aria-hidden="true">
+               <div className="h-full w-full bg-[url('data:image/svg+xml,...')] bg-repeat-y"></div>
+            </div>
 
-          {styles.map((style, index) => (
-            <div 
-              key={index}
-              className={`flex flex-col md:flex-row items-center gap-8 relative z-10 
-                ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
-            >
-              <div 
-                onClick={() => window.open(style.video, "_blank")}
-                className="w-full md:w-[45%] bg-[#0f2240] p-4 rounded-2xl flex items-center gap-6 cursor-pointer transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] border border-[#D4A455]/20 group"
+            {styles.map((style, index) => (
+              <article 
+                key={index}
+                className={`flex flex-col md:flex-row items-center gap-8 relative z-10 
+                  ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
               >
-                <img 
-                  src={style.img} 
-                  alt={style.title} 
-                  className="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                />
-                <div className="text-left">
-                  <h3 className="font-['BruneyClassy'] text-lg md:text-xl text-[#f1d97c]">{style.title}</h3>
-                  <p className="text-xs md:text-sm opacity-70">Click to watch a performance</p>
-                </div>
-              </div>
-              <div className="hidden md:block md:w-[45%]"></div>
-            </div>
-          ))}
-        </div>
-      </div>
+                <button 
+                  onClick={() => window.open(style.video, "_blank")}
+                  className="w-full md:w-[45%] bg-[#0f2240] p-4 rounded-2xl flex items-center gap-6 cursor-pointer transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] border border-[#D4A455]/20 group"
+                  aria-label={`Watch ${style.title} performance video`}
+                >
+                  <img 
+                    src={style.img} 
+                    alt="" /* Alt empty because the title is in the heading below */
+                    className="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                  />
+                  <div className="text-left">
+                    <h3 className="font-['BruneyClassy'] text-lg md:text-xl text-[#f1d97c]">{style.title}</h3>
+                    <p className="text-xs md:text-sm opacity-70">Click to watch a performance</p>
+                  </div>
+                </button>
+                <div className="hidden md:block md:w-[45%]" aria-hidden="true"></div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
     </FadeInWrapper>
   );
 }

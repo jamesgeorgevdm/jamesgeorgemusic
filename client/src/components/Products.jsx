@@ -2,6 +2,10 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import FadeInWrapper from "./FadeInWrapper";
 
+import smoothJazzImg from "./images/smooth-jazz.jpg";
+import popImg from "./images/pop-contemporary.jpg";
+import classicalImg from "./images/classical-orchestral.jpg";
+
 const packages = [
   { name: "Restaurant", price: "R500/h", description: "Ideal for restaurants and lounges. Easy-listening popular classics to enhance the dining experience." },
   { name: "Corporate", price: "R1,200/h", description: "Perfect for corporate events. Background music that sets a professional yet relaxed atmosphere." },
@@ -11,9 +15,9 @@ const packages = [
 ];
 
 const styles = [
-  { title: "Background / Classic Jazz", img: "/images/smooth-jazz.jpg", video: "https://www.youtube.com/watch?v=example1" },
-  { title: "Pop & Contemporary", img: "/images/pop-contemporary.jpg", video: "https://www.youtube.com/watch?v=example2" },
-  { title: "Classical / Operatic", img: "/images/classical-orchestral.jpg", video: "https://www.youtube.com/watch?v=example3" },
+  { title: "Background / Classic Jazz", img: smoothJazzImg, video: "https://www.youtube.com/watch?v=example1" },
+  { title: "Pop & Contemporary", img: popImg, video: "https://www.youtube.com/watch?v=example2" },
+  { title: "Classical / Operatic", img: classicalImg, video: "https://www.youtube.com/watch?v=example3" },
 ];
 
 function Products() {

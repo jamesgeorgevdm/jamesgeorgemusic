@@ -6,15 +6,16 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import timezone from "dayjs/plugin/timezone.js";
 import dotenv from "dotenv";
-import { createClient } from "@supabase/supabase-js";
+import pkg from 'pg';
 
 dotenv.config();
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const app = express();
+const { Pool } = pkg;
 
-// CORS
+// CORS configuration
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
@@ -22,7 +23,6 @@ app.use(cors({
       "https://jamesgeorgemusic.com",
       "https://www.jamesgeorgemusic.com",
     ];
-    // Allow if in list, or if it's a Vercel preview URL, or no origin (Postman/Mobile)
     if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
       callback(null, true);
     } else {
@@ -34,46 +34,58 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Supabase Setup
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+// Neon Postgres Pool Setup
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Required for Neon
+  }
+});
 
-// Google Calendar Setup: Use Environment Variable instead of local file
+// Google Calendar Setup
 const auth = new google.auth.GoogleAuth({
-  // Search for string in Render Env Vars
   credentials: JSON.parse(process.env.GOOGLE_CREDS),
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
 });
 const calendar = google.calendar({ version: "v3", auth });
 
-/**Categorize gig based on keywords
+/**
+ * Categorize gig based on keywords
  */
 const categorizeGig = (summary, description, categories) => {
   const textToSearch = `${summary} ${description || ""}`.toLowerCase();
   const match = categories.find(cat => 
-    cat.keywords.some(kw => textToSearch.includes(kw.toLowerCase()))
+    // Ensure keywords are handled as an array (Neon JSONB handles this automatically)
+    Array.isArray(cat.keywords) && cat.keywords.some(kw => textToSearch.includes(kw.toLowerCase()))
   );
   return match ? match.id : null;
 };
 
-// ENDPOINTS
+// --- ENDPOINTS ---
 
+/**
+ * Fetch performance statistics
+ */
 app.get("/api/stats", async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from("gig_categories")
-      .select("*")
-      .order("id", { ascending: true });
-
-    if (error) throw error;
-    res.json(data);
+    const result = await pool.query('SELECT * FROM gig_categories ORDER BY id ASC');
+    res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Failed to fetch stats" });
   }
 });
 
+/**
+ * Sync Google Calendar events with the Database
+ */
 app.post("/api/sync-gigs", async (req, res) => {
   try {
-    const { data: categories } = await supabase.from("gig_categories").select("*");
+    // 1. Fetch categories for matching
+    const catResult = await pool.query('SELECT * FROM gig_categories');
+    const categories = catResult.rows;
+
+    // 2. Fetch Calendar events
     const response = await calendar.events.list({
       calendarId: process.env.CALENDAR_ID,
       timeMin: dayjs("2026-02-23").toISOString(), 
@@ -85,28 +97,42 @@ app.post("/api/sync-gigs", async (req, res) => {
     let added = 0;
 
     for (const event of events) {
-      const { data: exists } = await supabase
-        .from("processed_events")
-        .select("google_event_id")
-        .eq("google_event_id", event.id)
-        .single();
+      // 3. Check if event ID already exists in processed_events
+      const existsResult = await pool.query(
+        'SELECT google_event_id FROM processed_events WHERE google_event_id = $1',
+        [event.id]
+      );
 
-      if (!exists) {
+      if (existsResult.rowCount === 0) {
         const catId = categorizeGig(event.summary, event.description, categories);
+        
         if (catId) {
-          await supabase.rpc("increment_live_count", { row_id: catId });
-          await supabase.from("processed_events").insert([{ google_event_id: event.id }]);
+          // 4. Update the live count and log the event ID
+          // This replaces the old Supabase RPC logic
+          await pool.query(
+            'UPDATE gig_categories SET live_count = live_count + 1 WHERE id = $1',
+            [catId]
+          );
+          
+          await pool.query(
+            'INSERT INTO processed_events (google_event_id) VALUES ($1)',
+            [event.id]
+          );
+          
           added++;
         }
       }
     }
     res.json({ success: true, newGigsProcessed: added });
   } catch (err) {
-    console.error(err);
+    console.error("Sync Error:", err);
     res.status(500).json({ error: "Sync failed" });
   }
 });
 
+/**
+ * Check availability for a specific date
+ */
 app.get("/api/availability", async (req, res) => {
   const { date } = req.query;
   if (!date) return res.status(400).json({ error: "Date required" });
@@ -151,6 +177,7 @@ app.get("/api/availability", async (req, res) => {
   }
 });
 
+// Nodemailer Setup
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
@@ -178,15 +205,7 @@ app.post("/api/send-booking", async (req, res) => {
       from: email,
       to: "jamesv234@gmail.com",
       subject: `New Booking Request: ${product}`,
-      text: `
-Name: ${name}
-Email: ${email}
-Phone: ${phone}
-Product: ${product}
-Date: ${dateFormatted}
-Timeslot: ${startTime} - ${endTime}
-Message: ${message}
-      `,
+      text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nProduct: ${product}\nDate: ${dateFormatted}\nTimeslot: ${startTime} - ${endTime}\nMessage: ${message}`,
     });
 
     await transporter.sendMail({
@@ -218,6 +237,5 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// PORT for Render deployment
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

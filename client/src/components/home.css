@@ -6,50 +6,60 @@
   font-style: normal;
 }
 
+/* Container setup */
 .home-container {
   position: relative;
   width: 100%;
-  height: 100vh; /* full screen height */
-  overflow: hidden; /* prevent scrollbars */
+  /* 100dvh prevents jumping on mobile when address bar hides */
+  height: 100dvh; 
+  overflow: hidden;
   margin: 0;
   padding: 0;
+  background-color: #000; /* Fallback color */
 }
 
+/* Video Background */
 .background-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* makess sure it fills screen without distortion */
-  z-index: -1; /* puts video behind text */
-}
-
-.overlay-content {
   position: absolute;
   top: 50%;
   left: 50%;
+  width: 100%;
+  height: 100%;
   transform: translate(-50%, -50%);
-  color: #fdfaf3; /* cream-ish color matches site theme */
-  -webkit-text-stroke: 0px; /* remove black stroke */
-  text-align: center;
+  object-fit: cover;
+  z-index: 1;
 }
 
+/* Centered Overlay content */
+.overlay-content {
+  position: relative;
+  z-index: 2; /* Ensures text is on top of video */
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  /* Adds a very subtle dark overlay to help text pop if video is bright */
+  background: rgba(0, 0, 0, 0.2); 
+}
+
+/* Responsive Heading */
 .overlay-content h1 {
   font-family: 'BruneyClassy', serif;
-  font-size: 3.5rem;
+  /* clamp(min, preferred, max) - scales perfectly for mobile vs desktop */
+  font-size: clamp(3rem, 12vw, 7rem);
   color: white;
-  -webkit-text-stroke: 1px rgb(255, 255, 255); /* black outline */
-  text-shadow: 10px 10px 10px rgb(0, 0, 0);
+  margin: 0;
+  padding: 0 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  /* Smooth shadow for legibility */
+  text-shadow: 2px 4px 20px rgba(0, 0, 0, 0.8);
 }
 
-.overlay-content p {
-  font-size: 1.2rem;
-  color: #fdfaf3;
-}
-
-
-/* Fixes navbar to top */
+/* Fixed Navbar override to ensure it stays above the hero */
 .navbar {
   position: fixed;
   top: 0;

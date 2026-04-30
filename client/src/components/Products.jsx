@@ -15,9 +15,9 @@ const packages = [
 ];
 
 const styles = [
-  { title: "Background / Classic Jazz", img: smoothJazzImg, video: "https://www.youtube.com/watch?v=example1" },
-  { title: "Pop & Contemporary", img: popImg, video: "https://www.youtube.com/watch?v=example2" },
-  { title: "Classical / Operatic", img: classicalImg, video: "https://www.youtube.com/watch?v=example3" },
+  { title: "Background / Classic Jazz", img: smoothJazzImg, video: "https://www.youtube.com/@jamesgeorgemusic" },
+  { title: "Pop & Contemporary", img: popImg, video: "https://www.youtube.com/@jamesgeorgemusic" },
+  { title: "Classical / Operatic", img: classicalImg, video: "https://www.youtube.com/@jamesgeorgemusic" },
 ];
 
 function Products() {
@@ -87,7 +87,7 @@ function Products() {
                   />
                   <div className="text-left">
                     <h3 className="font-['BruneyClassy'] text-lg md:text-xl text-[#f1d97c]">{style.title}</h3>
-                    <p className="text-xs md:text-sm opacity-70">Click to watch a performance</p>
+                    <p className="text-xs md:text-sm opacity-70">VIDEO CONTENT COMING SOON</p>
                   </div>
                 </button>
                 <div className="hidden md:block md:w-[45%]" aria-hidden="true"></div>

@@ -151,8 +151,9 @@
 /* Images */
 .style-card img {
   width: 100px;
-  border-radius: 15px;
+  image-rendering: -webkit-optimize-contrast; /* Keeps things sharp on Chrome/Safari */
   object-fit: cover;
+  border-radius: 15px;
 }
 
 /* Text */

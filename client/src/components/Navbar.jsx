@@ -14,7 +14,7 @@ function Navbar() {
   const socialLinks = [
     { icon: <FaInstagram />, href: "https://www.instagram.com/jamesgeorge.music/" },
     { icon: <FaFacebookF />, href: "https://www.facebook.com/profile.php?id=61561533225129" },
-    { icon: <FaYoutube />, href: "https://youtube.com" },
+    { icon: <FaYoutube />, href: "https://www.youtube.com/@jamesgeorgemusic" },
     { icon: <FaEnvelope />, href: "mailto:jamesv234@gmail.com" }
   ];
 

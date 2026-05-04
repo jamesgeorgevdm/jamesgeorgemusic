@@ -1,16 +1,16 @@
 # [jamesgeorgemusic.com](https://jamesgeorgemusic.com)
 
-A high-impact, full-stack portfolio and automated business engine designed for professional musicians. This platform integrates real-time scheduling, automated gig tracking, and a dynamic media showcase to streamline the booking process and manage a performing career.
+A high-impact, full-stack portfolio and automated business engine designed for my professional performance business. This platform integrates real-time scheduling, automated gig tracking, and a dynamic media showcase to streamline the booking process, channel the necessary information seamlessly to potential clients and manage my performing career.
 
-## 🚀 Live Environment
+## Live Environment
 * **Production Domain:** [jamesgeorgemusic.com](https://jamesgeorgemusic.com)
 * **Frontend:** React 19 (Deployed on **Vercel**)
 * **Backend:** Node.js/Express (Deployed on **Render**)
-* **Database:** PostgreSQL (via **Supabase**)
+* **Database:** PostgreSQL (via **Neon**)
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
 * **React 19 & Vite:** Modern, fast, and component-based UI development.
@@ -20,7 +20,7 @@ A high-impact, full-stack portfolio and automated business engine designed for p
 
 ### Backend
 * **Node.js & Express:** Scalable server architecture handling API requests and automation logic.
-* **Supabase:** Managed PostgreSQL database for gig tracking and metadata.
+* **Neon:** Managed PostgreSQL database for gig tracking and metadata.
 * **Google APIs (googleapis):** Direct integration with Google Calendar for real-time availability.
 * **Nodemailer:** Automated email delivery for booking requests and client communication.
 
@@ -30,7 +30,7 @@ A high-impact, full-stack portfolio and automated business engine designed for p
 
 ---
 
-## ✨ Core Features & Technical Implementation
+## Core Features & Technical Implementation
 
 ### 1. Intelligent Booking Engine (Google Calendar API)
 The system eliminates manual scheduling friction by syncing directly with a professional calendar.
@@ -46,7 +46,7 @@ A sophisticated background service ensures the "Performance History" is always a
 
 ---
 
-## 🔑 Environment Variables
+## Environment Variables
 
 To run this project, configure the following variables in a `.env` file within your `/server` directory:
 
@@ -56,12 +56,11 @@ To run this project, configure the following variables in a `.env` file within y
 | `EMAIL_USER` | The email address used to send automated notifications. |
 | `EMAIL_PASS` | The App Password for the email account. |
 | `GOOGLE_CREDS` | Stringified JSON of your Google Service Account credentials. |
-| `SUPABASE_URL` | The API URL for your Supabase project. |
-| `SUPABASE_KEY` | The API key for Supabase database access. |
+| `DATABASE_URL` | The API URL for your Neon project. |
 
 ---
 
-## 🏗 Installation & Local Development
+## Installation & Local Development
 
 ### 1. Clone and Install Dependencies
 Copy and paste this block to set up the entire project:
@@ -85,8 +84,8 @@ npm run dev
 
 ---
 
-## 📈 Portfolio Context
-This project demonstrates the ability to solve real-world business challenges—such as administrative overhead and scheduling conflicts—through **Full-Stack Automation**. It highlights proficiency in RESTful API design, database management, and professional-grade frontend deployment.
+## Portfolio Context
+This project demonstrates the fulfilment of my real-world business challenges such as administrative overhead and scheduling conflicts—through **Full-Stack Automation**. It highlights proficiency in RESTful API design, database management, and professional-grade frontend deployment.
 
 ---
 © 2026 James George Music. All rights reserved.

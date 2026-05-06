@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaInstagram, FaFacebookF, FaYoutube, FaEnvelope } from 'react-icons/fa';
 
 function Navbar() {
+  // Array of navigation items
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Make a Booking', path: '/booking', isButton: true },
@@ -11,6 +12,7 @@ function Navbar() {
     { name: 'Contact', path: '/contact' },
   ];
 
+  // Array of social media links with corresponding icons and URLs
   const socialLinks = [
     { icon: <FaInstagram />, href: "https://www.instagram.com/jamesgeorge.music/" },
     { icon: <FaFacebookF />, href: "https://www.facebook.com/profile.php?id=61561533225129" },
@@ -30,6 +32,7 @@ function Navbar() {
                   to={item.path}
                   className={
                     item.isButton 
+                    // Draws attention to the "Make a Booking" link by styling it as a button, while other links are styled as regular text with hover effects
                       ? "bg-[#D4A455] !text-[#0B1C2C] px-8 py-2.5 rounded-full text-sm md:text-base font-bold no-underline transition-all duration-300 hover:bg-[#F6F2ED] hover:scale-105 shadow-md hover:shadow-[0_0_20px_rgba(212,164,85,0.4)] tracking-wide"
                       : "!text-[#F6F2ED] text-sm md:text-base font-bold no-underline transition-all duration-300 hover:!text-[#D4A455] hover:drop-shadow-[0_0_8px_rgba(212,164,85,0.8)]"
                   }
@@ -46,7 +49,7 @@ function Navbar() {
             <a 
               key={i}
               href={social.href} 
-              target="_blank" 
+              target="_blank" // Opens the link in a new tab to keep users on the site while allowing them to explore social media profiles 
               rel="noopener noreferrer"
               aria-label={`Follow on ${social.href.includes('instagram') ? 'Instagram' : social.href.includes('facebook') ? 'Facebook' : 'YouTube'}`}
               className="!text-[#F6F2ED] text-lg md:text-xl transition-all duration-300 hover:!text-[#D4A455] hover:scale-110"

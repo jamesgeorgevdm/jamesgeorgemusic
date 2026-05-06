@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./FadeInWrapper.css";
 
+// Simple wrapper component that applies a fade-in effect to its children when mounted, using a combination of state and CSS classes to trigger the animation
 const FadeInWrapper = ({ children }) => {
   const [visible, setVisible] = useState(false);
 

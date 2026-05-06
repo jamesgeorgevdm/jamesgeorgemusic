@@ -6,6 +6,7 @@ import smoothJazzImg from "./images/smooth-jazz.jpg";
 import popImg from "./images/pop-contemporary.jpg";
 import classicalImg from "./images/classical-orchestral.jpg";
 
+// Data for performance packages
 const packages = [
   { name: "Restaurant", price: "R500/h", description: "Ideal for restaurants and lounges. Easy-listening popular classics to enhance the dining experience." },
   { name: "Corporate", price: "R1,200/h", description: "Perfect for corporate events. Background music that sets a professional yet relaxed atmosphere." },
@@ -14,6 +15,7 @@ const packages = [
   { name: "Musical Showcase Performance", price: "Negotiable", description: "A curated musical experience showcasing a variety of styles and genres or tailored to a venue's needs, perfect for special events or ticketed performances." }
 ];
 
+// Data for styles on offer with corresponding images and video links
 const styles = [
   { title: "Background / Classic Jazz", img: smoothJazzImg, video: "https://www.youtube.com/@jamesgeorgemusic" },
   { title: "Pop & Contemporary", img: popImg, video: "https://www.youtube.com/@jamesgeorgemusic" },
@@ -48,7 +50,7 @@ function Products() {
               <p className="text-xl font-bold mb-4 text-[#D4A455]">{pkg.price}</p>
               <p className="text-sm leading-relaxed mb-6 opacity-80 min-h-[60px]">{pkg.description}</p>
               <button 
-                onClick={() => navigate("/booking")}
+                onClick={() => navigate("/booking")} // Navigates to the booking page when the button is clicked, allowing users to easily proceed with booking after viewing package details
                 className="w-full py-3 bg-[#D4A455] text-[#0B1C2C] rounded-lg font-bold transition-all hover:bg-[#f1d97c] hover:shadow-[0_0_15px_#f1d97c] cursor-pointer"
               >
                 Book {pkg.name}
@@ -73,7 +75,7 @@ function Products() {
               <article 
                 key={index}
                 className={`flex flex-col md:flex-row items-center gap-8 relative z-10 
-                  ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                  ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`} // Alternates the layout of each style card for visual interest, with images on opposite sides for even and odd indexed items
               >
                 <button 
                   onClick={() => window.open(style.video, "_blank")}

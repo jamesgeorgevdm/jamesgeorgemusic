@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./about.css";
 import FadeInWrapper from "./FadeInWrapper";
 
+// Static content for the bio pillars
 const bioPillars = [
   {
     title: "Versatile Performer",
@@ -21,25 +22,30 @@ const bioPillars = [
   },
 ];
 
+// Main About component
 const About = () => {
   const [stats, setStats] = useState([]);
   const [counts, setCounts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Loads on startup
 
+ // Fetch stats on component mount
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API}/api/stats`);
-        const data = await response.json();
+        const data = await response.json(); // Assuming the API returns an array of stats with legacy_count, live_count, title, and description
 
+        // Extract and format items from data array for display
         const formattedStats = data.map((item) => ({
           title: item.title,
           value: item.legacy_count + item.live_count,
           description: item.description,
         }));
 
+        // Calculate total gigs block by summing all individual counts
         const totalGigs = formattedStats.reduce((acc, curr) => acc + curr.value, 0);
 
+        // Set stats and start animations
         setStats(formattedStats);
         startAnimations(totalGigs, formattedStats);
         setTimeout(() => setLoading(false), 400);
@@ -51,6 +57,7 @@ const About = () => {
     fetchStats();
   }, []);
 
+  // Function to animate counts from 0 to their target values
   const startAnimations = (total, items) => {
     const allValues = [total, ...items.map((s) => s.value)];
     const duration = 1500;
@@ -74,6 +81,7 @@ const About = () => {
     });
   };
 
+  // Render function for the stats section, showing skeletons while loading and actual stats once loaded
   const renderStatsContent = () => {
     if (loading) {
       return (
@@ -88,6 +96,7 @@ const About = () => {
       );
     }
 
+    // Once loading is complete, render the actual stats with animated counts
     return (
       <div className="flex flex-wrap justify-center gap-4 mt-16 px-4">
         <div className="w-full max-w-sm bg-gradient-to-br from-[#d4af37] to-[#f1d97c] text-[#0b1a2e] p-6 rounded-xl flex flex-col items-center shadow-lg">
@@ -108,6 +117,7 @@ const About = () => {
     );
   };
 
+  // Main render of the About component, including the bio pillars and the stats section
   return (
   <FadeInWrapper>
     <main className="about-container">

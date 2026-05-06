@@ -49,9 +49,8 @@ const auth = new google.auth.GoogleAuth({
 });
 const calendar = google.calendar({ version: "v3", auth });
 
-/**
- * Categorize gig based on keywords
- */
+// Categorize gig based on keywords
+
 const categorizeGig = (summary, description, categories) => {
   const textToSearch = `${summary} ${description || ""}`.toLowerCase();
   const match = categories.find(cat => 
@@ -63,9 +62,7 @@ const categorizeGig = (summary, description, categories) => {
 
 // --- ENDPOINTS ---
 
-/**
- * Fetch performance statistics
- */
+// Fetch performance statistics
 app.get("/api/stats", async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM gig_categories ORDER BY id ASC');
@@ -76,16 +73,14 @@ app.get("/api/stats", async (req, res) => {
   }
 });
 
-/**
- * Sync Google Calendar events with the Database
- */
+// Sync Google Calendar events with the Database
 app.post("/api/sync-gigs", async (req, res) => {
   try {
     // 1. Fetch categories for matching
     const catResult = await pool.query('SELECT * FROM gig_categories');
     const categories = catResult.rows;
 
-    // 2. Fetch Calendar events
+    // Fetch Calendar events
     const response = await calendar.events.list({
       calendarId: process.env.CALENDAR_ID,
       timeMin: dayjs("2026-02-23").toISOString(), 
@@ -97,7 +92,7 @@ app.post("/api/sync-gigs", async (req, res) => {
     let added = 0;
 
     for (const event of events) {
-      // 3. Check if event ID already exists in processed_events
+      // Check if event ID already exists in processed_events
       const existsResult = await pool.query(
         'SELECT google_event_id FROM processed_events WHERE google_event_id = $1',
         [event.id]
@@ -107,8 +102,7 @@ app.post("/api/sync-gigs", async (req, res) => {
         const catId = categorizeGig(event.summary, event.description, categories);
         
         if (catId) {
-          // 4. Update the live count and log the event ID
-          // This replaces the old Supabase RPC logic
+          // Update the live count and log the event ID
           await pool.query(
             'UPDATE gig_categories SET live_count = live_count + 1 WHERE id = $1',
             [catId]
@@ -130,9 +124,7 @@ app.post("/api/sync-gigs", async (req, res) => {
   }
 });
 
-/**
- * Check availability for a specific date
- */
+// Check availability for a specific date
 app.get("/api/availability", async (req, res) => {
   const { date } = req.query;
   if (!date) return res.status(400).json({ error: "Date required" });
@@ -191,6 +183,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Handle booking requests and send emails
 app.post("/api/send-booking", async (req, res) => {
   const { name, email, phone, product, message, date, startTime, endTime } = req.body;
 
@@ -222,6 +215,7 @@ app.post("/api/send-booking", async (req, res) => {
   }
 });
 
+// Handle contact form submissions
 app.post("/api/contact", async (req, res) => {
   const { email, subject, message } = req.body;
   try {

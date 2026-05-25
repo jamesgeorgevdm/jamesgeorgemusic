@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cron from "node-cron";
 import nodemailer from "nodemailer";
 import { google } from "googleapis";
 import dayjs from "dayjs";
@@ -49,13 +50,24 @@ const auth = new google.auth.GoogleAuth({
 });
 const calendar = google.calendar({ version: "v3", auth });
 
-// Categorize gig based on keywords
+// Categorize gig based on first-appearing keyword in title
 
 const categorizeGig = (summary, description, categories) => {
-  const textToSearch = `${summary} ${description || ""}`.toLowerCase();
-  const match = categories.find(cat => 
-    // Ensure keywords are handled as an array (Neon JSONB handles this automatically)
-    Array.isArray(cat.keywords) && cat.keywords.some(kw => textToSearch.includes(kw.toLowerCase()))
+  const titleWords = (summary || "").toLowerCase().split(/\s+/);
+
+  // For each word in the title (in order), check if it matches any category's keywords
+  for (const word of titleWords) {
+    for (const cat of categories) {
+      if (Array.isArray(cat.keywords) && cat.keywords.some(kw => word === kw.toLowerCase())) {
+        return cat.id;
+      }
+    }
+  }
+
+  // Fallback: check description if no title word matched
+  const descText = (description || "").toLowerCase();
+  const match = categories.find(cat =>
+    Array.isArray(cat.keywords) && cat.keywords.some(kw => descText.includes(kw.toLowerCase()))
   );
   return match ? match.id : null;
 };

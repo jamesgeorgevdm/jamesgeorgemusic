@@ -10,10 +10,12 @@
       "license": "ISC",
       "dependencies": {
         "cors": "^2.8.6",
+        "cron-job": "^1.0.3",
         "dayjs": "^1.11.19",
         "dotenv": "^17.2.4",
         "express": "^4.22.1",
         "googleapis": "^166.0.0",
+        "node-cron": "^4.2.1",
         "nodemailer": "^6.10.1",
         "pg": "^8.20.0",
         "website": "file:.."
@@ -295,6 +297,12 @@
         "type": "opencollective",
         "url": "https://opencollective.com/express"
       }
+    },
+    "node_modules/cron-job": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/cron-job/-/cron-job-1.0.3.tgz",
+      "integrity": "sha512-I+ZfyIYTfc6An6z2upIt/KhICQ/k+vi/BowTwtUYrLldDwcz8wKYhUeMGSQnBL51TcCG3NIeG6iVgXtg7qS4iw==",
+      "license": "ISC"
     },
     "node_modules/cross-spawn": {
       "version": "7.0.6",
@@ -1041,6 +1049,15 @@
       "license": "MIT",
       "engines": {
         "node": ">= 0.6"
+      }
+    },
+    "node_modules/node-cron": {
+      "version": "4.2.1",
+      "resolved": "https://registry.npmjs.org/node-cron/-/node-cron-4.2.1.tgz",
+      "integrity": "sha512-lgimEHPE/QDgFlywTd8yTR61ptugX3Qer29efeyWw2rv259HtGBNn1vZVmp8lB9uo9wC0t/AT4iGqXxia+CJFg==",
+      "license": "ISC",
+      "engines": {
+        "node": ">=6.0.0"
       }
     },
     "node_modules/node-domexception": {

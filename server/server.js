@@ -8,6 +8,7 @@ import utc from "dayjs/plugin/utc.js";
 import timezone from "dayjs/plugin/timezone.js";
 import dotenv from "dotenv";
 import pkg from 'pg';
+import rateLimit from "express-rate-limit"; 
 
 dotenv.config();
 dayjs.extend(utc);
@@ -24,7 +25,7 @@ app.use(cors({
       "https://jamesgeorgemusic.com",
       "https://www.jamesgeorgemusic.com",
     ];
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -35,11 +36,25 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Limits each IP to 10 booking requests per hour
+const bookingLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  message: { success: false, error: "Too many booking requests. Please try again later." },
+});
+
+// Limits each IP to 10 contact form submissions per hour
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: { success: false, error: "Too many messages sent. Please try again later." },
+});
+
 // Neon Postgres Pool Setup
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false // Required for Neon
+    rejectUnauthorized: false
   }
 });
 
@@ -51,11 +66,9 @@ const auth = new google.auth.GoogleAuth({
 const calendar = google.calendar({ version: "v3", auth });
 
 // Categorize gig based on first-appearing keyword in title
-
 const categorizeGig = (summary, description, categories) => {
   const titleWords = (summary || "").toLowerCase().split(/\s+/);
 
-  // For each word in the title (in order), check if it matches any category's keywords
   for (const word of titleWords) {
     for (const cat of categories) {
       if (Array.isArray(cat.keywords) && cat.keywords.some(kw => word === kw.toLowerCase())) {
@@ -64,7 +77,6 @@ const categorizeGig = (summary, description, categories) => {
     }
   }
 
-  // Fallback: check description if no title word matched
   const descText = (description || "").toLowerCase();
   const match = categories.find(cat =>
     Array.isArray(cat.keywords) && cat.keywords.some(kw => descText.includes(kw.toLowerCase()))
@@ -72,7 +84,21 @@ const categorizeGig = (summary, description, categories) => {
   return match ? match.id : null;
 };
 
-// --- ENDPOINTS ---
+// Server-side validation helper function
+const validateBookingFields = ({ name, email, phone, product, message, startTime, endTime }) => {
+  const errors = [];
+
+  if (!name || name.trim().length < 2) errors.push("A valid name is required.");
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push("A valid email is required.");
+  if (!phone || !/^\+?[\d\s\-().]{7,20}$/.test(phone)) errors.push("A valid phone number is required.");
+  if (!product || product.trim().length === 0) errors.push("A product must be selected.");
+  if (!message || message.trim().length < 10) errors.push("Please provide a message of at least 10 characters.");
+  if (!startTime || !endTime) errors.push("A timeslot must be selected.");
+
+  return errors;
+};
+
+// ENDPOINTS
 
 // Fetch performance statistics
 app.get("/api/stats", async (req, res) => {
@@ -88,14 +114,12 @@ app.get("/api/stats", async (req, res) => {
 // Sync Google Calendar events with the Database
 app.post("/api/sync-gigs", async (req, res) => {
   try {
-    // 1. Fetch categories for matching
     const catResult = await pool.query('SELECT * FROM gig_categories');
     const categories = catResult.rows;
 
-    // Fetch Calendar events
     const response = await calendar.events.list({
       calendarId: process.env.CALENDAR_ID,
-      timeMin: dayjs("2026-02-23").toISOString(), 
+      timeMin: dayjs("2026-02-23").toISOString(),
       timeMax: dayjs().toISOString(),
       singleEvents: true,
     });
@@ -104,7 +128,6 @@ app.post("/api/sync-gigs", async (req, res) => {
     let added = 0;
 
     for (const event of events) {
-      // Check if event ID already exists in processed_events
       const existsResult = await pool.query(
         'SELECT google_event_id FROM processed_events WHERE google_event_id = $1',
         [event.id]
@@ -112,19 +135,16 @@ app.post("/api/sync-gigs", async (req, res) => {
 
       if (existsResult.rowCount === 0) {
         const catId = categorizeGig(event.summary, event.description, categories);
-        
+
         if (catId) {
-          // Update the live count and log the event ID
           await pool.query(
             'UPDATE gig_categories SET live_count = live_count + 1 WHERE id = $1',
             [catId]
           );
-          
           await pool.query(
             'INSERT INTO processed_events (google_event_id) VALUES ($1)',
             [event.id]
           );
-          
           added++;
         }
       }
@@ -159,9 +179,18 @@ app.get("/api/availability", async (req, res) => {
     const blockedSet = new Set();
 
     events.forEach((event) => {
+      if (event.start?.date) {
+        for (let h = 8; h <= 22; h++) {
+          blockedSet.add(`${String(h).padStart(2, "0")}:00`);
+        }
+        return;
+      }
+
       if (!event.start?.dateTime || !event.end?.dateTime) return;
+
       const start = dayjs(event.start.dateTime).tz(tz);
       const end = dayjs(event.end.dateTime).tz(tz);
+
       for (let h = start.hour(); h < end.hour(); h++) {
         blockedSet.add(`${String(h).padStart(2, "0")}:00`);
       }
@@ -196,40 +225,61 @@ const transporter = nodemailer.createTransport({
 });
 
 // Handle booking requests and send emails
-app.post("/api/send-booking", async (req, res) => {
+app.post("/api/send-booking", bookingLimiter, async (req, res) => {
   const { name, email, phone, product, message, date, startTime, endTime } = req.body;
 
-  if (!startTime || !endTime) {
-    return res.status(400).json({ success: false, error: "Timeslot required" });
+  // Server-side validation
+  const errors = validateBookingFields({ name, email, phone, product, message, startTime, endTime });
+  if (errors.length > 0) {
+    return res.status(400).json({ success: false, errors });
   }
 
-  try {
-    const dateFormatted = dayjs(date).tz("Africa/Johannesburg").format("DD MMM YYYY");
+  const dateFormatted = dayjs(date).tz("Africa/Johannesburg").format("DD MMM YYYY");
 
+  // Send owner notification (failure here is critical)
+  try {
     await transporter.sendMail({
       from: email,
       to: "jamesv234@gmail.com",
       subject: `New Booking Request: ${product}`,
       text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nProduct: ${product}\nDate: ${dateFormatted}\nTimeslot: ${startTime} - ${endTime}\nMessage: ${message}`,
     });
+  } catch (error) {
+    console.error("Owner notification email failed:", error);
+    return res.status(500).json({ success: false, error: "Booking failed to send. Please try again." });
+  }
 
+  // Send user confirmation (failure here is non-critical, booking still went through)
+  try {
     await transporter.sendMail({
       from: { name: "James George Music", address: "jamesv234@gmail.com" },
       to: email,
       subject: "Booking Request Received",
-      text: `Hi ${name},\n\nThanks for your booking request for a ${product} performance on ${dateFormatted} (${startTime} - ${endTime}).\nI'll get back to you shortly.`,
+      text: `Hi ${name}!\n\nThanks so much for your booking request for a performance on ${dateFormatted} from (${startTime} - ${endTime}).\nI so appreciate your interest, and will confirm it on my end as soon as possible. Speak soon!\n\n Sincerely, \n James George.`,
     });
-
-    res.status(200).json({ success: true });
   } catch (error) {
-    console.error("Booking email error:", error);
-    res.status(500).json({ success: false, error: "Booking email failed to send." });
+    // Log it but don't fail the request (the owner already got the booking)
+    console.error("User confirmation email failed:", error);
   }
+
+  res.status(200).json({ success: true });
 });
 
 // Handle contact form submissions
-app.post("/api/contact", async (req, res) => {
+app.post("/api/contact", contactLimiter, async (req, res) => {
   const { email, subject, message } = req.body;
+
+  // Basic validation
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ success: false, error: "A valid email is required." });
+  }
+  if (!subject || subject.trim().length === 0) {
+    return res.status(400).json({ success: false, error: "A subject is required." });
+  }
+  if (!message || message.trim().length < 10) {
+    return res.status(400).json({ success: false, error: "Please provide a message of at least 10 characters." });
+  }
+
   try {
     await transporter.sendMail({
       from: email,
@@ -239,6 +289,7 @@ app.post("/api/contact", async (req, res) => {
     });
     res.status(200).json({ success: true });
   } catch (error) {
+    console.error("Contact email error:", error);
     res.status(500).json({ error: "Failed to send message" });
   }
 });

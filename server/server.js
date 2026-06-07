@@ -38,7 +38,7 @@ app.use(express.json());
 
 // Limits each IP to 10 booking requests per hour
 const bookingLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 10,
   message: { success: false, error: "Too many booking requests. Please try again later." },
 });
@@ -98,36 +98,23 @@ const validateBookingFields = ({ name, email, phone, product, message, startTime
   return errors;
 };
 
-// ENDPOINTS
+// Shared sync function — used by both the endpoint and the cron job
+const syncGigs = async () => {
+  const catResult = await pool.query('SELECT * FROM gig_categories');
+  const categories = catResult.rows;
 
-// Fetch performance statistics
-app.get("/api/stats", async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM gig_categories ORDER BY id ASC');
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Database Error:", err);
-    res.status(500).json({ error: "Failed to fetch stats" });
-  }
-});
+  const response = await calendar.events.list({
+    calendarId: process.env.CALENDAR_ID,
+    timeMin: dayjs("2026-02-23").toISOString(),
+    timeMax: dayjs().toISOString(),
+    singleEvents: true,
+  });
 
-// Sync Google Calendar events with the Database
-app.post("/api/sync-gigs", async (req, res) => {
-  try {
-    const catResult = await pool.query('SELECT * FROM gig_categories');
-    const categories = catResult.rows;
+  const events = response.data.items || [];
+  let added = 0;
 
-    const response = await calendar.events.list({
-      calendarId: process.env.CALENDAR_ID,
-      timeMin: dayjs("2026-02-23").toISOString(),
-      timeMax: dayjs().toISOString(),
-      singleEvents: true,
-    });
-
-    const events = response.data.items || [];
-    let added = 0;
-
-    for (const event of events) {
+  for (const event of events) {
+    try {
       const existsResult = await pool.query(
         'SELECT google_event_id FROM processed_events WHERE google_event_id = $1',
         [event.id]
@@ -146,9 +133,35 @@ app.post("/api/sync-gigs", async (req, res) => {
             [event.id]
           );
           added++;
+        } else {
+          console.log("Uncategorized event skipped:", event.summary);
         }
       }
+    } catch (err) {
+      console.error("Error processing event:", event.summary, err);
     }
+  }
+
+  return added;
+};
+
+// ENDPOINTS
+
+// Fetch performance statistics
+app.get("/api/stats", async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM gig_categories ORDER BY id ASC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Failed to fetch stats" });
+  }
+});
+
+// Sync Google Calendar events with the Database
+app.post("/api/sync-gigs", async (req, res) => {
+  try {
+    const added = await syncGigs();
     res.json({ success: true, newGigsProcessed: added });
   } catch (err) {
     console.error("Sync Error:", err);
@@ -228,7 +241,6 @@ const transporter = nodemailer.createTransport({
 app.post("/api/send-booking", bookingLimiter, async (req, res) => {
   const { name, email, phone, product, message, date, startTime, endTime } = req.body;
 
-  // Server-side validation
   const errors = validateBookingFields({ name, email, phone, product, message, startTime, endTime });
   if (errors.length > 0) {
     return res.status(400).json({ success: false, errors });
@@ -236,7 +248,6 @@ app.post("/api/send-booking", bookingLimiter, async (req, res) => {
 
   const dateFormatted = dayjs(date).tz("Africa/Johannesburg").format("DD MMM YYYY");
 
-  // Send owner notification (failure here is critical)
   try {
     await transporter.sendMail({
       from: email,
@@ -249,7 +260,6 @@ app.post("/api/send-booking", bookingLimiter, async (req, res) => {
     return res.status(500).json({ success: false, error: "Booking failed to send. Please try again." });
   }
 
-  // Send user confirmation (failure here is non-critical, booking still went through)
   try {
     await transporter.sendMail({
       from: { name: "James George Music", address: "jamesv234@gmail.com" },
@@ -258,7 +268,6 @@ app.post("/api/send-booking", bookingLimiter, async (req, res) => {
       text: `Hi ${name}!\n\nThanks so much for your booking request for a performance on ${dateFormatted} from (${startTime} - ${endTime}).\nI so appreciate your interest, and will confirm it on my end as soon as possible. Speak soon!\n\n Sincerely, \n James George.`,
     });
   } catch (error) {
-    // Log it but don't fail the request (the owner already got the booking)
     console.error("User confirmation email failed:", error);
   }
 
@@ -269,7 +278,6 @@ app.post("/api/send-booking", bookingLimiter, async (req, res) => {
 app.post("/api/contact", contactLimiter, async (req, res) => {
   const { email, subject, message } = req.body;
 
-  // Basic validation
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ success: false, error: "A valid email is required." });
   }
@@ -293,6 +301,17 @@ app.post("/api/contact", contactLimiter, async (req, res) => {
     res.status(500).json({ error: "Failed to send message" });
   }
 });
+
+// Auto-sync gigs daily at midnight (Africa/Johannesburg)
+cron.schedule("0 0 * * *", async () => {
+  console.log("Running scheduled gig sync...");
+  try {
+    const added = await syncGigs();
+    console.log(`Scheduled sync complete. New gigs processed: ${added}`);
+  } catch (err) {
+    console.error("Scheduled sync failed:", err);
+  }
+}, { timezone: "Africa/Johannesburg" });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

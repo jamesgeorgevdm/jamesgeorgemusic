@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./about.css";
 import FadeInWrapper from "./FadeInWrapper";
 
@@ -23,39 +23,50 @@ const bioPillars = [
 ];
 
 // Main About component
-const About = () => {
+const About = ({ prefetchedStats }) => {
   const [stats, setStats] = useState([]);
   const [counts, setCounts] = useState([]);
-  const [loading, setLoading] = useState(true); // Loads on startup
+  const [loading, setLoading] = useState(true);
+  const hasProcessed = useRef(false);
 
- // Fetch stats on component mount
+  // Format raw API data and kick off animations
+  const processStats = (data) => {
+    const formattedStats = data.map((item) => ({
+      title: item.title,
+      value: item.legacy_count + item.live_count,
+      description: item.description,
+    }));
+
+    const totalGigs = formattedStats.reduce((acc, curr) => acc + curr.value, 0);
+
+    setStats(formattedStats);
+    startAnimations(totalGigs, formattedStats);
+    setTimeout(() => setLoading(false), 400);
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API}/api/stats`);
-        const data = await response.json(); // Assuming the API returns an array of stats with legacy_count, live_count, title, and description
+    if (hasProcessed.current) return;
 
-        // Extract and format items from data array for display
-        const formattedStats = data.map((item) => ({
-          title: item.title,
-          value: item.legacy_count + item.live_count,
-          description: item.description,
-        }));
-
-        // Calculate total gigs block by summing all individual counts
-        const totalGigs = formattedStats.reduce((acc, curr) => acc + curr.value, 0);
-
-        // Set stats and start animations
-        setStats(formattedStats);
-        startAnimations(totalGigs, formattedStats);
-        setTimeout(() => setLoading(false), 400);
-      } catch (err) {
-        console.error("Error fetching stats:", err);
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
+    if (prefetchedStats) {
+      // Already fetched at app level — use it directly
+      hasProcessed.current = true;
+      processStats(prefetchedStats);
+    } else {
+      // Fallback: fetch on demand if prefetch hasn't resolved yet
+      const fetchStats = async () => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API}/api/stats`);
+          const data = await response.json();
+          hasProcessed.current = true;
+          processStats(data);
+        } catch (err) {
+          console.error("Error fetching stats:", err);
+          setLoading(false);
+        }
+      };
+      fetchStats();
+    }
+  }, [prefetchedStats]);
 
   // Function to animate counts from 0 to their target values
   const startAnimations = (total, items) => {
@@ -81,7 +92,7 @@ const About = () => {
     });
   };
 
-  // Render function for the stats section, showing skeletons while loading and actual stats once loaded
+  // Render function for the stats section
   const renderStatsContent = () => {
     if (loading) {
       return (
@@ -96,7 +107,6 @@ const About = () => {
       );
     }
 
-    // Once loading is complete, render the actual stats with animated counts
     return (
       <div className="flex flex-wrap justify-center gap-4 mt-16 px-4">
         <div className="w-full max-w-sm bg-gradient-to-br from-[#d4af37] to-[#f1d97c] text-[#0b1a2e] p-6 rounded-xl flex flex-col items-center shadow-lg">
@@ -117,29 +127,29 @@ const About = () => {
     );
   };
 
-  // Main render of the About component, including the bio pillars and the stats section
   return (
-  <FadeInWrapper>
-    <main className="about-container">
-      <header className="about-header">
-        <h2>About Me</h2>
-        <div className="about-divider" aria-hidden="true" />
-      </header>
+    <FadeInWrapper>
+      <main className="about-container">
+        <header className="about-header">
+          <h2>About Me</h2>
+          <div className="about-divider" aria-hidden="true" />
+        </header>
 
-      <section className="about-cards" aria-label="Professional Pillars">
-        {bioPillars.map((pillar, index) => (
-          <article key={index} className="about-card"> 
-            <h3 className="card-title">{pillar.title}</h3>
-            <p>{pillar.desc}</p>
-          </article>
-        ))}
-      </section>
+        <section className="about-cards" aria-label="Professional Pillars">
+          {bioPillars.map((pillar, index) => (
+            <article key={index} className="about-card">
+              <h3 className="card-title">{pillar.title}</h3>
+              <p>{pillar.desc}</p>
+            </article>
+          ))}
+        </section>
 
-      <section aria-label="Performance Statistics">
-        {renderStatsContent()}
-      </section>
-    </main>
-  </FadeInWrapper>
-);
+        <section aria-label="Performance Statistics">
+          {renderStatsContent()}
+        </section>
+      </main>
+    </FadeInWrapper>
+  );
 }
+
 export default About;

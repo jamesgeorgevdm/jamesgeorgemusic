@@ -38,9 +38,11 @@ function Booking() {
   const fetchAvailability = async (date, signal) => {
     setIsLoading(true);
     setAvailabilityError(false);
+    // en-CA gives YYYY-MM-DD format — unambiguous, matches backend expectation
     const dateStr = date.toLocaleDateString("en-CA");
     try {
       const res = await fetch(
+        // signal allows AbortController to cancel this request if date changes mid-fetch
         `${import.meta.env.VITE_API}/api/availability?date=${dateStr}`,
         { signal }
       );
@@ -56,6 +58,7 @@ function Booking() {
   };
 
   useEffect(() => {
+    // New Abort Controller created each time for each request
     const controller = new AbortController();
     fetchAvailability(selectedDate, controller.signal);
     return () => controller.abort();
@@ -65,23 +68,25 @@ function Booking() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+
   const handleTimeClick = (time) => {
     if (blockedTimes.includes(time)) return;
 
+    // No start time — set clicked time as start, clear stale endTime
     if (!formData.startTime) {
       setFormData({ ...formData, startTime: time, endTime: "" });
       return;
     }
-
+    // Start set, no end — validate range
     if (!formData.endTime) {
       const startIdx = times.indexOf(formData.startTime);
       const endIdx = times.indexOf(time);
-
+      
       if (endIdx <= startIdx) {
         setFormData({ ...formData, startTime: time, endTime: "" });
         return;
       }
-
+      // +1 makes slice inclusive of end slot
       const between = times.slice(startIdx, endIdx + 1);
       if (between.some(t => blockedTimes.includes(t))) {
         return;
@@ -90,19 +95,22 @@ function Booking() {
       setFormData({ ...formData, endTime: time });
       return;
     }
-
+    // Both set — reset and treat click as new start
     setFormData({ ...formData, startTime: time, endTime: "" });
   };
 
+  // Called on every timeslot button on each render
   const isHighlighted = (time) => {
     if (!formData.startTime || !formData.endTime) return false;
     const startIdx = times.indexOf(formData.startTime);
     const endIdx = times.indexOf(formData.endTime);
     const idx = times.indexOf(time);
+    // Returns true if slot's index falls between startIdx and endIdx (inclusive)
     return idx >= startIdx && idx <= endIdx;
   };
 
   const handleSubmit = async (e) => {
+    // Prevents default browser behaviour, which is to reload the page
     e.preventDefault();
     if (!formData.startTime || !formData.endTime) {
       setFeedback("Please select a timeslot.");
@@ -132,7 +140,7 @@ function Booking() {
         });
       } else {
         const data = await response.json();
-        // Surface validation errors from the server if present
+        // Surface validation errors from server errors array if present
         if (data.errors) {
           setFeedback(data.errors.join(" "));
         } else {

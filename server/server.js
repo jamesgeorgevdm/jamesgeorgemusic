@@ -85,6 +85,7 @@ const categorizeGig = (summary, description, categories) => {
 };
 
 // Server-side validation helper function
+// Second security layer after frontend HTML5 validation
 const validateBookingFields = ({ name, email, phone, product, message, startTime, endTime }) => {
   const errors = [];
 
@@ -189,28 +190,33 @@ app.get("/api/availability", async (req, res) => {
     });
 
     const events = response.data.items || [];
+    // Set gives automatic deduplication and O(1) lookup
+    // Prevents overlapping events from double-blocking a slot
     const blockedSet = new Set();
 
     events.forEach((event) => {
+      // Google Calendar returns full-day events with just a date, no dateTime
+      // If date only — block entire day
       if (event.start?.date) {
         for (let h = 8; h <= 22; h++) {
           blockedSet.add(`${String(h).padStart(2, "0")}:00`);
         }
         return;
       }
-
+      // Malformed entry
       if (!event.start?.dateTime || !event.end?.dateTime) return;
-
+      // Raw GC datetime strings to dayjs objects with Joburg time - hours will be local
       const start = dayjs(event.start.dateTime).tz(tz);
       const end = dayjs(event.end.dateTime).tz(tz);
 
       for (let h = start.hour(); h < end.hour(); h++) {
-        blockedSet.add(`${String(h).padStart(2, "0")}:00`);
+        blockedSet.add(`${String(h).padStart(2, "0")}:00`); // Adds left-0 to 8:00 for example
       }
     });
-
+    // Check if the date being queried is today specifically
     const today = dayjs().tz(tz);
     if (today.format("YYYY-MM-DD") === date) {
+      // Block all hours up until current hour
       for (let h = 0; h <= today.hour(); h++) {
         blockedSet.add(`${String(h).padStart(2, "0")}:00`);
       }
@@ -247,7 +253,7 @@ app.post("/api/send-booking", bookingLimiter, async (req, res) => {
   }
 
   const dateFormatted = dayjs(date).tz("Africa/Johannesburg").format("DD MMM YYYY");
-
+  // TRY 1 — hard dependency: if owner email fails, booking is aborted entirely
   try {
     await transporter.sendMail({
       from: email,
@@ -259,7 +265,7 @@ app.post("/api/send-booking", bookingLimiter, async (req, res) => {
     console.error("Owner notification email failed:", error);
     return res.status(500).json({ success: false, error: "Booking failed to send. Please try again." });
   }
-
+  // TRY 2 — soft dependency: user confirmation, failure is logged but doesn't block success
   try {
     await transporter.sendMail({
       from: { name: "James George Music", address: "jamesv234@gmail.com" },

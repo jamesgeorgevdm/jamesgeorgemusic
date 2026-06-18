@@ -6,6 +6,7 @@ import About from './components/About';
 import Products from './components/Products';
 import Booking from './components/Booking';
 import Contact from './components/Contact';
+import ChatbotWidget from './components/ChatbotWidget';
 
 function App() {
   const [prefetchedStats, setPrefetchedStats] = useState(null);
@@ -32,6 +33,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>
+      <ChatbotWidget />
     </Router>
   );
 }

@@ -5,6 +5,7 @@ import cron from "node-cron";
 import statsRoutes from "./routes/stats.js";
 import availabilityRoutes from "./routes/availability.js";
 import contactRoutes from "./routes/contact.js";
+import chatRoutes from "./routes/chat.js";
 import { syncGigs } from "./utils/gigHelpers.js";
 
 const app = express();
@@ -30,6 +31,7 @@ app.use(express.json());
 app.use("/api", statsRoutes);
 app.use("/api", availabilityRoutes);
 app.use("/api", contactRoutes);
+app.use("/api", chatRoutes);
 
 cron.schedule("0 0 * * *", async () => {
   console.log("Running scheduled gig sync...");

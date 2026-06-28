@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { FiMessageCircle, FiX, FiSend } from "react-icons/fi";
+import ReactMarkdown from "react-markdown";
 import "./chatbot.css";
 
 const chatApi = `${import.meta.env.VITE_API || ""}/api/chat`;
@@ -12,10 +13,12 @@ const getMessageText = (message) =>
     .map((part) => part.text)
     .join("");
 
+const RATE_LIMIT_MESSAGE =
+  "It looks like either we are hitting a server error, or we've covered a lot of ground here! To make sure your specific dates and requirements get individual attention, please jump over to our Contact Form or drop James an email directly. He'd love to chat details with you.";
+
 function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
-
   const transport = useMemo(
     () => new DefaultChatTransport({ api: chatApi }),
     []
@@ -24,6 +27,7 @@ function ChatbotWidget() {
   const { messages, sendMessage, status, error } = useChat({ transport });
 
   const isLoading = status === "submitted" || status === "streaming";
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -60,7 +64,7 @@ function ChatbotWidget() {
                 key={message.id}
                 className={`chatbot-message chatbot-message--${message.role}`}
               >
-                {getMessageText(message)}
+                <ReactMarkdown>{getMessageText(message)}</ReactMarkdown>
               </div>
             ))}
             {isLoading && messages[messages.length - 1]?.role === "user" && (
@@ -70,7 +74,7 @@ function ChatbotWidget() {
 
           {error && (
             <p className="chatbot-error">
-              Something went wrong. Please try again.
+              {RATE_LIMIT_MESSAGE}
             </p>
           )}
 

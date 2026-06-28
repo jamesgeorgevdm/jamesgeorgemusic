@@ -216,3 +216,29 @@
   font-size: 0.9rem;
   font-style: italic;
 }
+
+.chatbot-message p {
+  margin: 0 0 6px 0;
+}
+
+.chatbot-message p:last-child {
+  margin-bottom: 0;
+}
+
+.chatbot-message ul,
+.chatbot-message ol {
+  margin: 4px 0 6px 0;
+  padding-left: 18px;
+}
+
+.chatbot-message li {
+  margin-bottom: 2px;
+}
+
+.chatbot-message strong {
+  font-weight: 700;
+}
+
+.chatbot-message em {
+  font-style: italic;
+}

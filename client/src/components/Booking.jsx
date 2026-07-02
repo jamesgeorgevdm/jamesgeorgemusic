@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import "./booking.css";
 import FadeInWrapper from "./FadeInWrapper";
 
 const products = [
@@ -13,6 +12,8 @@ const products = [
 ];
 
 const times = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, "0")}:00`);
+
+const inputClass = "font-['Crimson_Pro'] p-[0.9rem] rounded-lg border border-[rgba(212,175,55,0.4)] bg-[#0f2240] text-[#fdfaf3] text-base w-full focus:outline-none focus:border-[#d4af37] focus:shadow-[0_0_10px_rgba(212,175,55,0.2)]";
 
 function Booking() {
   const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +69,6 @@ function Booking() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-
   const handleTimeClick = (time) => {
     if (blockedTimes.includes(time)) return;
 
@@ -81,16 +81,14 @@ function Booking() {
     if (!formData.endTime) {
       const startIdx = times.indexOf(formData.startTime);
       const endIdx = times.indexOf(time);
-      
+
       if (endIdx <= startIdx) {
         setFormData({ ...formData, startTime: time, endTime: "" });
         return;
       }
       // +1 makes slice inclusive of end slot
       const between = times.slice(startIdx, endIdx + 1);
-      if (between.some(t => blockedTimes.includes(t))) {
-        return;
-      }
+      if (between.some(t => blockedTimes.includes(t))) return;
 
       setFormData({ ...formData, endTime: time });
       return;
@@ -129,15 +127,7 @@ function Booking() {
 
       if (response.ok) {
         setFeedback("Booking request sent successfully!");
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          product: "",
-          message: "",
-          startTime: "",
-          endTime: "",
-        });
+        setFormData({ name: "", email: "", phone: "", product: "", message: "", startTime: "", endTime: "" });
       } else {
         const data = await response.json();
         // Surface validation errors from server errors array if present
@@ -157,25 +147,28 @@ function Booking() {
 
   return (
     <FadeInWrapper>
-      <main className="booking-container">
-        <h1>Booking</h1>
-        <p>Select a date, choose a product, and pick your timeslot.</p>
+      <main className="pt-32 max-md:pt-24 px-8 pb-16 text-center bg-[#0b1a2e] text-[#fdfaf3] min-h-screen flex flex-col items-center font-['Crimson_Pro']">
+        <h1 className="font-['BruneyClassy'] text-5xl mb-4 text-[#f1d97c]">Booking</h1>
+        <p className="text-[1.1rem] mb-8">Select a date, choose a product, and pick your timeslot.</p>
 
         <section aria-label="Select Date">
           <Calendar onChange={setSelectedDate} value={selectedDate} minDate={new Date()} />
         </section>
 
-        <h2 className="timeslot-title">Select Timeslot</h2>
+        <h2 className="font-['BruneyClassy'] text-[2rem] mt-12 text-[#f1d97c]">Select Timeslot</h2>
 
-        <section className="timeslot-grid" aria-live="polite">
+        <section
+          className="grid grid-cols-3 md:grid-cols-6 gap-3 my-6 mx-auto w-[95%] md:w-full md:max-w-[700px]"
+          aria-live="polite"
+        >
           {isLoading ? (
-            <p>Checking availability...</p>
+            <p className="col-span-full text-center m-0">Checking availability...</p>
           ) : availabilityError ? (
-          <div className="availability-error">
+            <div className="col-span-full flex flex-col items-center gap-4">
               <p>Couldn't load availability. Please try again.</p>
               <button
                 type="button"
-                className="retry-btn"
+                className="bg-[#d4af37] font-['BruneyClassy'] text-[#0b1a2e] p-4 border-none rounded-lg cursor-pointer font-bold text-[1.1rem] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={isLoading}
                 onClick={() => {
                   // Cancel any in-flight retry before starting a new one
@@ -189,16 +182,20 @@ function Booking() {
               </button>
             </div>
           ) : blockedTimes.length === times.length ? (
-            <p>Fully booked for this day.</p>
+            <p className="col-span-full text-center m-0">Fully booked for this day.</p>
           ) : (
             times.map((time) => (
               <button
                 type="button"
                 key={time}
                 title={blockedTimes.includes(time) ? "Unavailable" : ""}
-                className={`timeslot 
-                  ${isHighlighted(time) ? "highlighted" : ""} 
-                  ${blockedTimes.includes(time) ? "blocked" : ""}`}
+                className={`p-[0.7rem] border rounded-lg font-['Crimson_Pro'] transition-all duration-200
+                  ${blockedTimes.includes(time)
+                    ? "bg-[#1a1a1a] text-[#555] line-through cursor-not-allowed opacity-50 border-[#333]"
+                    : isHighlighted(time)
+                    ? "bg-[#d4af37] text-[#0b1a2e] font-bold border-[#f1d97c] cursor-pointer"
+                    : "bg-[#0f2240] text-white border-[#d4af37] cursor-pointer hover:bg-[#1a3357] hover:-translate-y-[2px] hover:border-[#f1d97c]"
+                  }`}
                 onClick={() => handleTimeClick(time)}
                 disabled={blockedTimes.includes(time)}
               >
@@ -208,7 +205,7 @@ function Booking() {
           )}
         </section>
 
-        <p className="selected-times">
+        <p className="mt-6 font-['Crimson_Pro'] text-[1.2rem] text-[#f1d97c] italic">
           {formData.startTime && formData.endTime
             ? `Selected: ${formData.startTime} - ${formData.endTime}`
             : formData.startTime
@@ -216,10 +213,12 @@ function Booking() {
             : "No timeslot selected"}
         </p>
 
-        <form className="booking-form" onSubmit={handleSubmit}>
-
+        <form
+          className="flex flex-col w-full max-w-[550px] mx-auto mt-12 gap-[1.2rem]"
+          onSubmit={handleSubmit}
+        >
           <label htmlFor="product" className="sr-only">Select Service</label>
-          <select id="product" name="product" value={formData.product} onChange={handleChange} required>
+          <select id="product" name="product" value={formData.product} onChange={handleChange} required className={inputClass}>
             <option value="">Select a product</option>
             {products.map((prod, index) => (
               <option key={index} value={prod.name}>
@@ -229,23 +228,31 @@ function Booking() {
           </select>
 
           <label htmlFor="name" className="sr-only">Your Name</label>
-          <input id="name" type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} required />
+          <input id="name" type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} required className={inputClass} />
 
           <label htmlFor="email" className="sr-only">Your Email</label>
-          <input id="email" type="email" name="email" placeholder="Your Email" value={formData.email} onChange={handleChange} required />
+          <input id="email" type="email" name="email" placeholder="Your Email" value={formData.email} onChange={handleChange} required className={inputClass} />
 
           <label htmlFor="phone" className="sr-only">Your Phone Number</label>
-          <input id="phone" type="tel" name="phone" placeholder="Your Phone Number" value={formData.phone} onChange={handleChange} required />
+          <input id="phone" type="tel" name="phone" placeholder="Your Phone Number" value={formData.phone} onChange={handleChange} required className={inputClass} />
 
           <label htmlFor="message" className="sr-only">Message</label>
-          <textarea id="message" name="message" placeholder="Describe your event" rows="6" value={formData.message} onChange={handleChange} required />
+          <textarea id="message" name="message" placeholder="Describe your event" rows="6" value={formData.message} onChange={handleChange} required className={inputClass} />
 
-          <button type="submit" disabled={isSending}>
+          <button
+            type="submit"
+            disabled={isSending}
+            className="bg-[#d4af37] font-['BruneyClassy'] text-[#0b1a2e] p-4 border-none rounded-lg cursor-pointer font-bold text-[1.1rem] mt-4 transition-all duration-300 hover:not-disabled:bg-[#f1d97c] hover:not-disabled:-translate-y-[2px] hover:not-disabled:shadow-[0_5px_15px_rgba(241,217,124,0.3)] disabled:opacity-60 disabled:cursor-not-allowed"
+          >
             {isSending ? "Sending..." : "Send Booking Request"}
           </button>
         </form>
 
-        {feedback && <output className="feedback">{feedback}</output>}
+        {feedback && (
+          <output className="mt-6 font-['Crimson_Pro'] font-bold text-[#f1d97c] text-[1.2rem]">
+            {feedback}
+          </output>
+        )}
       </main>
     </FadeInWrapper>
   );

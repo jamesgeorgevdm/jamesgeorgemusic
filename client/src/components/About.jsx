@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./about.css";
 import FadeInWrapper from "./FadeInWrapper";
 
 // Static content for the bio pillars
@@ -92,15 +91,17 @@ const About = ({ prefetchedStats }) => {
     });
   };
 
+  const skeletonBase = "bg-gradient-to-r from-[#0f2240] via-[#1b3358] to-[#0f2240] bg-[length:200%_100%] animate-[skeleton-loading_1.5s_infinite] rounded-xl";
+
   // Render function for the stats section
   const renderStatsContent = () => {
     if (loading) {
       return (
         <div className="flex flex-wrap justify-center gap-4 mt-16 px-4">
-          <div className="skeleton skeleton-total rounded-xl" />
+          <div className={`${skeletonBase} h-[140px] w-full max-w-sm`} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="skeleton skeleton-card" />
+              <div key={i} className={`${skeletonBase} h-[110px] w-full`} />
             ))}
           </div>
         </div>
@@ -116,7 +117,10 @@ const About = ({ prefetchedStats }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl">
           {stats.map((item, index) => (
-            <div key={index} className="stat-card-dynamic">
+            <div
+              key={index}
+              className="bg-[#0f2240] border border-[rgba(212,175,55,0.25)] rounded-xl p-6 transition-all duration-300 text-left hover:border-[#f1d97c] hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(0,0,0,0.3)]"
+            >
               <h3 className="text-2xl text-[#f1d97c] font-bold mb-1">{counts[index + 1]}</h3>
               <p className="text-xs font-bold text-white uppercase mb-1">{item.title}</p>
               <p className="text-[0.8rem] leading-snug text-gray-300">{item.description}</p>
@@ -129,17 +133,25 @@ const About = ({ prefetchedStats }) => {
 
   return (
     <FadeInWrapper>
-      <main className="about-container">
-        <header className="about-header">
-          <h2>About Me</h2>
-          <div className="about-divider" aria-hidden="true" />
+      <main className="bg-gradient-to-b from-[#0b1a2e] to-[#091227] font-['Crimson_Pro'] text-[#fdfaf3] py-20 px-8 min-h-screen text-center">
+        <header>
+          <h2 className="text-[2.8rem] max-md:text-[2.2rem] font-['BruneyClassy'] text-[#f1d97c] mb-4">
+            About Me
+          </h2>
+          <div className="w-20 h-[3px] mx-auto mb-20 bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
         </header>
 
-        <section className="about-cards" aria-label="Professional Pillars">
+        <section
+          className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-10 max-w-[1200px] mx-auto mb-32 max-lg:mx-8 max-lg:mb-20 max-lg:gap-6 max-md:mx-4 max-md:mb-16"
+          aria-label="Professional Pillars"
+        >
           {bioPillars.map((pillar, index) => (
-            <article key={index} className="about-card">
-              <h3 className="card-title">{pillar.title}</h3>
-              <p>{pillar.desc}</p>
+            <article
+              key={index}
+              className={`bg-white/[0.04] backdrop-blur-[12px] border border-[rgba(212,175,55,0.2)] rounded-[20px] p-10 max-md:p-8 max-md:px-6 transition-all duration-[400ms] relative hover:-translate-y-[10px] hover:rotate-0 hover:shadow-[0_15px_40px_rgba(212,175,55,0.2)] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08] max-md:rotate-0 ${index % 2 === 0 ? "rotate-[-1.5deg]" : "rotate-[1.5deg]"}`}
+            >
+              <h3 className="font-['BruneyClassy'] text-[1.6rem] text-[#f1d97c] mb-4">{pillar.title}</h3>
+              <p className="text-[1.05rem] leading-[1.7] text-[#eae8e1]">{pillar.desc}</p>
             </article>
           ))}
         </section>
@@ -150,6 +162,6 @@ const About = ({ prefetchedStats }) => {
       </main>
     </FadeInWrapper>
   );
-}
+};
 
 export default About;

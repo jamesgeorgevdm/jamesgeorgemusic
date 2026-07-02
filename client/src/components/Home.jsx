@@ -1,14 +1,13 @@
 import React from "react";
-import "./home.css";
 import FadeInWrapper from "./FadeInWrapper";
 import Reviews from "./Reviews";
 
 function Home() {
   return (
     <FadeInWrapper>
-      <section className="home-container">
+      <section className="relative w-full h-[100dvh] overflow-hidden m-0 p-0 bg-black">
         <video
-          className="background-video"
+          className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 object-cover z-[1]"
           autoPlay
           loop
           muted
@@ -21,8 +20,10 @@ function Home() {
           Your browser does not support the video tag.
         </video>
 
-        <div className="overlay-content">
-          <h1>James George</h1>
+        <div className="relative z-[2] h-full w-full flex flex-col justify-center items-center text-center bg-black/20">
+          <h1 className="font-['BruneyClassy'] text-[clamp(3rem,12vw,7rem)] text-white m-0 px-5 uppercase tracking-[2px] [text-shadow:2px_4px_20px_rgba(0,0,0,0.8)]">
+            James George
+          </h1>
         </div>
 
         <Reviews overlay />

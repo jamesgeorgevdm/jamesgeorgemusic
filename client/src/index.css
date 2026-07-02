@@ -1,29 +1,160 @@
 @import "tailwindcss";
 
-/* 1. Brand Variables - These are now consistent across your site */
+/* ─── Brand Variables ─── */
 :root {
   --navy: #0B1C2C;
   --gold: #D4A455;
   --cream: #F6F2ED;
 }
 
-/* 2. Global Base - This kills the silver look at the root */
+/* ─── Global Base ─── */
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #0B1C2C; /* This ensures the background is ALWAYS Navy */
+  background-color: #0B1C2C;
   color: #F6F2ED;
   font-family: 'Crimson Pro', serif;
   min-height: 100vh;
 }
 
-/* 3. Utility Layer for your specific needs */
+/* ─── Font Faces ─── */
+@font-face {
+  font-family: 'BruneyClassy';
+  src: url('/fonts/BruneyClassy.ttf') format('truetype'),
+       url('/fonts/BruneyClassy.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url('/fonts/CrimsonPro-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ─── Utilities ─── */
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* ─── Keyframe Animations ─── */
+@keyframes skeleton-loading {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes reviews-skeleton-loading {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes chatbot-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Half-star pseudo-element (shared by Reviews & LeaveReview) ─── */
+.star-half {
+  position: relative;
+  display: inline-block;
+}
+.star-half::before {
+  content: '★';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #f1d97c;
+  clip-path: inset(0 50% 0 0);
+  pointer-events: none;
+}
+
+/* ─── Chatbot message scrollbar ─── */
+.chatbot-messages::-webkit-scrollbar { width: 6px; }
+.chatbot-messages::-webkit-scrollbar-thumb {
+  background: rgba(212, 164, 85, 0.35);
+  border-radius: 3px;
+}
+
+/* ─── React Calendar Overrides ─── */
+/* All properties use !important because react-calendar's own CSS loads after
+   this file in Vite's bundle order, which would otherwise override these rules. */
+.react-calendar {
+  margin: 0 auto !important;
+  background-color: #1a3357 !important;
+  border: 2px solid #d4af37 !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+  color: #fdfaf3 !important;
+  font-family: 'Crimson Pro', serif !important;
+  max-width: 100% !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+.react-calendar__navigation {
+  border-bottom: 1px solid #d4af37 !important;
+  margin-bottom: 0.5rem !important;
+}
+.react-calendar__navigation button {
+  color: #fdfaf3 !important;
+  background: none !important;
+  font-weight: bold !important;
+  font-size: 1.1rem !important;
+  cursor: pointer !important;
+  min-width: 44px !important;
+}
+.react-calendar__navigation button:disabled {
+  background-color: transparent !important;
+  color: #4a5568 !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: #244a7d !important;
+  color: #f1d97c !important;
+  outline: none !important;
+}
+.react-calendar__month-view__weekdays {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3) !important;
+  margin-bottom: 0.5rem !important;
+}
+.react-calendar__month-view__weekdays__weekday {
+  color: #f1d97c !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
+}
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none !important;
+}
+.react-calendar__tile {
+  background-color: #0f2240 !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border-radius: 6px !important;
+  color: #fdfaf3 !important;
+  padding: 0.75rem 0.5rem !important;
+  transition: all 0.3s ease !important;
+}
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: #244a7d !important;
+  color: #f1d97c !important;
+  outline: none !important;
+}
+.react-calendar__tile--active {
+  background-color: #d4af37 !important;
+  color: #0b1a2e !important;
+  font-weight: bold !important;
+}
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background-color: #f1d97c !important;
+  color: #0b1a2e !important;
+}
+.react-calendar__tile--now {
+  background-color: rgba(212, 175, 55, 0.15) !important;
+}
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background-color: #244a7d !important;
 }

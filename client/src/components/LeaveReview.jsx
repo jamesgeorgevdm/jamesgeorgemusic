@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import './leaveReview.css';
 
 const StarPicker = ({ value, onChange }) => {
   const [hovered, setHovered] = useState(null);
@@ -8,7 +7,7 @@ const StarPicker = ({ value, onChange }) => {
 
   return (
     <div
-      className="star-picker"
+      className="flex gap-1"
       role="group"
       aria-label="Star rating"
       onMouseLeave={() => setHovered(null)}
@@ -19,7 +18,8 @@ const StarPicker = ({ value, onChange }) => {
         return (
           <span
             key={star}
-            className={`star-btn ${isFull ? 'full' : isHalf ? 'half' : 'empty'}`}
+            className={`relative text-[2.2rem] leading-none cursor-pointer select-none transition-transform duration-150 hover:scale-[1.15]
+              ${isFull ? 'text-[#f1d97c]' : isHalf ? 'star-half text-[rgba(241,217,124,0.2)]' : 'text-[rgba(241,217,124,0.2)]'}`}
             role="button"
             tabIndex={0}
             aria-label={`${star} stars`}
@@ -106,12 +106,17 @@ function LeaveReview() {
     }
   };
 
+  const pageClass = "min-h-screen bg-gradient-to-b from-[#0b1a2e] to-[#091227] flex items-center justify-center py-24 px-6 font-['Crimson_Pro'] text-[#fdfaf3]";
+  const cardClass = "bg-white/[0.04] backdrop-blur-[12px] border border-[rgba(212,175,55,0.2)] rounded-[24px] p-12 px-10 max-sm:p-8 max-sm:px-6 w-full max-w-[560px] text-center";
+  const inputClass = "bg-white/[0.05] border border-[rgba(212,175,55,0.25)] rounded-[10px] py-3 px-4 text-[#fdfaf3] font-['Crimson_Pro'] text-base transition-[border-color,box-shadow] duration-300 outline-none w-full box-border focus:border-[rgba(212,175,55,0.6)] focus:shadow-[0_0_0_3px_rgba(212,175,55,0.1)] placeholder:text-[rgba(246,242,237,0.28)]";
+  const labelClass = "text-[0.82rem] font-bold uppercase tracking-[0.07em] text-[rgba(246,242,237,0.65)]";
+
   // Checking token
   if (tokenValid === null) {
     return (
-      <main className="leave-review-page">
-        <div className="lr-card">
-          <p className="lr-loading">Verifying your link…</p>
+      <main className={pageClass}>
+        <div className={cardClass}>
+          <p className="text-[rgba(234,232,225,0.55)] text-[1.1rem] py-8">Verifying your link…</p>
         </div>
       </main>
     );
@@ -120,10 +125,10 @@ function LeaveReview() {
   // Invalid token
   if (!tokenValid) {
     return (
-      <main className="leave-review-page">
-        <div className="lr-card">
-          <h1 className="lr-heading">Hmm…</h1>
-          <p className="lr-error-msg">{tokenError}</p>
+      <main className={pageClass}>
+        <div className={cardClass}>
+          <h1 className="font-['BruneyClassy'] text-[2.5rem] max-sm:text-[2rem] text-[#f1d97c] m-0 mb-2">Whoops!</h1>
+          <p className="text-[rgba(234,232,225,0.7)] text-[1.05rem] leading-[1.6] mt-2 mb-0">{tokenError}</p>
         </div>
       </main>
     );
@@ -132,29 +137,33 @@ function LeaveReview() {
   // Submitted successfully
   if (submitted) {
     return (
-      <main className="leave-review-page">
-        <div className="lr-card lr-card--success">
-          <div className="lr-success-star" aria-hidden="true">★</div>
-          <h1 className="lr-heading">Thank you!</h1>
-          <p className="lr-subheading">Your review has been submitted and will appear on the site shortly.</p>
+      <main className={pageClass}>
+        <div className={`${cardClass} py-16`}>
+          <span className="block text-[4rem] text-[#f1d97c] mb-4 leading-none" aria-hidden="true">★</span>
+          <h1 className="font-['BruneyClassy'] text-[2.5rem] max-sm:text-[2rem] text-[#f1d97c] m-0 mb-2">Thank you!</h1>
+          <p className="text-[1.05rem] text-[#eae8e1] m-0 mb-6 leading-[1.6]">
+            Your review has been submitted and will appear on the site shortly.
+          </p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="leave-review-page">
-      <div className="lr-card">
-        <h1 className="lr-heading">Leave a Review</h1>
-        <p className="lr-subheading">Your kind words mean the world — thank you for taking the time.</p>
-        <div className="lr-divider" aria-hidden="true" />
+    <main className={pageClass}>
+      <div className={cardClass}>
+        <h1 className="font-['BruneyClassy'] text-[2.5rem] max-sm:text-[2rem] text-[#f1d97c] m-0 mb-2">Leave a Review</h1>
+        <p className="text-[1.05rem] text-[#eae8e1] m-0 mb-6 leading-[1.6]">
+          Thank you for taking the time. Let myself and others know what you thought!
+        </p>
+        <div className="w-[60px] h-[2px] bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm mx-auto mb-8" aria-hidden="true" />
 
-        <form onSubmit={handleSubmit} className="lr-form" noValidate>
-          <div className="lr-field">
-            <label className="lr-label" htmlFor="lr-name">Your Name</label>
+        <form onSubmit={handleSubmit} className="text-left flex flex-col gap-6" noValidate>
+          <div className="flex flex-col gap-[0.45rem]">
+            <label className={labelClass} htmlFor="lr-name">Your Name</label>
             <input
               id="lr-name"
-              className="lr-input"
+              className={inputClass}
               type="text"
               required
               placeholder="e.g. Sarah & Tom"
@@ -163,29 +172,30 @@ function LeaveReview() {
             />
           </div>
 
-          <div className="lr-field">
-            <label className="lr-label" htmlFor="lr-date">
-              Event Date <span className="lr-optional">(optional)</span>
+          <div className="flex flex-col gap-[0.45rem]">
+            <label className={labelClass} htmlFor="lr-date">
+              Event Date{' '}
+              <span className="font-normal normal-case tracking-normal text-[rgba(246,242,237,0.35)]">(optional)</span>
             </label>
             <input
               id="lr-date"
-              className="lr-input"
+              className={`${inputClass} [color-scheme:dark]`}
               type="date"
               value={form.event_date}
               onChange={e => setForm(f => ({ ...f, event_date: e.target.value }))}
             />
           </div>
 
-          <div className="lr-field">
-            <label className="lr-label">Rating</label>
+          <div className="flex flex-col gap-[0.45rem]">
+            <label className={labelClass}>Rating</label>
             <StarPicker value={form.rating} onChange={rating => setForm(f => ({ ...f, rating }))} />
           </div>
 
-          <div className="lr-field">
-            <label className="lr-label" htmlFor="lr-review">Your Review</label>
+          <div className="flex flex-col gap-[0.45rem]">
+            <label className={labelClass} htmlFor="lr-review">Your Review</label>
             <textarea
               id="lr-review"
-              className="lr-textarea"
+              className={`${inputClass} resize-y min-h-[120px]`}
               required
               rows={5}
               placeholder="Tell us about your experience…"
@@ -194,9 +204,15 @@ function LeaveReview() {
             />
           </div>
 
-          {submitError && <p className="lr-submit-error" role="alert">{submitError}</p>}
+          {submitError && (
+            <p className="text-[#f87171] text-[0.9rem] text-center m-0" role="alert">{submitError}</p>
+          )}
 
-          <button type="submit" className="lr-submit" disabled={submitting}>
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-[#d4af37] to-[#f1d97c] text-[#0b1a2e] border-none rounded-[10px] py-[0.9rem] px-8 font-['BruneyClassy'] text-[1.15rem] tracking-[0.05em] cursor-pointer w-full transition-[transform,box-shadow,opacity] duration-200 mt-2 hover:not-disabled:-translate-y-[2px] hover:not-disabled:shadow-[0_8px_24px_rgba(212,175,55,0.3)] disabled:opacity-55 disabled:cursor-not-allowed"
+            disabled={submitting}
+          >
             {submitting ? 'Submitting…' : 'Submit Review'}
           </button>
         </form>

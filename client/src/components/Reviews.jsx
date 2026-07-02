@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './reviews.css';
 
 const StarDisplay = ({ rating }) => (
-  <div className="stars" aria-label={`${rating} out of 5 stars`}>
+  <div className="flex gap-[3px] mb-3" aria-label={`${rating} out of 5 stars`}>
     {[1, 2, 3, 4, 5].map(star => {
       const full = rating >= star;
       const half = !full && rating >= star - 0.5;
       return (
-        <span key={star} className={`star ${full ? 'filled' : half ? 'half' : 'empty'}`}>★</span>
+        <span
+          key={star}
+          className={`text-[1.25rem] leading-none ${full ? 'text-[#f1d97c]' : half ? 'star-half text-[rgba(241,217,124,0.2)]' : 'text-[rgba(241,217,124,0.2)]'}`}
+        >
+          ★
+        </span>
       );
     })}
   </div>
@@ -31,6 +35,7 @@ function Reviews({ overlay = false }) {
       .catch(() => setLoading(false));
   }, []);
 
+  // Track which card is most visible using IntersectionObserver
   useEffect(() => {
     if (!trackRef.current || reviews.length === 0) return;
     const cards = trackRef.current.querySelectorAll('.review-card');
@@ -59,56 +64,88 @@ function Reviews({ overlay = false }) {
     }
   };
 
-  const sectionClass = `reviews-section${overlay ? ' reviews-section--overlay' : ''}`;
+  const skeletonClass = "flex-[0_0_320px] max-md:flex-[0_0_280px] h-[220px] rounded-[20px] bg-gradient-to-r from-white/[0.04] via-white/[0.09] to-white/[0.04] bg-[length:200%_100%] border border-[rgba(212,175,55,0.1)] backdrop-blur-[16px] animate-[reviews-skeleton-loading_1.5s_infinite]";
+
+  const sectionClass = overlay
+    ? "absolute bottom-0 left-0 right-0 z-[3] pb-6 bg-gradient-to-t from-[rgba(9,18,39,0.85)] to-transparent pointer-events-none"
+    : "bg-gradient-to-b from-[#091227] to-[#0b1a2e] py-20 pb-24 text-center font-['Crimson_Pro'] text-[#fdfaf3]";
+
+  const trackClass = overlay
+    ? "flex gap-6 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-4 px-12 pb-2 max-w-[1200px] mx-auto no-scrollbar pointer-events-auto"
+    : "flex gap-6 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-4 px-12 pb-8 max-md:px-6 max-w-[1200px] mx-auto no-scrollbar";
+
+  const cardClass = overlay
+    ? "review-card flex-[0_0_320px] max-md:flex-[0_0_280px] snap-start bg-[rgba(9,18,39,0.55)] backdrop-blur-[16px] border border-[rgba(212,175,55,0.25)] rounded-[20px] p-8 px-[1.8rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:bg-[rgba(9,18,39,0.75)]"
+    : "review-card flex-[0_0_320px] max-md:flex-[0_0_280px] snap-start bg-white/[0.04] backdrop-blur-[12px] border border-[rgba(212,175,55,0.2)] rounded-[20px] p-8 px-[1.8rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:shadow-[0_15px_40px_rgba(212,175,55,0.15)] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08]";
+
+  const dotsClass = overlay
+    ? "flex justify-center gap-2 mt-4 pointer-events-auto"
+    : "flex justify-center gap-2 mt-8";
 
   if (loading) {
     return (
       <div className={sectionClass}>
         {!overlay && (
-          <div className="reviews-header">
-            <h2>Reviews</h2>
-            <div className="reviews-divider" aria-hidden="true" />
+          <div className="mb-[3.5rem]">
+            <h2 className="font-['BruneyClassy'] text-[2.8rem] text-[#f1d97c] mb-4">Reviews</h2>
+            <div className="w-20 h-[3px] mx-auto bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
           </div>
         )}
-        <div className="reviews-track">
-          {[1, 2, 3].map(i => <div key={i} className="review-skeleton" />)}
+        <div className={trackClass}>
+          {[1, 2, 3].map(i => <div key={i} className={skeletonClass} />)}
         </div>
       </div>
     );
   }
 
-  if (reviews.length === 0) return null;
+  if (reviews.length === 0) {
+    return (
+      <div className={sectionClass}>
+        {!overlay && (
+          <div className="mb-[3.5rem]">
+            <h2 className="font-['BruneyClassy'] text-[2.8rem] max-md:text-[2.2rem] text-[#f1d97c] mb-4">Reviews</h2>
+            <div className="w-20 h-[3px] mx-auto bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
+          </div>
+        )}
+        <p className="text-[rgba(234,232,225,0.45)] text-[1.1rem] py-12">Reviews coming soon.</p>
+      </div>
+    );
+  }
 
   return (
     <div className={sectionClass}>
       {!overlay && (
-        <div className="reviews-header">
-          <h2>Reviews</h2>
-          <div className="reviews-divider" aria-hidden="true" />
+        <div className="mb-[3.5rem]">
+          <h2 className="font-['BruneyClassy'] text-[2.8rem] max-md:text-[2.2rem] text-[#f1d97c] mb-4">Reviews</h2>
+          <div className="w-20 h-[3px] mx-auto bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
         </div>
       )}
 
-      <div className="reviews-track" ref={trackRef}>
+      <div className={trackClass} ref={trackRef}>
         {reviews.map((review, i) => (
-          <article key={review.id} className="review-card" data-index={i}>
-            <div className="review-meta">
-              <span className="review-name">{review.name}</span>
+          <article key={review.id} className={cardClass} data-index={i}>
+            <div className="flex flex-col gap-[0.2rem] border-b border-[rgba(212,175,55,0.15)] pb-3 mb-3">
+              <span className="font-['BruneyClassy'] text-[1.1rem] text-[#f1d97c]">{review.name}</span>
               {review.event_date && (
-                <span className="review-date">{formatDate(review.event_date)}</span>
+                <span className="text-[0.85rem] text-[rgba(234,232,225,0.55)]">{formatDate(review.event_date)}</span>
               )}
             </div>
             <StarDisplay rating={review.rating} />
-            <p className="review-text">"{review.review}"</p>
+            <p className="text-base leading-[1.75] text-[#eae8e1] mb-6 italic">"{review.review}"</p>
           </article>
         ))}
       </div>
 
       {reviews.length > 1 && (
-        <div className="scroll-dots" role="tablist" aria-label="Review navigation">
+        <div className={dotsClass} role="tablist" aria-label="Review navigation">
           {reviews.map((_, i) => (
             <button
               key={i}
-              className={`scroll-dot ${i === activeIndex ? 'active' : ''}`}
+              className={`w-[7px] h-[7px] rounded-full border-none cursor-pointer p-0 transition-[background,transform] duration-300
+                ${i === activeIndex
+                  ? "bg-[#f1d97c] scale-[1.3]"
+                  : "bg-[rgba(212,175,55,0.25)] hover:bg-[rgba(212,175,55,0.55)]"
+                }`}
               onClick={() => scrollToCard(i)}
               aria-label={`Go to review ${i + 1}`}
               role="tab"

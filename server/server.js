@@ -5,6 +5,7 @@ import statsRoutes from "./routes/stats.js";
 import availabilityRoutes from "./routes/availability.js";
 import contactRoutes from "./routes/contact.js";
 import chatRoutes from "./routes/chat.js";
+import reviewsRoutes from "./routes/reviews.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/api", statsRoutes);
 app.use("/api", availabilityRoutes);
 app.use("/api", contactRoutes);
 app.use("/api", chatRoutes);
+app.use("/api", reviewsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

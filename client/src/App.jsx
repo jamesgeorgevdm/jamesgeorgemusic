@@ -7,6 +7,7 @@ import Products from './components/Products';
 import Booking from './components/Booking';
 import Contact from './components/Contact';
 import ChatbotWidget from './components/ChatbotWidget';
+import LeaveReview from './components/LeaveReview';
 
 function App() {
   const [prefetchedStats, setPrefetchedStats] = useState(null);
@@ -31,6 +32,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/booking" element={<Booking />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/leave-review" element={<LeaveReview />} />
         </Routes>
       </main>
       <ChatbotWidget />

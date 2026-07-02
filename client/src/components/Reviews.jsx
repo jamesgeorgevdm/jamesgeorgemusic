@@ -18,7 +18,7 @@ const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 };
 
-function Reviews() {
+function Reviews({ overlay = false }) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -31,7 +31,6 @@ function Reviews() {
       .catch(() => setLoading(false));
   }, []);
 
-  // Track which card is most visible using IntersectionObserver
   useEffect(() => {
     if (!trackRef.current || reviews.length === 0) return;
     const cards = trackRef.current.querySelectorAll('.review-card');
@@ -60,50 +59,46 @@ function Reviews() {
     }
   };
 
+  const sectionClass = `reviews-section${overlay ? ' reviews-section--overlay' : ''}`;
+
   if (loading) {
     return (
-      <section className="reviews-section">
-        <div className="reviews-header">
-          <h2>Reviews</h2>
-          <div className="reviews-divider" aria-hidden="true" />
-        </div>
+      <div className={sectionClass}>
+        {!overlay && (
+          <div className="reviews-header">
+            <h2>Reviews</h2>
+            <div className="reviews-divider" aria-hidden="true" />
+          </div>
+        )}
         <div className="reviews-track">
           {[1, 2, 3].map(i => <div key={i} className="review-skeleton" />)}
         </div>
-      </section>
+      </div>
     );
   }
 
-  if (reviews.length === 0) {
-    return (
-      <section className="reviews-section">
+  if (reviews.length === 0) return null;
+
+  return (
+    <div className={sectionClass}>
+      {!overlay && (
         <div className="reviews-header">
           <h2>Reviews</h2>
           <div className="reviews-divider" aria-hidden="true" />
         </div>
-        <p className="reviews-empty">Reviews coming soon.</p>
-      </section>
-    );
-  }
-
-  return (
-    <section className="reviews-section">
-      <div className="reviews-header">
-        <h2>Reviews</h2>
-        <div className="reviews-divider" aria-hidden="true" />
-      </div>
+      )}
 
       <div className="reviews-track" ref={trackRef}>
         {reviews.map((review, i) => (
           <article key={review.id} className="review-card" data-index={i}>
-            <StarDisplay rating={review.rating} />
-            <p className="review-text">"{review.review}"</p>
             <div className="review-meta">
               <span className="review-name">{review.name}</span>
               {review.event_date && (
                 <span className="review-date">{formatDate(review.event_date)}</span>
               )}
             </div>
+            <StarDisplay rating={review.rating} />
+            <p className="review-text">"{review.review}"</p>
           </article>
         ))}
       </div>
@@ -122,7 +117,7 @@ function Reviews() {
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }
 

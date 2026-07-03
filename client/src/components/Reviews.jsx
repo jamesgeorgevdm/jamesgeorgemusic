@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const StarDisplay = ({ rating }) => (
-  <div className="flex gap-[3px] mb-3" aria-label={`${rating} out of 5 stars`}>
+  <div className="flex gap-[3px] mb-2" aria-label={`${rating} out of 5 stars`}>
     {[1, 2, 3, 4, 5].map(star => {
       const full = rating >= star;
       const half = !full && rating >= star - 0.5;
       return (
         <span
           key={star}
-          className={`text-[1.25rem] leading-none ${full ? 'text-[#f1d97c]' : half ? 'star-half text-[rgba(241,217,124,0.2)]' : 'text-[rgba(241,217,124,0.2)]'}`}
+          className={`text-[1.1rem] max-md:text-[1rem] leading-none ${full ? 'text-[#f1d97c]' : half ? 'star-half text-[rgba(241,217,124,0.2)]' : 'text-[rgba(241,217,124,0.2)]'}`}
         >
           ★
         </span>
@@ -64,22 +64,22 @@ function Reviews({ overlay = false }) {
     }
   };
 
-  const skeletonClass = "flex-[0_0_320px] max-md:flex-[0_0_280px] h-[220px] rounded-[20px] bg-gradient-to-r from-white/[0.04] via-white/[0.09] to-white/[0.04] bg-[length:200%_100%] border border-[rgba(212,175,55,0.1)] backdrop-blur-[16px] animate-[reviews-skeleton-loading_1.5s_infinite]";
+  const skeletonClass = "flex-[0_0_290px] max-md:flex-[0_0_250px] max-sm:flex-[0_0_220px] h-[175px] max-md:h-[155px] rounded-[20px] bg-gradient-to-r from-white/[0.04] via-white/[0.09] to-white/[0.04] bg-[length:200%_100%] border border-[rgba(212,175,55,0.1)] backdrop-blur-[16px] animate-[reviews-skeleton-loading_1.5s_infinite]";
 
   const sectionClass = overlay
-    ? "absolute bottom-0 left-0 right-0 z-[3] pb-6 bg-gradient-to-t from-[rgba(9,18,39,0.85)] to-transparent pointer-events-none"
+    ? "absolute bottom-0 left-0 right-0 z-[3] pb-4 bg-gradient-to-t from-[rgba(9,18,39,0.85)] to-transparent pointer-events-none"
     : "bg-gradient-to-b from-[#091227] to-[#0b1a2e] py-20 pb-24 text-center font-['Crimson_Pro'] text-[#fdfaf3]";
 
   const trackClass = overlay
-    ? "flex gap-6 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-4 px-12 pb-2 max-w-[1200px] mx-auto no-scrollbar pointer-events-auto"
+    ? "flex gap-4 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-3 px-8 max-md:px-4 pb-2 max-w-[1200px] mx-auto no-scrollbar pointer-events-auto"
     : "flex gap-6 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-4 px-12 pb-8 max-md:px-6 max-w-[1200px] mx-auto no-scrollbar";
 
   const cardClass = overlay
-    ? "review-card flex-[0_0_320px] max-md:flex-[0_0_280px] snap-start bg-[rgba(9,18,39,0.55)] backdrop-blur-[16px] border border-[rgba(212,175,55,0.25)] rounded-[20px] p-8 px-[1.8rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:bg-[rgba(9,18,39,0.75)]"
-    : "review-card flex-[0_0_320px] max-md:flex-[0_0_280px] snap-start bg-white/[0.04] backdrop-blur-[12px] border border-[rgba(212,175,55,0.2)] rounded-[20px] p-8 px-[1.8rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:shadow-[0_15px_40px_rgba(212,175,55,0.15)] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08]";
+    ? "review-card flex-[0_0_290px] max-md:flex-[0_0_250px] max-sm:flex-[0_0_220px] snap-start bg-[rgba(9,18,39,0.55)] backdrop-blur-[16px] border border-[rgba(212,175,55,0.25)] rounded-[20px] p-5 max-md:p-4 px-[1.4rem] max-md:px-[1.1rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:bg-[rgba(9,18,39,0.75)]"
+    : "review-card flex-[0_0_300px] max-md:flex-[0_0_260px] max-sm:flex-[0_0_230px] snap-start bg-white/[0.04] backdrop-blur-[12px] border border-[rgba(212,175,55,0.2)] rounded-[20px] p-6 max-md:p-5 px-[1.6rem] max-md:px-[1.2rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:shadow-[0_15px_40px_rgba(212,175,55,0.15)] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08]";
 
   const dotsClass = overlay
-    ? "flex justify-center gap-2 mt-4 pointer-events-auto"
+    ? "flex justify-center gap-2 mt-3 pointer-events-auto"
     : "flex justify-center gap-2 mt-8";
 
   if (loading) {
@@ -124,14 +124,14 @@ function Reviews({ overlay = false }) {
       <div className={trackClass} ref={trackRef}>
         {reviews.map((review, i) => (
           <article key={review.id} className={cardClass} data-index={i}>
-            <div className="flex flex-col gap-[0.2rem] border-b border-[rgba(212,175,55,0.15)] pb-3 mb-3">
-              <span className="font-['BruneyClassy'] text-[1.1rem] text-[#f1d97c]">{review.name}</span>
+            <div className="flex flex-col gap-[0.2rem] border-b border-[rgba(212,175,55,0.15)] pb-2 mb-2">
+              <span className="font-['BruneyClassy'] text-[1rem] max-md:text-[0.9rem] text-[#f1d97c]">{review.name}</span>
               {review.event_date && (
-                <span className="text-[0.85rem] text-[rgba(234,232,225,0.55)]">{formatDate(review.event_date)}</span>
+                <span className="text-[0.8rem] max-md:text-[0.72rem] text-[rgba(234,232,225,0.55)]">{formatDate(review.event_date)}</span>
               )}
             </div>
             <StarDisplay rating={review.rating} />
-            <p className="text-base leading-[1.75] text-[#eae8e1] mb-6 italic">"{review.review}"</p>
+            <p className={`text-sm max-md:text-xs leading-[1.65] text-[#eae8e1] mb-3 italic${overlay ? ' line-clamp-4' : ''}`}>"{review.review}"</p>
           </article>
         ))}
       </div>

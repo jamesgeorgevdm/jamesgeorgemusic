@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import FadeInWrapper from "./FadeInWrapper";
+import Seo from "./Seo";
 
 import smoothJazzImg from "./images/smooth-jazz.jpg";
 import popImg from "./images/pop-contemporary.jpg";
@@ -27,6 +28,11 @@ function Products() {
 
   return (
     <FadeInWrapper>
+      <Seo
+        title="Performance Packages & Pricing | James George Music"
+        description="Live music packages for restaurants, corporate events, weddings and private functions in South Africa — transparent hourly and all-inclusive pricing."
+        path="/products"
+      />
       <main className="min-h-screen bg-[#0B1C2C] text-[#F6F2ED] font-['Crimson_Pro'] py-16 px-6 md:px-12">
         
         {/* Header Section */}

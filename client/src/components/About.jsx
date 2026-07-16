@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import FadeInWrapper from "./FadeInWrapper";
+import Seo from "./Seo";
 
 // Static content for the bio pillars
 const bioPillars = [
@@ -133,6 +134,11 @@ const About = ({ prefetchedStats }) => {
 
   return (
     <FadeInWrapper>
+      <Seo
+        title="About James George | Professional Musician in South Africa"
+        description="Meet James George — a fully qualified vocalist, saxophonist and pianist performing contemporary, jazz, musical theatre and operatic styles at weddings, corporate events and private functions."
+        path="/about"
+      />
       <main className="bg-gradient-to-b from-[#0b1a2e] to-[#091227] font-['Crimson_Pro'] text-[#fdfaf3] py-20 px-8 min-h-screen text-center">
         <header>
           <h2 className="text-[2.8rem] max-md:text-[2.2rem] font-['BruneyClassy'] text-[#f1d97c] mb-4">

@@ -5,52 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary Meta -->
-    <title>James George Music | Professional Musician & Entertainer</title>
-    <meta name="description" content="James George Music — professional vocalist, saxophonist and pianist available for weddings, corporate events, and private functions in South Africa. Real-time booking, live performance history, and tailored packages." />
+    <!-- title, description, canonical and robots are injected per-route by the <Seo> component (src/components/Seo.jsx) via React 19 metadata hoisting. -->
     <meta name="author" content="James George" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://www.jamesgeorgemusic.com" />
     <meta name="theme-color" content="#091227" />
 
-    <!-- Open Graph -->
+    <!-- Icons / Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph (site-wide defaults; social scrapers do not run JS so these stay static) -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.jamesgeorgemusic.com" />
     <meta property="og:site_name" content="James George Music" />
     <meta property="og:title" content="James George Music | Professional Musician & Entertainer" />
     <meta property="og:description" content="Professional vocalist, saxophonist and pianist for weddings, corporate events, and private functions. Real-time booking and tailored packages." />
-    <meta property="og:image" content="https://jamesgeorgemusic.com/images/poster.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image" content="https://www.jamesgeorgemusic.com/images/poster.jpg" />
+    <meta property="og:image:width" content="2302" />
+    <meta property="og:image:height" content="1293" />
+    <meta property="og:image:alt" content="James George performing live" />
     <meta property="og:locale" content="en_ZA" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="James George Music | Professional Musician & Entertainer" />
     <meta name="twitter:description" content="Professional vocalist, saxophonist and pianist for weddings, corporate events, and private functions." />
-    <meta name="twitter:image" content="https://jamesgeorgemusic.com/images/poster.jpg" />
+    <meta name="twitter:image" content="https://www.jamesgeorgemusic.com/images/poster.jpg" />
 
     <!-- Schema.org Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "MusicGroup",
+      "@id": "https://www.jamesgeorgemusic.com/#musicgroup",
       "name": "James George Music",
-      "url": "https://jamesgeorgemusic.com",
+      "url": "https://www.jamesgeorgemusic.com",
+      "image": "https://www.jamesgeorgemusic.com/images/poster.jpg",
+      "logo": "https://www.jamesgeorgemusic.com/favicon-512.png",
+      "email": "jamesv234@gmail.com",
       "description": "Professional vocalist, saxophonist and pianist available for weddings, corporate events, birthday parties, and private functions.",
       "genre": ["Pop", "Jazz", "Contemporary", "Musical Theatre", "Opera"],
+      "member": {
+        "@type": "Person",
+        "name": "James George",
+        "jobTitle": "Vocalist, Saxophonist & Pianist"
+      },
       "areaServed": {
         "@type": "Country",
         "name": "South Africa"
       },
+      "sameAs": [
+        "https://www.instagram.com/jamesgeorge.music/",
+        "https://www.facebook.com/profile.php?id=61561533225129",
+        "https://www.youtube.com/@jamesgeorgemusic"
+      ],
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "Bookings",
-        "url": "https://jamesgeorgemusic.com/booking"
-      }
+        "email": "jamesv234@gmail.com",
+        "url": "https://www.jamesgeorgemusic.com/booking"
+      },
+      "makesOffer": [
+        {
+          "@type": "Offer",
+          "name": "Restaurant & Lounge Performance",
+          "description": "Easy-listening popular classics to enhance the dining experience.",
+          "priceCurrency": "ZAR",
+          "price": "500",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "priceCurrency": "ZAR",
+            "price": "500",
+            "unitCode": "HUR"
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Corporate Event Performance",
+          "description": "Background music that sets a professional yet relaxed atmosphere.",
+          "priceCurrency": "ZAR",
+          "price": "1200",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "priceCurrency": "ZAR",
+            "price": "1200",
+            "unitCode": "HUR"
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Wedding Package",
+          "description": "All-inclusive package covering ceremony, cocktail hour and reception entertainment.",
+          "priceCurrency": "ZAR",
+          "price": "3500"
+        },
+        {
+          "@type": "Offer",
+          "name": "Private Event Performance",
+          "description": "Exclusive performances for private parties or intimate gatherings.",
+          "priceCurrency": "ZAR",
+          "price": "1000",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "priceCurrency": "ZAR",
+            "price": "1000",
+            "unitCode": "HUR"
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Musical Showcase Performance",
+          "description": "A curated musical experience showcasing a variety of styles, tailored to your event."
+        }
+      ]
     }
     </script>
-
-    <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
   <body style="margin:0; background-color:#0b1a2e;">
     <div id="root"></div>

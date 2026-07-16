@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import Seo from './Seo';
+
+const reviewSeo = (
+  <Seo title="Leave a Review | James George Music" path="/leave-review" noindex />
+);
 
 const StarPicker = ({ value, onChange }) => {
   const [hovered, setHovered] = useState(null);
@@ -115,6 +120,7 @@ function LeaveReview() {
   if (tokenValid === null) {
     return (
       <main className={pageClass}>
+        {reviewSeo}
         <div className={cardClass}>
           <p className="text-[rgba(234,232,225,0.55)] text-[1.1rem] py-8">Verifying your link…</p>
         </div>
@@ -126,6 +132,7 @@ function LeaveReview() {
   if (!tokenValid) {
     return (
       <main className={pageClass}>
+        {reviewSeo}
         <div className={cardClass}>
           <h1 className="font-['BruneyClassy'] text-[2.5rem] max-sm:text-[2rem] text-[#f1d97c] m-0 mb-2">Whoops!</h1>
           <p className="text-[rgba(234,232,225,0.7)] text-[1.05rem] leading-[1.6] mt-2 mb-0">{tokenError}</p>
@@ -138,6 +145,7 @@ function LeaveReview() {
   if (submitted) {
     return (
       <main className={pageClass}>
+        {reviewSeo}
         <div className={`${cardClass} py-16`}>
           <span className="block text-[4rem] text-[#f1d97c] mb-4 leading-none" aria-hidden="true">★</span>
           <h1 className="font-['BruneyClassy'] text-[2.5rem] max-sm:text-[2rem] text-[#f1d97c] m-0 mb-2">Thank you!</h1>
@@ -151,6 +159,7 @@ function LeaveReview() {
 
   return (
     <main className={pageClass}>
+      {reviewSeo}
       <div className={cardClass}>
         <h1 className="font-['BruneyClassy'] text-[2.5rem] max-sm:text-[2rem] text-[#f1d97c] m-0 mb-2">Leave a Review</h1>
         <p className="text-[1.05rem] text-[#eae8e1] m-0 mb-6 leading-[1.6]">

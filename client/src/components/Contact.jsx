@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import FadeInWrapper from "./FadeInWrapper";
+import Seo from "./Seo";
 
 const Contact = () => {
   const [formData, setFormData] = useState({ email: "", subject: "", message: "" });
@@ -40,6 +41,11 @@ const Contact = () => {
 
   return (
     <FadeInWrapper>
+      <Seo
+        title="Contact | James George Music"
+        description="Get in touch with James George Music for bookings, enquiries and custom performance requests across South Africa."
+        path="/contact"
+      />
       <main className="min-h-screen pt-[13rem] px-8 pb-12 text-center text-[#fdfaf3] bg-[#0b1a2e] box-border">
         <h2 className="font-['BruneyClassy'] text-5xl mt-0 mb-14 text-[#f1d97c]">Contact Me</h2>
 

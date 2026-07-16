@@ -1,10 +1,16 @@
 import React from "react";
 import FadeInWrapper from "./FadeInWrapper";
 import Reviews from "./Reviews";
+import Seo from "./Seo";
 
 function Home() {
   return (
     <FadeInWrapper>
+      <Seo
+        title="James George Music | Professional Musician & Entertainer"
+        description="Professional vocalist, saxophonist and pianist available for weddings, corporate events, and private functions in South Africa. Real-time booking and tailored packages."
+        path="/"
+      />
       <section className="relative w-full h-[100dvh] overflow-hidden m-0 p-0 bg-black">
         <video
           className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 object-cover z-[1]"
@@ -16,7 +22,6 @@ function Home() {
           aria-hidden="true"
         >
           <source src="/videos/banner.mp4" type="video/mp4" />
-          <source src="/videos/banner.webm" type="video/webm" />
           Your browser does not support the video tag.
         </video>
 

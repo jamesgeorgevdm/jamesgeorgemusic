@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import FadeInWrapper from "./FadeInWrapper";
+import Seo from "./Seo";
 
 const products = [
   { name: "Restaurant", price: "R500/h" },
@@ -147,6 +148,11 @@ function Booking() {
 
   return (
     <FadeInWrapper>
+      <Seo
+        title="Book Now | James George Music"
+        description="Check real-time availability and request your booking for weddings, corporate events and private functions with James George Music."
+        path="/booking"
+      />
       <main className="pt-32 max-md:pt-24 px-8 pb-16 text-center bg-[#0b1a2e] text-[#fdfaf3] min-h-screen flex flex-col items-center font-['Crimson_Pro']">
         <h1 className="font-['BruneyClassy'] text-5xl mb-4 text-[#f1d97c]">Booking</h1>
         <p className="text-[1.1rem] mb-8">Select a date, choose a product, and pick your timeslot.</p>

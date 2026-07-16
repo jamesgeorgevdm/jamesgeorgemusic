@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /leave-review
 
-Sitemap: https://jamesgeorgemusic.com/sitemap.xml
+Sitemap: https://www.jamesgeorgemusic.com/sitemap.xml

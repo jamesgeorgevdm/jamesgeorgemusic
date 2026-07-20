@@ -139,27 +139,67 @@ const About = ({ prefetchedStats }) => {
         description="Meet James George — a fully qualified vocalist, saxophonist and pianist performing contemporary, jazz, musical theatre and operatic styles at weddings, corporate events and private functions."
         path="/about"
       />
-      <main className="bg-gradient-to-b from-[#0b1a2e] to-[#091227] font-['Crimson_Pro'] text-[#fdfaf3] py-20 px-8 min-h-screen text-center">
+      <main className="bg-gradient-to-b from-[#0b1a2e] to-[#091227] font-['Crimson_Pro'] text-[#fdfaf3] py-16 md:py-20 px-5 sm:px-8 min-h-screen text-center">
         <header>
-          <h2 className="text-[2.8rem] max-md:text-[2.2rem] font-['BruneyClassy'] text-[#f1d97c] mb-4">
+          <h2 className="text-[2.2rem] sm:text-[2.5rem] md:text-[2.8rem] font-['BruneyClassy'] text-[#f1d97c] mb-4">
             About Me
           </h2>
-          <div className="w-20 h-[3px] mx-auto mb-20 bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
+          <div className="w-20 h-[3px] mx-auto mb-14 md:mb-20 bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
         </header>
 
         <section
-          className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-10 max-w-[1200px] mx-auto mb-32 max-lg:mx-8 max-lg:mb-20 max-lg:gap-6 max-md:mx-4 max-md:mb-16"
+          className="relative max-w-5xl mx-auto mb-24 md:mb-32 text-left"
           aria-label="Professional Pillars"
         >
-          {bioPillars.map((pillar, index) => (
-            <article
-              key={index}
-              className={`bg-white/[0.04] backdrop-blur-[12px] border border-[rgba(212,175,55,0.2)] rounded-[20px] p-10 max-md:p-8 max-md:px-6 transition-all duration-[400ms] relative hover:-translate-y-[10px] hover:rotate-0 hover:shadow-[0_15px_40px_rgba(212,175,55,0.2)] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08] max-md:rotate-0 ${index % 2 === 0 ? "rotate-[-1.5deg]" : "rotate-[1.5deg]"}`}
-            >
-              <h3 className="font-['BruneyClassy'] text-[1.6rem] text-[#f1d97c] mb-4">{pillar.title}</h3>
-              <p className="text-[1.05rem] leading-[1.7] text-[#eae8e1]">{pillar.desc}</p>
-            </article>
-          ))}
+          {/* Alternate zig-zag only on large screens — tablets stay single-column */}
+          <div
+            className="hidden lg:block absolute left-1/2 top-2 bottom-2 w-px -translate-x-1/2 bg-gradient-to-b from-[#D4A455]/80 via-[#D4A455]/30 to-transparent"
+            aria-hidden="true"
+          />
+          <div
+            className="lg:hidden absolute left-[0.85rem] top-3 bottom-3 w-px bg-gradient-to-b from-[#D4A455]/80 via-[#D4A455]/25 to-transparent"
+            aria-hidden="true"
+          />
+
+          <div className="flex flex-col gap-10 sm:gap-12 lg:gap-16">
+            {bioPillars.map((pillar, index) => {
+              const isLeft = index % 2 === 0;
+              return (
+                <article
+                  key={pillar.title}
+                  className={`group relative flex items-start gap-5 lg:gap-0 ${
+                    isLeft ? "lg:flex-row" : "lg:flex-row-reverse"
+                  }`}
+                >
+                  <span
+                    className="relative z-[1] shrink-0 mt-1.5 flex h-7 w-7 lg:h-8 lg:w-8 items-center justify-center rounded-full border border-[#D4A455]/50 bg-[#0b1a2e] text-[0.65rem] lg:text-xs tracking-[0.08em] text-[#D4A455] font-['BruneyClassy'] transition-all duration-500 group-hover:border-[#f1d97c] group-hover:text-[#f1d97c] group-hover:shadow-[0_0_18px_rgba(241,217,124,0.35)] lg:absolute lg:left-1/2 lg:-translate-x-1/2"
+                    aria-hidden="true"
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
+                  <div
+                    className={`flex-1 min-w-0 ${
+                      isLeft ? "lg:pr-10 lg:text-right" : "lg:pl-10 lg:text-left"
+                    }`}
+                  >
+                    <h3 className="font-['BruneyClassy'] text-[1.4rem] sm:text-[1.55rem] lg:text-[1.75rem] text-[#f1d97c] mb-2.5 leading-snug transition-colors duration-300 group-hover:text-[#ffd700]">
+                      {pillar.title}
+                    </h3>
+                    <p
+                      className={`text-[0.98rem] sm:text-[1.05rem] leading-[1.75] sm:leading-[1.8] text-[#eae8e1]/80 m-0 max-w-md transition-colors duration-300 group-hover:text-[#eae8e1] ${
+                        isLeft ? "lg:ml-auto" : ""
+                      }`}
+                    >
+                      {pillar.desc}
+                    </p>
+                  </div>
+
+                  <div className="hidden lg:block flex-1" aria-hidden="true" />
+                </article>
+              );
+            })}
+          </div>
         </section>
 
         <section aria-label="Performance Statistics">

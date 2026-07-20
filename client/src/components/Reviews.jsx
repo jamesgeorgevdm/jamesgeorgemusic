@@ -22,6 +22,53 @@ const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 };
 
+function ReviewText({ text, overlay }) {
+  const [expanded, setExpanded] = useState(false);
+  const [needsClamp, setNeedsClamp] = useState(false);
+  const textRef = useRef(null);
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      if (expanded) return;
+      setNeedsClamp(el.scrollHeight > el.clientHeight + 1);
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [text, expanded, overlay]);
+
+  return (
+    <div className="mb-3">
+      <p
+        ref={textRef}
+        className={`text-sm max-md:text-xs leading-[1.65] text-[#eae8e1] italic${
+          !expanded ? (overlay ? ' line-clamp-4' : ' line-clamp-5') : ''
+        }`}
+      >
+        "{text}"
+      </p>
+      {(needsClamp || expanded) && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded(prev => !prev);
+          }}
+          className="mt-1.5 p-0 border-none bg-transparent cursor-pointer font-['Crimson_Pro'] text-[0.8rem] max-md:text-[0.72rem] text-[#f1d97c] hover:text-[#ffd700] underline underline-offset-2 decoration-[rgba(241,217,124,0.4)] hover:decoration-[#ffd700] transition-colors duration-200"
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function Reviews({ overlay = false }) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -107,7 +154,7 @@ function Reviews({ overlay = false }) {
             <div className="w-20 h-[3px] mx-auto bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
           </div>
         )}
-        <p className="text-[rgba(234,232,225,0.45)] text-[1.1rem] py-12">Reviews coming soon.</p>
+        <p className="text-center text-[rgba(234,232,225,0.45)] text-[1.35rem] max-md:text-[1.15rem] py-12">Reviews coming soon.</p>
       </div>
     );
   }
@@ -131,7 +178,7 @@ function Reviews({ overlay = false }) {
               )}
             </div>
             <StarDisplay rating={review.rating} />
-            <p className={`text-sm max-md:text-xs leading-[1.65] text-[#eae8e1] mb-3 italic${overlay ? ' line-clamp-4' : ''}`}>"{review.review}"</p>
+            <ReviewText text={review.review} overlay={overlay} />
           </article>
         ))}
       </div>

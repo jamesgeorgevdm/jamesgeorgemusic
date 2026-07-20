@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { FaPlay } from "react-icons/fa";
 import FadeInWrapper from "./FadeInWrapper";
 import Seo from "./Seo";
 
@@ -7,7 +8,6 @@ import smoothJazzImg from "./images/smooth-jazz.jpg";
 import popImg from "./images/pop-contemporary.jpg";
 import classicalImg from "./images/classical-orchestral.jpg";
 
-// Data for performance packages
 const packages = [
   { name: "Restaurant", price: "R500/h", description: "Ideal for restaurants and lounges. Easy-listening popular classics to enhance the dining experience." },
   { name: "Corporate", price: "R1,200/h", description: "Perfect for corporate events. Background music that sets a professional yet relaxed atmosphere." },
@@ -16,11 +16,25 @@ const packages = [
   { name: "Musical Showcase Performance", price: "Negotiable", description: "A curated musical experience showcasing a variety of styles and genres or tailored to a venue's needs, perfect for special events or ticketed performances." }
 ];
 
-// Data for styles on offer with corresponding images and video links
 const styles = [
-  { title: "Background / Classic Jazz", img: smoothJazzImg, video: "https://www.youtube.com/@jamesgeorgemusic" },
-  { title: "Pop & Contemporary", img: popImg, video: "https://www.youtube.com/@jamesgeorgemusic" },
-  { title: "Classical / Operatic", img: classicalImg, video: "https://www.youtube.com/@jamesgeorgemusic" },
+  {
+    title: "Background / Classic Jazz",
+    img: smoothJazzImg,
+    video: "https://www.youtube.com/watch?v=qLJJZcFYeXQ",
+    blurb: "Warm, easy-listening jazz that fills a room without competing with conversation.",
+  },
+  {
+    title: "Pop & Contemporary",
+    img: popImg,
+    video: "https://youtu.be/y-GxjBkyJ34",
+    blurb: "Familiar hits and modern favourites for receptions, parties and lively venues.",
+  },
+  {
+    title: "Classical / Operatic",
+    img: classicalImg,
+    video: "https://youtu.be/DQ2kdlt41Hs",
+    blurb: "Refined classical and operatic repertoire for ceremonies and formal occasions.",
+  },
 ];
 
 function Products() {
@@ -34,8 +48,7 @@ function Products() {
         path="/products"
       />
       <main className="min-h-screen bg-[#0B1C2C] text-[#F6F2ED] font-['Crimson_Pro'] py-16 px-6 md:px-12">
-        
-        {/* Header Section */}
+
         <header className="text-center max-w-3xl mx-auto mb-16">
           <h1 className="font-['BruneyClassy'] text-4xl md:text-5xl text-[#D4A455] mb-4">
             Performance Packages
@@ -45,61 +58,93 @@ function Products() {
           </p>
         </header>
 
-        {/* Packages Grid - Wrapped in a section */}
-        <section className="flex flex-wrap justify-center gap-8 mb-24" aria-label="Available Packages">
-          {packages.map((pkg, index) => (
-            <article 
-              key={index}
-              className="group bg-[#0f2240] p-8 rounded-2xl w-full sm:w-[280px] text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(212,164,85,0.3)] border border-[#D4A455]/20"
-            >
-              <h2 className="font-['BruneyClassy'] text-2xl text-[#f1d97c] mb-2">{pkg.name}</h2>
-              <p className="text-xl font-bold mb-4 text-[#D4A455]">{pkg.price}</p>
-              <p className="text-sm leading-relaxed mb-6 opacity-80 min-h-[60px]">{pkg.description}</p>
-              <button 
-                onClick={() => navigate("/booking")} // Navigates to the booking page when the button is clicked, allowing users to easily proceed with booking after viewing package details
-                className="w-full py-3 bg-[#D4A455] text-[#0B1C2C] rounded-lg font-bold transition-all hover:bg-[#f1d97c] hover:shadow-[0_0_15px_#f1d97c] cursor-pointer"
-              >
-                Book {pkg.name}
-              </button>
-            </article>
-          ))}
+        <section
+          className="max-w-4xl mx-auto mb-20 md:mb-28"
+          aria-label="Available Packages"
+        >
+          <ul className="list-none m-0 p-0 divide-y divide-[#D4A455]/15">
+            {packages.map((pkg) => (
+              <li key={pkg.name}>
+                <div className="group grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 md:gap-8 items-start md:items-center py-6 md:py-8 px-0 md:px-3 md:-mx-3 rounded-xl transition-colors duration-400 hover:bg-white/[0.03]">
+                  <div className="min-w-0 text-left">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-x-4 gap-y-1 mb-2">
+                      <h2 className="font-['BruneyClassy'] text-[1.35rem] sm:text-2xl md:text-[1.7rem] text-[#f1d97c] m-0 leading-snug transition-colors duration-300 group-hover:text-[#ffd700]">
+                        {pkg.name}
+                      </h2>
+                      <span className="text-[#D4A455] font-bold tracking-wide text-sm md:text-base">
+                        {pkg.price}
+                      </span>
+                    </div>
+                    <p className="text-sm md:text-[0.95rem] leading-relaxed text-[#F6F2ED]/75 m-0 max-w-2xl">
+                      {pkg.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate("/booking")}
+                    className="w-full md:w-auto justify-self-stretch md:justify-self-end shrink-0 px-5 py-2.5 rounded-full border border-[#D4A455]/50 bg-transparent text-[#D4A455] font-bold text-sm tracking-wide transition-all duration-300 cursor-pointer hover:bg-[#D4A455] hover:text-[#0B1C2C] hover:border-[#D4A455] group-hover:shadow-[0_0_20px_rgba(212,164,85,0.2)]"
+                  >
+                    Book
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </section>
 
-        {/* Styles Section */}
-        <section aria-labelledby="styles-heading">
-          <h2 id="styles-heading" className="font-['BruneyClassy'] text-4xl text-center text-[#f1d97c] mb-12">
-            Styles on Offer
-          </h2>
+        <section aria-labelledby="styles-heading" className="pb-8">
+          <header className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
+            <h2 id="styles-heading" className="font-['BruneyClassy'] text-3xl md:text-4xl text-[#f1d97c] mb-3">
+              Styles on Offer
+            </h2>
+            <p className="text-sm md:text-base opacity-75">
+              Hear each style in performance — click a card to watch on YouTube.
+            </p>
+          </header>
 
-          <div className="relative max-w-5xl mx-auto space-y-12 pb-12">
-            {/* Timeline Line decorative - hidden from screen readers */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-1 hidden md:block -translate-x-1/2 opacity-30" aria-hidden="true">
-               <div className="h-full w-full bg-[url('data:image/svg+xml,...')] bg-repeat-y"></div>
-            </div>
-
-            {styles.map((style, index) => (
-              <article 
-                key={index}
-                className={`flex flex-col md:flex-row items-center gap-8 relative z-10 
-                  ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`} // Alternates the layout of each style card for visual interest, with images on opposite sides for even and odd indexed items
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 max-w-6xl mx-auto">
+            {styles.map((style) => (
+              <a
+                key={style.title}
+                href={style.video}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Watch ${style.title} performance video on YouTube`}
+                className="group relative block overflow-hidden rounded-2xl border border-[#D4A455]/25 bg-[#0f2240] no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D4A455] transition-[transform,box-shadow,border-color] duration-500 hover:-translate-y-1.5 hover:border-[#D4A455]/60 hover:shadow-[0_20px_50px_rgba(0,0,0,0.45),0_0_40px_rgba(212,164,85,0.12)]"
               >
-                <button 
-                  onClick={() => window.open(style.video, "_blank")}
-                  className="w-full md:w-[45%] bg-[#0f2240] p-4 rounded-2xl flex items-center gap-6 cursor-pointer transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] border border-[#D4A455]/20 group"
-                  aria-label={`Watch ${style.title} performance video`}
-                >
-                  <img 
-                    src={style.img} 
-                    alt="" /* Alt empty because the title is in the heading below */
-                    className="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                <div className="relative aspect-[16/10] lg:aspect-[4/5] overflow-hidden">
+                  <img
+                    src={style.img}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover scale-105 transition-transform duration-700 ease-out group-hover:scale-110"
                   />
-                  <div className="text-left">
-                    <h3 className="font-['BruneyClassy'] text-lg md:text-xl text-[#f1d97c]">{style.title}</h3>
-                    <p className="text-xs md:text-sm opacity-70">VIDEO CONTENT COMING SOON</p>
+                  <div
+                    className="absolute inset-0 bg-gradient-to-t from-[#0B1C2C] via-[#0B1C2C]/55 to-[#0B1C2C]/15"
+                    aria-hidden="true"
+                  />
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span
+                      className="flex h-12 w-12 lg:h-16 lg:w-16 items-center justify-center rounded-full bg-[#D4A455]/90 text-[#0B1C2C] shadow-[0_8px_30px_rgba(0,0,0,0.45)] transition-all duration-400 group-hover:scale-110 group-hover:bg-[#f1d97c]"
+                      aria-hidden="true"
+                    >
+                      <FaPlay className="ml-0.5 lg:ml-1 text-base lg:text-xl" />
+                    </span>
                   </div>
-                </button>
-                <div className="hidden md:block md:w-[45%]" aria-hidden="true"></div>
-              </article>
+
+                  <div className="absolute inset-x-0 bottom-0 p-4 lg:p-6 pt-10 lg:pt-16 text-left">
+                    <h3 className="font-['BruneyClassy'] text-lg lg:text-2xl text-[#f1d97c] mb-1 lg:mb-2 leading-snug">
+                      {style.title}
+                    </h3>
+                    <p className="hidden lg:block text-sm leading-relaxed text-[#F6F2ED]/80 mb-4">
+                      {style.blurb}
+                    </p>
+                    <span className="inline-flex items-center gap-2 text-[0.7rem] lg:text-xs font-bold uppercase tracking-[0.14em] text-[#D4A455] transition-colors duration-300 group-hover:text-[#f1d97c]">
+                      Watch performance
+                      <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                    </span>
+                  </div>
+                </div>
+              </a>
             ))}
           </div>
         </section>

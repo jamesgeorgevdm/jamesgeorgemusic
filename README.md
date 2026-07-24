@@ -1,142 +1,160 @@
 # [jamesgeorgemusic.com](https://jamesgeorgemusic.com)
 
-A high-impact, full-stack portfolio and automated business engine designed for my professional performance business. This platform integrates real-time scheduling, automated gig tracking, a dynamic media showcase, and a client reviews system to streamline the booking process, channel the necessary information seamlessly to potential clients and manage my performing career.
+This is the live site for my performance business — booking, availability, reviews, media, and an AI concierge that actually knows my packages and gear. I built it because the admin side of freelancing (chasing availability, logging gigs, fielding the same questions over and over) was eating time I wanted for music. So instead of bolting Calendly onto a Squarespace page, I made something that sits on top of tools I already use.
+
+> **For reviewers:** the production site is live at [jamesgeorgemusic.com](https://jamesgeorgemusic.com). You don't need to run it locally to evaluate the product. Local setup is below if you want to dig into the code.
+
+---
 
 ## Live Environment
-* **Production Domain:** [jamesgeorgemusic.com](https://jamesgeorgemusic.com)
-* **Frontend:** React 19 (Deployed on **Vercel**)
-* **Backend:** Node.js/Express (Deployed on **Render**)
-* **Database:** PostgreSQL (via **Neon**)
-* **API Proxy:** `vercel.json` rewrites all `/api/*` requests to the Render backend, enabling a single unified domain with no CORS complexity in production.
+
+| Piece | Choice |
+| :--- | :--- |
+| **Domain** | [jamesgeorgemusic.com](https://jamesgeorgemusic.com) |
+| **Frontend** | React 19 + Vite on **Vercel** |
+| **Backend** | Node/Express on **Render** |
+| **Database** | PostgreSQL via **Neon** |
+| **API routing** | `vercel.json` rewrites `/api/*` to the Render service so production is one domain |
 
 ---
 
-## Tech Stack
+## Why this architecture
 
-### Frontend
-* **React 19 & Vite:** Modern, fast, and component-based UI development.
-* **Tailwind CSS 4:** Utility-first styling with high-performance CSS processing.
-* **React Calendar:** Integrated date selection for booking workflows.
-* **React Router DOM:** Seamless client-side navigation with per-route `document.title` management.
-* **React Icons:** Scalable icon library used across UI components.
-* **Vercel AI SDK (`@ai-sdk/react`):** Streaming chat UI with real-time token rendering.
-* **React Markdown:** Renders formatted AI responses within the chat widget.
-* **FadeInWrapper:** Custom transition component that wraps each page for smooth entry animations.
+### Split frontend / backend (Vercel + Render), not a monolith
 
-### Backend
-* **Node.js & Express:** Scalable server architecture handling API requests and automation logic.
-* **Neon & `pg`:** Managed PostgreSQL database with a direct `pg` client for gig tracking, reviews, and metadata.
-* **Google APIs (googleapis):** Direct integration with Google Calendar for real-time availability.
-* **Nodemailer:** Automated email delivery for booking requests and client communication.
-* **Vercel AI SDK (`ai`) & `@ai-sdk/google`:** Server-side streaming integration with Google Gemini.
-* **express-rate-limit:** Per-route rate limiting for chat, booking, and contact endpoints, centralised in `middleware/rateLimiters.js`.
+I considered putting everything on one platform. In the end I kept the SPA on Vercel (where it belongs) and the API on Render.
 
-### Tooling
-* **Concurrently:** Synchronized local development for frontend and backend.
-* **Dayjs:** Precision date and time manipulation.
+**Trade-off:** Render can cold-start on the free/hobby tier, so the first API hit after idle is slower. I accepted that over paying for always-on infra while the business is still growing. The Vercel rewrite means clients never talk to a different origin in production, which killed a whole class of CORS headaches.
 
----
+Locally, CORS is still locked to `localhost:5173` plus the real domains — belt and braces if someone hits the API directly.
 
-## Core Features & Technical Implementation
+### Vite SPA instead of Next.js
 
-### 1. Intelligent Booking Engine (Google Calendar API)
-The system eliminates manual scheduling friction by syncing directly with a professional calendar.
-* **Real-Time Availability:** Fetches live event data from the Google Calendar API.
-* **Conflict Resolution:** Automatically identifies and crosses out occupied timeslots in the UI to prevent double-bookings.
-* **Lead Generation:** A custom booking form captures client details, product selection, and event descriptions.
+I looked at migrating to Next for SEO / prerendering. I stayed on Vite + React 19.
 
-### 2. Automated Gig Tracker & Database
-A sophisticated background service ensures the "Performance History" is always accurate without manual entry.
-* **Keyword Detection:** Scans Google Calendar entries for specific keywords (e.g., "Wedding," "Corporate," "Studio Session").
-* **Auto-Categorization:** Upon detecting a keyword, the system updates the database, categorizing the gig and updating total counts.
-* **Temporal Tracking:** Gigs move from "Upcoming" to "Past" automatically based on timestamps, maintaining a living history of performances.
+**Trade-off:** a SPA is weaker out of the box for crawlability than a server-rendered app. I mitigated with proper meta tags, sitemap, robots, and structured data rather than rewriting the whole stack mid-flight. For a site this size, the DX of Vite won. If organic search ever becomes the main growth channel, Next (or similar) is the obvious next move — I just didn't want to rewrite a working business tool for a maybe.
 
-### 3. Performance Statistics API
-Live gig counts are served from the database and consumed by the About page with an optimised prefetch strategy.
-* **Prefetching:** `App.jsx` fires a `/api/stats` fetch on initial load so data is ready before the user navigates to `/about`, eliminating visible loading states in the common flow.
-* **Animated Counters:** The About page animates each category count from zero to its current total using a 60fps `setInterval` loop.
-* **Graceful Fallback:** If the prefetch hasn't resolved by the time the user lands on `/about`, a local fetch fires as a direct fallback.
+### Google Calendar as the source of truth for availability
 
-### 4. AI Concierge Chatbot (Gemini 2.5 Flash)
-A context-aware assistant pre-loaded with detailed knowledge of packages, gear, availability policy, and performance history.
-* **Streaming Responses:** Uses the Vercel AI SDK to stream tokens in real-time, giving an instant, conversational feel.
-* **Scoped System Prompt:** Locked to James George Music topics—pricing, styles, booking policy, and gear specs. Politely declines off-topic requests.
-* **Markdown Rendering:** Responses with lists, bold text, and structure are rendered cleanly inside the chat widget.
-* **Rate Limited:** Per-IP request limiting prevents abuse, with a graceful fallback message directing users to the contact form.
-* **Graceful Error Handling:** Any failure (quota exceeded, network error, misconfiguration) surfaces a friendly message rather than a raw error.
+I already run my life in Google Calendar. Building a second booking database that I'd have to keep in sync felt like inventing work.
 
-### 5. Client Reviews System
-A two-part feature handling both public display and private, token-gated submission.
-* **Public Carousel:** `Reviews.jsx` renders a scroll-snap horizontal carousel pinned to the bottom of the hero section, pulling approved reviews from the database in real-time.
-* **Half-Star Ratings:** Custom `StarDisplay` and `StarPicker` components support half-star precision for both display and submission, implemented via CSS `clip-path`.
-* **Token-Gated Submission:** The `/leave-review` route is protected by a one-time token system. Clients receive a personalised link; the server validates the token before allowing a submission, preventing spam and unsolicited entries.
-* **IntersectionObserver Navigation:** Dot-indicator navigation is driven by an `IntersectionObserver` tracking card visibility at 50% threshold—no scroll event listeners needed.
+The `/api/availability` route reads the day's events and returns blocked hourly slots. The booking UI crosses those out. All-day events block the whole working window (08:00–22:00). Past hours today are blocked too.
 
-### 6. Contact & Booking Forms
-Structured lead capture with automated email delivery on submission.
-* **Rate Limited:** Independent per-route limits on contact and booking endpoints prevent spam.
-* **Nodemailer Integration:** Submissions trigger an automated email directly to James with full client details.
+**Trade-offs I accepted:**
+- Granularity is hourly, not minute-level. Fine for gigs; wrong for a dentist's office.
+- A booking request does **not** write back to the calendar. It emails me (and the client) so I still confirm manually. Instant self-serve booking would be nicer UX, but I'd lose the ability to say no to a bad fit or a logistics nightmare. For now, human-in-the-loop is a feature, and I personally prefer the control.
+- If Google's API is down, availability fails closed with a retry path in the UI rather than pretending everything is free.
 
----
+### Email confirmations over a full booking platform
 
-## Server Architecture
+Nodemailer sends me the request and the client a "got it, I'll confirm" message. No PayStack checkout, no auto-hold on the calendar.
 
-The Express server is organised into four layers for maintainability:
+**Why:** There are many logistics to confirm with a client personally regarding actual times, needs, sound equipment, travel etc. - adding payment before it can be confirmed on my side is dangerous. Additionally the forms are rate-limited (10/hour per IP) so I'm not drowning in spam while I still sleep.
 
-| Layer | Path | Purpose |
+### Direct `pg` against Neon, no ORM
+
+The schema is small — gig categories, processed calendar events, reviews, review tokens. An ORM would mostly be ceremony.
+
+**Trade-off:** no fancy migrations story. For a project I own end-to-end, raw SQL I can read in five seconds beat another abstraction layer. Neon keeps Postgres managed so I'm not babysitting a VPS.
+
+### Gig stats from calendar keywords, not manual entry
+
+`gigHelpers.js` syncs past calendar events, matches keywords in the title (then description) against category rows, bumps a counter, and records the Google event ID so we never double-count.
+
+**Trade-off:** this only works if I title gigs consistently ("Wedding", "Corporate", etc.). Uncategorised events are skipped on purpose — better to undercount than invent history. It's deliberately dumb and reliable rather than an NLP classifier for a few dozen events a month.
+
+Stats are prefetched in `App.jsx` on first load so the About page counters are usually ready before anyone navigates there. If they're not, About falls back to its own fetch. No React Query — the site has one cache-worthy endpoint and a `useState` was enough.
+
+### Reviews are invite-only (token-gated)
+
+Public reviews sit in a scroll-snap carousel on the home page. Submission lives at `/leave-review` and requires a one-time DB token that I generate via an admin endpoint (`x-admin-secret`). Token is marked used after submit.
+
+**Why not an open form or Google Reviews embed?** Spam and quality. I only want reviews from people who actually hired me. Linking out to Google is still useful for SEO elsewhere; this system is for *controlled* social proof on my own site.
+
+Half-star ratings are custom CSS `clip-path` components — overkill maybe, but star libraries fought the design and I wanted 4.5 to look right.
+
+### AI concierge (Gemini 2.5 Flash + Vercel AI SDK)
+
+Streaming chat with a long, strict system prompt: packages, gear, booking policy, location timeline. It is deliberately **not** allowed to confirm bookings or invent links. Off-topic stuff gets a polite no. Rate-limited harder than the forms (30/hour) because LLMs are easy to abuse and potentially cost real money.
+
+**Trade-offs:**
+- Flash over a heavier model: latency and cost matter more than poetry for FAQ answers.
+- Prompt-scoped knowledge goes stale if I change prices and forget to update the prompt. That's on me; the alternative was wiring the model into the DB for a chatbot that still shouldn't negotiate rates.
+- When quota or the provider fails, the UI falls back to "use the contact form" instead of a stack trace.
+
+### Server layout
+
+Nothing fancy — four folders so future-me (or a reviewer) can find things:
+
+| Layer | Path | Role |
 | :--- | :--- | :--- |
-| **Config** | `server/config/` | Environment loading (`env.js`), database client (`db.js`), and Google API auth (`google.js`) |
-| **Middleware** | `server/middleware/rateLimiters.js` | Centralised `express-rate-limit` instances for each endpoint type |
-| **Routes** | `server/routes/` | `availability.js`, `chat.js`, `contact.js`, `reviews.js`, `stats.js` |
-| **Utils** | `server/utils/` | `email.js` (Nodemailer helpers) and `gigHelpers.js` (calendar keyword parsing & DB sync logic) |
+| Config | `server/config/` | env, DB pool, Google auth |
+| Middleware | `server/middleware/` | shared rate limiters |
+| Routes | `server/routes/` | availability, chat, contact, reviews, stats |
+| Utils | `server/utils/` | email helpers, gig sync / keyword logic |
+
+---
+
+## Tech Stack (short version)
+
+**Frontend:** React 19, Vite, Tailwind 4, React Router, React Calendar, Vercel AI SDK (`@ai-sdk/react`), React Markdown, custom `FadeInWrapper` page transitions.
+
+**Backend:** Express, `pg`, Google Calendar API (`googleapis`), Nodemailer, Vercel AI SDK + `@ai-sdk/google`, `express-rate-limit`.
+
+**Tooling:** Concurrently for local dual-process dev, Dayjs (with timezone) for SA time (`Africa/Johannesburg`).
+
+---
+
+## Core features (what to click around)
+
+1. **Booking** — live calendar sync, blocked slots, AbortController so flipping dates mid-fetch doesn't race.
+2. **Gig tracker / stats** — keyword sync from Calendar → Neon → animated counters on About.
+3. **AI chat** — streaming Gemini answers scoped to the business.
+4. **Reviews** — public carousel + token-gated `/leave-review`.
+5. **Contact / booking emails** — rate-limited Nodemailer paths.
 
 ---
 
 ## Environment Variables
 
-To run this project, configure the following variables in a `.env` file within your `/server` directory:
+Put these in `server/.env`:
 
 | Variable | Description |
 | :--- | :--- |
-| `CALENDAR_ID` | The unique ID of the Google Calendar to sync with. |
-| `EMAIL_USER` | The email address used to send automated notifications. |
-| `EMAIL_PASS` | The App Password for the email account. |
-| `GOOGLE_CREDS` | Stringified JSON of your Google Service Account credentials. |
-| `DATABASE_URL` | The connection URL for your Neon PostgreSQL project. |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | API key for Google Gemini (AI chatbot). Obtain from [Google AI Studio](https://aistudio.google.com/app/apikey). |
-| `GOOGLE_CALENDAR_ID` | The calendar ID used for live availability sync. |
-| `REVIEW_TOKEN_SECRET` | Secret used to generate and validate one-time review submission tokens. |
+| `CALENDAR_ID` | Google Calendar ID used for availability + gig sync |
+| `DATABASE_URL` | Neon Postgres connection string |
+| `GOOGLE_CREDS` | Stringified JSON for the Google service account |
+| `EMAIL_USER` / `EMAIL_PASS` | SMTP account + app password for Nodemailer |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini key ([Google AI Studio](https://aistudio.google.com/app/apikey)) |
+| `ADMIN_SECRET` | Header secret for `POST /api/admin/generate-token` |
+| `CLIENT_URL` | Base URL for generated review links (defaults to production) |
+
+Client uses `VITE_API` (see `client/.env.local`) — empty/same-origin in production thanks to the Vercel rewrite; point it at `http://localhost:5000` locally.
 
 ---
 
 ## Installation & Local Development
 
-> **Note for reviewers:** The project is fully live at [jamesgeorgemusic.com](https://jamesgeorgemusic.com) — no local setup required to evaluate it.
-
-### 1. Clone and Install Dependencies
-Copy and paste this block to set up the entire project:
-
 ```bash
-git clone https://github.com/jamesgeorgevdm/jamesgeorgemusic.git && cd jamesgeorgemusic && npm install && cd client && npm install && cd ../server && npm install && cd ..
+git clone https://github.com/jamesgeorgevdm/jamesgeorgemusic.git
+cd jamesgeorgemusic
+npm install && cd client && npm install && cd ../server && npm install && cd ..
 ```
 
-### 2. Configure Environment
-Create your environment file:
-```bash
-touch server/.env
-```
-*Populate `server/.env` with the keys listed in the **Environment Variables** section above.*
+Create `server/.env` with the variables above, then:
 
-### 3. Launch Development Environment
-Run both the frontend and backend simultaneously:
 ```bash
 npm run dev
 ```
 
----
-
-## Portfolio Context
-This project demonstrates the fulfilment of my real-world business challenges such as administrative overhead and scheduling conflicts—through **Full-Stack Automation**. It highlights proficiency in RESTful API design, database management, and professional-grade frontend deployment.
+That runs Vite and the Express server together via Concurrently.
 
 ---
+
+## What this project is actually about
+
+It's not a tutorial CRUD app. It's a working tool for a real gigging business, which forced choices around trust (manual booking confirmation), cost (Flash, cold starts, no ORM), and honesty with the calendar I already live in. Happy to talk through any of the trade-offs above.
+
+---
+
 © 2026 James George Music. All rights reserved.

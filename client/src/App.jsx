@@ -8,6 +8,7 @@ import Booking from './components/Booking';
 import Contact from './components/Contact';
 import ChatbotWidget from './components/ChatbotWidget';
 import LeaveReview from './components/LeaveReview';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   const [prefetchedStats, setPrefetchedStats] = useState(null);
@@ -23,6 +24,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Navbar />
       <main>
         <Routes>

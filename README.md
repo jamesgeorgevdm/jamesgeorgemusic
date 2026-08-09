@@ -123,11 +123,17 @@ Put these in `server/.env`:
 | :--- | :--- |
 | `CALENDAR_ID` | Google Calendar ID used for availability + gig sync |
 | `DATABASE_URL` | Neon Postgres connection string |
-| `GOOGLE_CREDS` | Stringified JSON for the Google service account |
+| `GOOGLE_CREDS` | Stringified JSON for the Google service account (fallback auth) |
 | `EMAIL_USER` / `EMAIL_PASS` | SMTP account + app password for Nodemailer |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini key ([Google AI Studio](https://aistudio.google.com/app/apikey)) |
-| `ADMIN_SECRET` | Header secret for `POST /api/admin/generate-token` |
+| `ADMIN_SECRET` | Header secret for review tokens + OAuth start |
 | `CLIENT_URL` | Base URL for generated review links (defaults to production) |
+| `CRON_SECRET` | Header `x-cron-secret` for `/api/jobs/*` and `/api/sync-gigs` |
+| `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` | Owner Calendar OAuth client |
+| `GOOGLE_OAUTH_REDIRECT_URI` | e.g. `https://<render-host>/api/oauth/google/callback` |
+| `GOOGLE_CALENDAR_WEBHOOK_URL` | e.g. `https://<render-host>/api/webhooks/google-calendar` |
+
+See [SETUP_FOR_THURSDAY.md](./SETUP_FOR_THURSDAY.md) for deploy, cron, and OAuth steps.
 
 Client uses `VITE_API` (see `client/.env.local`) — empty/same-origin in production thanks to the Vercel rewrite; point it at `http://localhost:5000` locally.
 

@@ -3,7 +3,6 @@ import pool from "../config/db.js";
 
 const router = Router();
 
-// GET all reviews (newest first)
 router.get("/reviews", async (req, res) => {
   try {
     const result = await pool.query(
@@ -16,7 +15,6 @@ router.get("/reviews", async (req, res) => {
   }
 });
 
-// GET validate a review token before the form is shown
 router.get("/validate-token", async (req, res) => {
   const { token } = req.query;
   if (!token) {
@@ -40,7 +38,6 @@ router.get("/validate-token", async (req, res) => {
   }
 });
 
-// POST submit a review (requires a valid token)
 router.post("/reviews", async (req, res) => {
   const { token, name, event_date, rating, review } = req.body;
 
@@ -49,36 +46,42 @@ router.post("/reviews", async (req, res) => {
     return res.status(400).json({ error: "Name, rating, and review are required." });
   }
 
+  const client = await pool.connect();
   try {
-    const tokenResult = await pool.query(
-      "SELECT id FROM review_tokens WHERE token = $1 AND used = false AND expires_at > NOW()",
+    await client.query("BEGIN");
+
+    const tokenResult = await client.query(
+      `SELECT id FROM review_tokens
+       WHERE token = $1 AND used = false AND expires_at > NOW()
+       FOR UPDATE`,
       [token]
     );
     if (tokenResult.rows.length === 0) {
+      await client.query("ROLLBACK");
       return res.status(401).json({ error: "Invalid or expired token." });
     }
 
-    await pool.query(
+    await client.query(
       "INSERT INTO reviews (name, event_date, rating, review) VALUES ($1, $2, $3, $4)",
       [name, event_date || null, rating, review]
     );
 
-    await pool.query(
+    await client.query(
       "UPDATE review_tokens SET used = true WHERE token = $1",
       [token]
     );
 
+    await client.query("COMMIT");
     res.json({ success: true });
   } catch (err) {
+    await client.query("ROLLBACK");
     console.error("Review submission error:", err);
     res.status(500).json({ error: "Failed to submit review." });
+  } finally {
+    client.release();
   }
 });
 
-// POST generate a single-use review token (admin only)
-// Usage: POST /api/admin/generate-token
-//   Header: x-admin-secret: <your ADMIN_SECRET env var>
-//   Body:   { "event_label": "Smith Wedding – June 2026", "days_valid": 30 }
 router.post("/admin/generate-token", async (req, res) => {
   const adminSecret = req.headers["x-admin-secret"];
   if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {

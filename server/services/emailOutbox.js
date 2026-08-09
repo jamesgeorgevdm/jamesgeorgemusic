@@ -8,6 +8,14 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
   try {
     await client.query("BEGIN");
 
+    // Reclaim rows left in "processing" after a crash/deploy mid-send.
+    await client.query(
+      `UPDATE email_outbox
+       SET status = 'pending'
+       WHERE status = 'processing'
+         AND created_at < NOW() - INTERVAL '5 minutes'`
+    );
+
     const claimed = await client.query(
       `WITH due AS (
          SELECT id

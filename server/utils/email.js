@@ -1,14 +1,18 @@
 import "../config/env.js";
 import nodemailer from "nodemailer";
 
+// Prefer 587/STARTTLS — Render → Gmail on 465 often hits connection timeouts.
 export const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  connectionTimeout: 20000,
+  greetingTimeout: 20000,
+  socketTimeout: 30000,
   tls: {
     rejectUnauthorized: false,
   },

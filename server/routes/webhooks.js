@@ -22,7 +22,8 @@ router.post("/webhooks/google-calendar", async (req, res) => {
   }
 
   // Stable key so retries dedupe even when message number is missing.
-  const deliveryId = `${channelId}:${resourceId || "unknown"}:${messageNumber ?? resourceState || "event"}`;
+  const suffix = messageNumber ?? resourceState ?? "event";
+  const deliveryId = `${channelId}:${resourceId || "unknown"}:${suffix}`;
 
   try {
     const insert = await pool.query(

@@ -50,8 +50,10 @@ export async function createBookingRequest(body) {
     );
     const bookingId = bookingResult.rows[0].id;
 
+    // From must be the authenticated Gmail account; use replyTo for the client.
     const ownerPayload = {
-      from: email,
+      from: { name: "James George Music Bookings", address: ownerEmail },
+      replyTo: email,
       to: ownerEmail,
       subject: `New Booking Request: ${product}`,
       text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nProduct: ${product}\nDate: ${dateFormatted}\nTimeslot: ${startTime} - ${endTime}\nMessage: ${message}`,

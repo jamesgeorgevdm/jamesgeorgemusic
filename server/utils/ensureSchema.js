@@ -28,8 +28,11 @@ const STATEMENTS = [
     attempts INTEGER NOT NULL DEFAULT 0,
     last_error TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     sent_at TIMESTAMPTZ
   )`,
+  `ALTER TABLE email_outbox
+     ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`,
   `CREATE INDEX IF NOT EXISTS email_outbox_pending_idx
     ON email_outbox (status, created_at)
     WHERE status = 'pending'`,

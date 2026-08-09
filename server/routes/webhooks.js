@@ -1,5 +1,4 @@
 import { Router } from "express";
-import crypto from "crypto";
 import pool from "../config/db.js";
 import { syncGigs } from "../utils/gigHelpers.js";
 
@@ -22,10 +21,8 @@ router.post("/webhooks/google-calendar", async (req, res) => {
     return;
   }
 
-  const deliveryId =
-    messageNumber != null
-      ? `${channelId}:${messageNumber}`
-      : `${channelId}:${resourceId || "unknown"}:${crypto.randomUUID()}`;
+  // Stable key so retries dedupe even when message number is missing.
+  const deliveryId = `${channelId}:${resourceId || "unknown"}:${messageNumber ?? resourceState || "event"}`;
 
   try {
     const insert = await pool.query(

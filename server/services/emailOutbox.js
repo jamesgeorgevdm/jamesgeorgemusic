@@ -8,12 +8,13 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
   try {
     await client.query("BEGIN");
 
-    // Reclaim rows left in "processing" after a crash/deploy mid-send.
+    // Reclaim rows stuck in "processing" after a crash/deploy mid-send.
+    // Use updated_at (set when claimed), not created_at, to avoid double-send races.
     await client.query(
       `UPDATE email_outbox
-       SET status = 'pending'
+       SET status = 'pending', updated_at = NOW()
        WHERE status = 'processing'
-         AND created_at < NOW() - INTERVAL '5 minutes'`
+         AND updated_at < NOW() - INTERVAL '5 minutes'`
     );
 
     const claimed = await client.query(
@@ -26,7 +27,9 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
          LIMIT $1
        )
        UPDATE email_outbox e
-       SET status = 'processing', attempts = e.attempts + 1
+       SET status = 'processing',
+           attempts = e.attempts + 1,
+           updated_at = NOW()
        FROM due
        WHERE e.id = due.id
        RETURNING e.id, e.kind, e.payload, e.attempts`,
@@ -50,7 +53,7 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
       await transporter.sendMail(row.payload);
       await pool.query(
         `UPDATE email_outbox
-         SET status = 'sent', sent_at = NOW(), last_error = NULL
+         SET status = 'sent', sent_at = NOW(), last_error = NULL, updated_at = NOW()
          WHERE id = $1`,
         [row.id]
       );
@@ -60,7 +63,8 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
       await pool.query(
         `UPDATE email_outbox
          SET status = CASE WHEN attempts >= 5 THEN 'failed' ELSE 'pending' END,
-             last_error = $2
+             last_error = $2,
+             updated_at = NOW()
          WHERE id = $1`,
         [row.id, message]
       );

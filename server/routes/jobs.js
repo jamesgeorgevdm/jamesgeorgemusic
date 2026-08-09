@@ -37,6 +37,28 @@ router.post("/jobs/watch-calendar", requireCronSecret, async (req, res) => {
 
   try {
     const calendar = await getCalendarClient();
+
+    // Stop prior channels so we don't accumulate duplicate push subscriptions.
+    const existing = await pool.query(
+      `SELECT channel_id, resource_id FROM calendar_watch_channels`
+    );
+    for (const row of existing.rows) {
+      if (!row.channel_id || !row.resource_id) continue;
+      try {
+        await calendar.channels.stop({
+          requestBody: {
+            id: row.channel_id,
+            resourceId: row.resource_id,
+          },
+        });
+      } catch (err) {
+        console.warn("Failed to stop old calendar channel:", row.channel_id, err?.message || err);
+      }
+    }
+    if (existing.rowCount > 0) {
+      await pool.query(`DELETE FROM calendar_watch_channels`);
+    }
+
     const channelId = crypto.randomUUID();
 
     const watch = await calendar.events.watch({
@@ -64,6 +86,7 @@ router.post("/jobs/watch-calendar", requireCronSecret, async (req, res) => {
       channelId,
       resourceId,
       expiration,
+      stoppedPrevious: existing.rowCount,
     });
   } catch (err) {
     console.error("Watch calendar job error:", err);

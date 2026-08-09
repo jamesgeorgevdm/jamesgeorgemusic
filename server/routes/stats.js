@@ -1,5 +1,6 @@
 import { Router } from "express";
 import pool from "../config/db.js";
+import { requireCronSecret } from "../middleware/cronAuth.js";
 import { syncGigs } from "../utils/gigHelpers.js";
 
 const router = Router();
@@ -14,7 +15,8 @@ router.get("/stats", async (req, res) => {
   }
 });
 
-router.post("/sync-gigs", async (req, res) => {
+/** @deprecated Prefer POST /api/jobs/sync-gigs — kept as alias with the same cron auth. */
+router.post("/sync-gigs", requireCronSecret, async (req, res) => {
   try {
     const added = await syncGigs();
     res.json({ success: true, newGigsProcessed: added });

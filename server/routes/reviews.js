@@ -15,6 +15,7 @@ router.get("/reviews", async (req, res) => {
   }
 });
 
+// LeaveReview.jsx calls this before showing the form so used links never reach submit
 router.get("/validate-token", async (req, res) => {
   const { token } = req.query;
   if (!token) {
@@ -50,6 +51,7 @@ router.post("/reviews", async (req, res) => {
   try {
     await client.query("BEGIN");
 
+    // FOR UPDATE serialises concurrent submits of the same invite link
     const tokenResult = await client.query(
       `SELECT id FROM review_tokens
        WHERE token = $1 AND used = false AND expires_at > NOW()
@@ -66,6 +68,7 @@ router.post("/reviews", async (req, res) => {
       [name, event_date || null, rating, review]
     );
 
+    // Mark used in the same txn so a crash can't leave a reusable token after insert
     await client.query(
       "UPDATE review_tokens SET used = true WHERE token = $1",
       [token]
@@ -82,6 +85,7 @@ router.post("/reviews", async (req, res) => {
   }
 });
 
+// Owner-only: mint a one-time invite URL after a gig
 router.post("/admin/generate-token", async (req, res) => {
   const adminSecret = req.headers["x-admin-secret"];
   if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {
@@ -92,6 +96,7 @@ router.post("/admin/generate-token", async (req, res) => {
   const expires_at = new Date(Date.now() + days_valid * 24 * 60 * 60 * 1000);
 
   try {
+    // token column defaults to a DB-generated UUID
     const result = await pool.query(
       "INSERT INTO review_tokens (event_label, expires_at) VALUES ($1, $2) RETURNING token",
       [event_label || null, expires_at]

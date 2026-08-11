@@ -2,6 +2,7 @@ import "./env.js";
 import { google } from "googleapis";
 import pool from "./db.js";
 
+// Read-only is enough for availability + gig sync; never request write scopes
 const SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
 
 export function getOAuth2Client() {
@@ -9,6 +10,7 @@ export function getOAuth2Client() {
   const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
   const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI;
 
+  // Return null instead of throwing — callers fall back to the service account
   if (!clientId || !clientSecret || !redirectUri) {
     return null;
   }
@@ -21,6 +23,7 @@ function getServiceAccountAuth() {
     throw new Error("GOOGLE_CREDS is not configured");
   }
 
+  // GOOGLE_CREDS is the full service-account JSON stringified into one env var
   return new google.auth.GoogleAuth({
     credentials: JSON.parse(process.env.GOOGLE_CREDS),
     scopes: SCOPES,
@@ -29,6 +32,7 @@ function getServiceAccountAuth() {
 
 export async function saveOAuthTokens(tokens) {
   await pool.query(
+    // COALESCE keeps an existing refresh_token when Google omits it on refresh
     `INSERT INTO oauth_tokens (provider, refresh_token, access_token, expiry, updated_at)
      VALUES ('google', $1, $2, $3, NOW())
      ON CONFLICT (provider) DO UPDATE SET
@@ -55,6 +59,7 @@ async function getStoredOAuthClient() {
      LIMIT 1`
   );
   const row = result.rows[0];
+  // Without a refresh token we cannot silently renew — treat as unconfigured
   if (!row?.refresh_token) return null;
 
   oauth2.setCredentials({
@@ -63,6 +68,7 @@ async function getStoredOAuthClient() {
     expiry_date: row.expiry ? new Date(row.expiry).getTime() : undefined,
   });
 
+  // Persist auto-refreshed tokens so the next cold start doesn't need a new consent
   oauth2.on("tokens", async (tokens) => {
     try {
       await saveOAuthTokens({
@@ -97,6 +103,7 @@ export function getOAuthConsentUrl(state = "owner") {
 
   return oauth2.generateAuthUrl({
     access_type: "offline",
+    // Force consent so Google returns a refresh_token on re-connects
     prompt: "consent",
     scope: SCOPES,
     state,

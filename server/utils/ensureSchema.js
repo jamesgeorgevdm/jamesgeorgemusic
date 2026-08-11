@@ -1,5 +1,7 @@
 import pool from "../config/db.js";
 
+// Lightweight bootstrap DDL run on every boot — IF NOT EXISTS keeps it safe to re-run.
+// Heavier migrations (data backfills) belong elsewhere.
 const STATEMENTS = [
   `CREATE TABLE IF NOT EXISTS clients (
     id SERIAL PRIMARY KEY,
@@ -63,6 +65,7 @@ const STATEMENTS = [
 ];
 
 export async function ensureSchema() {
+  // Sequential so dependent tables (FKs) always exist before later statements
   for (const sql of STATEMENTS) {
     await pool.query(sql);
   }

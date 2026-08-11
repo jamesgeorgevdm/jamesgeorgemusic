@@ -17,6 +17,7 @@ router.post("/webhooks/google-calendar", async (req, res) => {
   // Always ACK first so Google does not disable the channel on slow handlers.
   res.status(200).end();
 
+  // "sync" is the initial handshake ping — no calendar change to process
   if (!channelId || resourceState === "sync") {
     return;
   }
@@ -38,6 +39,7 @@ router.post("/webhooks/google-calendar", async (req, res) => {
       return; // duplicate delivery
     }
 
+    // Ignore channels we didn't create (stale watches after redeploy, etc.)
     const known = await pool.query(
       `SELECT id FROM calendar_watch_channels WHERE channel_id = $1 LIMIT 1`,
       [channelId]
@@ -49,6 +51,7 @@ router.post("/webhooks/google-calendar", async (req, res) => {
 
     await syncGigs();
   } catch (err) {
+    // Already ACKed — log only; next push or cron sync will catch up
     console.error("Calendar webhook processing error:", err);
   }
 });

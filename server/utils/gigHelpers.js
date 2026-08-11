@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import pool from "../config/db.js";
 import { getCalendarClient } from "../config/google.js";
 
+// Match calendar titles first (exact word), then fall back to description substring
 export const categorizeGig = (summary, description, categories) => {
   const titleWords = (summary || "").toLowerCase().split(/\s+/);
 
@@ -22,6 +23,7 @@ export const categorizeGig = (summary, description, categories) => {
   return match ? match.id : null;
 };
 
+// Idempotent: each Google event id is counted at most once into live_count
 export const syncGigs = async () => {
   const catResult = await pool.query("SELECT * FROM gig_categories");
   const categories = catResult.rows;
@@ -29,6 +31,7 @@ export const syncGigs = async () => {
 
   const response = await calendar.events.list({
     calendarId: process.env.CALENDAR_ID,
+    // Floor date avoids re-counting history already baked into legacy_count
     timeMin: dayjs("2026-02-23").toISOString(),
     timeMax: dayjs().toISOString(),
     singleEvents: true,
@@ -42,6 +45,7 @@ export const syncGigs = async () => {
     try {
       await client.query("BEGIN");
 
+      // Lock the processed row (or absence) so two workers can't double-increment
       const existsResult = await client.query(
         "SELECT google_event_id FROM processed_events WHERE google_event_id = $1 FOR UPDATE",
         [event.id]
@@ -54,6 +58,7 @@ export const syncGigs = async () => {
 
       const catId = categorizeGig(event.summary, event.description, categories);
       if (!catId) {
+        // Commit without inserting — personal/non-gig events stay uncounted
         await client.query("COMMIT");
         console.log("Uncategorized event skipped:", event.summary);
         continue;

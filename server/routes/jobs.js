@@ -8,6 +8,7 @@ import pool from "../config/db.js";
 
 const router = Router();
 
+// Hit by GitHub Actions on a schedule — also wakes a cold Render instance
 router.post("/jobs/process-outbox", requireCronSecret, async (req, res) => {
   try {
     const result = await processEmailOutbox();
@@ -52,6 +53,7 @@ router.post("/jobs/watch-calendar", requireCronSecret, async (req, res) => {
           },
         });
       } catch (err) {
+        // Channel may already be expired on Google's side — safe to ignore
         console.warn("Failed to stop old calendar channel:", row.channel_id, err?.message || err);
       }
     }
@@ -71,6 +73,7 @@ router.post("/jobs/watch-calendar", requireCronSecret, async (req, res) => {
     });
 
     const resourceId = watch.data.resourceId || null;
+    // Google returns expiration as a millisecond epoch string
     const expiration = watch.data.expiration
       ? new Date(Number(watch.data.expiration))
       : null;

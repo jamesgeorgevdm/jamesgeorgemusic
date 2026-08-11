@@ -1,3 +1,4 @@
+// Load .env before any module reads process.env
 import "./config/env.js";
 import express from "express";
 import cors from "cors";
@@ -22,6 +23,7 @@ app.use(cors({
       "https://jamesgeorgemusic.com",
       "https://www.jamesgeorgemusic.com",
     ];
+    // !origin allows same-origin / server-to-server / curl (no Origin header)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -33,6 +35,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// All public + admin/cron routes mount under /api
 app.use("/api", statsRoutes);
 app.use("/api", availabilityRoutes);
 app.use("/api", contactRoutes);
@@ -46,9 +49,11 @@ const PORT = process.env.PORT || 5000;
 
 async function start() {
   try {
+    // Idempotent DDL so fresh deploys don't require a separate migrate step
     await ensureSchema();
     console.log("Database schema ensured.");
   } catch (err) {
+    // Still listen — Render health checks need the process up; schema may recover on retry
     console.error("Failed to ensure schema:", err);
   }
 

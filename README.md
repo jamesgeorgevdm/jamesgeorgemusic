@@ -133,8 +133,6 @@ Put these in `server/.env`:
 | `GOOGLE_OAUTH_REDIRECT_URI` | e.g. `https://<render-host>/api/oauth/google/callback` |
 | `GOOGLE_CALENDAR_WEBHOOK_URL` | e.g. `https://<render-host>/api/webhooks/google-calendar` |
 
-See [SETUP_FOR_THURSDAY.md](./SETUP_FOR_THURSDAY.md) for deploy, cron, and OAuth steps.
-
 Client uses `VITE_API` (see `client/.env.local`) — empty/same-origin in production thanks to the Vercel rewrite; point it at `http://localhost:5000` locally.
 
 ---

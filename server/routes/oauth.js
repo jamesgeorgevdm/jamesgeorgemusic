@@ -3,6 +3,7 @@ import { exchangeOAuthCode, getOAuthConsentUrl } from "../config/google.js";
 
 const router = Router();
 
+// Accept secret via header (preferred) or query (handy for browser bookmarks)
 function requireAdmin(req, res) {
   const adminSecret = req.headers["x-admin-secret"] || req.query.admin_secret;
   if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {
@@ -18,6 +19,7 @@ router.get("/oauth/google/start", (req, res) => {
 
   try {
     const url = getOAuthConsentUrl("owner");
+    // Client (or curl) opens this URL; Google redirects to /oauth/google/callback
     res.json({ url });
   } catch (err) {
     console.error("OAuth start error:", err);
@@ -25,6 +27,7 @@ router.get("/oauth/google/start", (req, res) => {
   }
 });
 
+// Public callback URL registered in Google Cloud Console — no admin header here
 router.get("/oauth/google/callback", async (req, res) => {
   const { code, error } = req.query;
   if (error) {

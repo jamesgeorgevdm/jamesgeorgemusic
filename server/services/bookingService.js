@@ -7,6 +7,7 @@ import { validateBookingFields } from "../utils/email.js";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
+// Single transaction: upsert client → booking row → two outbox emails (owner + ack)
 export async function createBookingRequest(body) {
   const { name, email, phone, product, message, date, startTime, endTime } = body;
 
@@ -23,6 +24,7 @@ export async function createBookingRequest(body) {
     return { ok: false, status: 400, errors };
   }
 
+  // Human-readable date for email bodies; DB still stores the raw event_date
   const dateFormatted = dayjs(date).tz("Africa/Johannesburg").format("DD MMM YYYY");
   const ownerEmail = process.env.EMAIL_USER || "jamesv234@gmail.com";
 
@@ -30,6 +32,7 @@ export async function createBookingRequest(body) {
   try {
     await client.query("BEGIN");
 
+    // Returning clients reuse the same row keyed by email
     const clientResult = await client.query(
       `INSERT INTO clients (name, email, phone)
        VALUES ($1, $2, $3)
@@ -66,6 +69,7 @@ export async function createBookingRequest(body) {
       text: `Hi ${name}!\n\nThanks so much for your booking request for a performance on ${dateFormatted} from (${startTime} - ${endTime}).\nI so appreciate your interest, and will confirm it on my end as soon as possible. Speak soon!\n\n Sincerely, \n James George.`,
     };
 
+    // Queue both mails atomically with the booking — worker sends later
     await client.query(
       `INSERT INTO email_outbox (booking_request_id, kind, payload, status)
        VALUES

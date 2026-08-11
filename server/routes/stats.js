@@ -5,6 +5,7 @@ import { syncGigs } from "../utils/gigHelpers.js";
 
 const router = Router();
 
+// Prefetched by App.jsx for the About page count-up (legacy_count + live_count)
 router.get("/stats", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM gig_categories ORDER BY id ASC");

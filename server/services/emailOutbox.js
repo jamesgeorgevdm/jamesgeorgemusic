@@ -1,6 +1,7 @@
 import pool from "../config/db.js";
 import { transporter } from "../utils/email.js";
 
+// Claim → send → mark pattern so SMTP slowness never blocks the booking HTTP response
 export async function processEmailOutbox({ limit = 20 } = {}) {
   const client = await pool.connect();
   let rows = [];
@@ -17,6 +18,7 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
          AND updated_at < NOW() - INTERVAL '5 minutes'`
     );
 
+    // SKIP LOCKED lets concurrent workers (cron + interval) claim different rows safely
     const claimed = await client.query(
       `WITH due AS (
          SELECT id
@@ -36,6 +38,7 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
       [limit]
     );
 
+    // Commit the claim before SMTP so a send hang doesn't hold row locks
     rows = claimed.rows;
     await client.query("COMMIT");
   } catch (err) {
@@ -50,6 +53,7 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
 
   for (const row of rows) {
     try {
+      // payload is a full nodemailer options object stored as JSONB
       await transporter.sendMail(row.payload);
       await pool.query(
         `UPDATE email_outbox
@@ -60,6 +64,7 @@ export async function processEmailOutbox({ limit = 20 } = {}) {
       sent++;
     } catch (err) {
       const message = err?.message || "Send failed";
+      // After 5 attempts the row stays failed for manual inspection
       await pool.query(
         `UPDATE email_outbox
          SET status = CASE WHEN attempts >= 5 THEN 'failed' ELSE 'pending' END,

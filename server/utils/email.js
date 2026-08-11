@@ -8,6 +8,7 @@ export const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
+    // App password, not the account login password
     pass: process.env.EMAIL_PASS,
   },
   connectionTimeout: 20000,
@@ -18,6 +19,7 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
+// Shared by bookingService — returns a list so the client can show every issue at once
 export const validateBookingFields = ({ name, email, phone, product, message, startTime, endTime }) => {
   const errors = [];
 

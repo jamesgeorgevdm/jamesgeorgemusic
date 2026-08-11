@@ -5,6 +5,7 @@ import { createBookingRequest } from "../services/bookingService.js";
 
 const router = Router();
 
+// Persists the booking + queues emails; HTTP success does not wait on SMTP
 router.post("/send-booking", bookingLimiter, async (req, res) => {
   try {
     const result = await createBookingRequest(req.body);
@@ -24,6 +25,7 @@ router.post("/send-booking", bookingLimiter, async (req, res) => {
   }
 });
 
+// Lightweight contact form — sends immediately (no outbox) for one-off enquiries
 router.post("/contact", contactLimiter, async (req, res) => {
   const { email, subject, message } = req.body;
 
@@ -42,6 +44,7 @@ router.post("/contact", contactLimiter, async (req, res) => {
 
   try {
     await transporter.sendMail({
+      // Gmail may rewrite From; body still carries the visitor address
       from: email,
       to: process.env.EMAIL_USER || "jamesv234@gmail.com",
       subject: `Direct Contact: ${subject}`,

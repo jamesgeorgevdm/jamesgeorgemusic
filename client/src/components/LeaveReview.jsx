@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Seo from './Seo';
 
+// noindex — review links are personal invite URLs, not meant for search results
 const reviewSeo = (
   <Seo title="Leave a Review | James George Music" path="/leave-review" noindex />
 );
 
 const StarPicker = ({ value, onChange }) => {
   const [hovered, setHovered] = useState(null);
+  // Preview hover value while the pointer is over a star; fall back to committed value
   const display = hovered !== null ? hovered : value;
 
   return (
@@ -29,6 +31,7 @@ const StarPicker = ({ value, onChange }) => {
             tabIndex={0}
             aria-label={`${star} stars`}
             onMouseMove={e => {
+              // Left half of the glyph = half-star; right half = full star
               const { left, width } = e.currentTarget.getBoundingClientRect();
               setHovered((e.clientX - left) < width / 2 ? star - 0.5 : star);
             }}
@@ -37,6 +40,7 @@ const StarPicker = ({ value, onChange }) => {
               onChange((e.clientX - left) < width / 2 ? star - 0.5 : star);
             }}
             onKeyDown={e => {
+              // Keyboard users get whole stars only — half-stars need pointer position
               if (e.key === 'Enter' || e.key === ' ') onChange(star);
             }}
           >
@@ -50,8 +54,10 @@ const StarPicker = ({ value, onChange }) => {
 
 function LeaveReview() {
   const [searchParams] = useSearchParams();
+  // One-time token from the email invite query string (?token=...)
   const token = searchParams.get('token');
 
+  // null = still verifying; true/false = resolved
   const [tokenValid, setTokenValid] = useState(null);
   const [tokenError, setTokenError] = useState('');
 
@@ -67,6 +73,7 @@ function LeaveReview() {
       return;
     }
 
+    // Validate before showing the form so used/expired links never reach submit
     fetch(`${import.meta.env.VITE_API}/api/validate-token?token=${token}`)
       .then(res => res.json())
       .then(data => {
@@ -84,7 +91,9 @@ function LeaveReview() {
   }, [token]);
 
   const handleSubmit = async (e) => {
+    // Prevents default browser behaviour, which is to reload the page
     e.preventDefault();
+    // HTML required can't catch rating === 0 (custom star control)
     if (form.rating === 0) {
       setSubmitError('Please select a star rating.');
       return;
@@ -96,12 +105,14 @@ function LeaveReview() {
       const res = await fetch(`${import.meta.env.VITE_API}/api/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // Token travels with the body so the server can mark it used atomically
         body: JSON.stringify({ ...form, token }),
       });
       const data = await res.json();
       if (res.ok) {
         setSubmitted(true);
       } else {
+        // Surface server error message when present (e.g. token already used)
         setSubmitError(data.error || 'Something went wrong. Please try again.');
       }
     } catch {
@@ -116,7 +127,7 @@ function LeaveReview() {
   const inputClass = "bg-white/[0.05] border border-[rgba(212,175,55,0.25)] rounded-[10px] py-3 px-4 text-[#fdfaf3] font-['Crimson_Pro'] text-base transition-[border-color,box-shadow] duration-300 outline-none w-full box-border focus:border-[rgba(212,175,55,0.6)] focus:shadow-[0_0_0_3px_rgba(212,175,55,0.1)] placeholder:text-[rgba(246,242,237,0.28)]";
   const labelClass = "text-[0.82rem] font-bold uppercase tracking-[0.07em] text-[rgba(246,242,237,0.65)]";
 
-  // Checking token
+  // Still verifying — avoid flashing the form before we know the token is good
   if (tokenValid === null) {
     return (
       <main className={pageClass}>
@@ -128,7 +139,7 @@ function LeaveReview() {
     );
   }
 
-  // Invalid token
+  // Missing, expired, or already-used invite
   if (!tokenValid) {
     return (
       <main className={pageClass}>
@@ -141,7 +152,7 @@ function LeaveReview() {
     );
   }
 
-  // Submitted successfully
+  // Success screen — form unmounts so the token can't be resubmitted from this session
   if (submitted) {
     return (
       <main className={pageClass}>

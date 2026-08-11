@@ -11,9 +11,11 @@ import LeaveReview from './components/LeaveReview';
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
+  // Prefetch at app level so /about can animate immediately if the user navigates there
   const [prefetchedStats, setPrefetchedStats] = useState(null);
 
   useEffect(() => {
+    // CSS uses body.loaded to reveal the page after fonts/styles are ready
     document.body.classList.add("loaded");
 
     fetch(`${import.meta.env.VITE_API}/api/stats`)
@@ -24,6 +26,7 @@ function App() {
 
   return (
     <Router>
+      {/* Resets scroll on every route change — SPA navigations keep prior scroll otherwise */}
       <ScrollToTop />
       <Navbar />
       <main>
@@ -36,6 +39,7 @@ function App() {
           <Route path="/leave-review" element={<LeaveReview />} />
         </Routes>
       </main>
+      {/* Fixed FAB — lives outside <Routes> so chat state survives page changes */}
       <ChatbotWidget />
     </Router>
   );

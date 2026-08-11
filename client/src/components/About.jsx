@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import FadeInWrapper from "./FadeInWrapper";
 import Seo from "./Seo";
 
-// Static content for the bio pillars
+// Static bio copy — kept out of the component so re-renders don't recreate the array
 const bioPillars = [
   {
     title: "Versatile Performer",
@@ -22,17 +22,18 @@ const bioPillars = [
   },
 ];
 
-// Main About component
 const About = ({ prefetchedStats }) => {
   const [stats, setStats] = useState([]);
   const [counts, setCounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Guards against double-processing when prefetch arrives after a fallback fetch
   const hasProcessed = useRef(false);
 
-  // Format raw API data and kick off animations
+  // Merge legacy + live counts, then hand off to the count-up animation
   const processStats = (data) => {
     const formattedStats = data.map((item) => ({
       title: item.title,
+      // legacy_count = historical baseline; live_count = Calendar-synced gigs
       value: item.legacy_count + item.live_count,
       description: item.description,
     }));
@@ -41,6 +42,7 @@ const About = ({ prefetchedStats }) => {
 
     setStats(formattedStats);
     startAnimations(totalGigs, formattedStats);
+    // Brief delay so the skeleton→content swap doesn't feel abrupt
     setTimeout(() => setLoading(false), 400);
   };
 
@@ -52,7 +54,7 @@ const About = ({ prefetchedStats }) => {
       hasProcessed.current = true;
       processStats(prefetchedStats);
     } else {
-      // Fallback: fetch on demand if prefetch hasn't resolved yet
+      // Fallback: fetch on demand if the user lands on /about before prefetch resolves
       const fetchStats = async () => {
         try {
           const response = await fetch(`${import.meta.env.VITE_API}/api/stats`);
@@ -68,8 +70,9 @@ const About = ({ prefetchedStats }) => {
     }
   }, [prefetchedStats]);
 
-  // Function to animate counts from 0 to their target values
+  // ~60fps count-up (16ms ticks) from 0 → target over 1.5s
   const startAnimations = (total, items) => {
+    // Index 0 is the Total Gigs hero; remaining indices match stats[]
     const allValues = [total, ...items.map((s) => s.value)];
     const duration = 1500;
     setCounts(new Array(allValues.length).fill(0));
@@ -94,7 +97,6 @@ const About = ({ prefetchedStats }) => {
 
   const skeletonBase = "bg-gradient-to-r from-[#0f2240] via-[#1b3358] to-[#0f2240] bg-[length:200%_100%] animate-[skeleton-loading_1.5s_infinite] rounded-xl";
 
-  // Render function for the stats section
   const renderStatsContent = () => {
     if (loading) {
       return (
@@ -151,7 +153,7 @@ const About = ({ prefetchedStats }) => {
           className="relative max-w-5xl mx-auto mb-24 md:mb-32 text-left"
           aria-label="Professional Pillars"
         >
-          {/* Alternate zig-zag only on large screens — tablets stay single-column */}
+          {/* Desktop: centre spine for zig-zag; mobile/tablet: left spine beside numbered dots */}
           <div
             className="hidden lg:block absolute left-1/2 top-2 bottom-2 w-px -translate-x-1/2 bg-gradient-to-b from-[#D4A455]/80 via-[#D4A455]/30 to-transparent"
             aria-hidden="true"
@@ -163,6 +165,7 @@ const About = ({ prefetchedStats }) => {
 
           <div className="flex flex-col gap-10 sm:gap-12 lg:gap-16">
             {bioPillars.map((pillar, index) => {
+              // Even indices sit left of the spine; odd flip to the right (lg+)
               const isLeft = index % 2 === 0;
               return (
                 <article
@@ -171,6 +174,7 @@ const About = ({ prefetchedStats }) => {
                     isLeft ? "lg:flex-row" : "lg:flex-row-reverse"
                   }`}
                 >
+                  {/* Number sits on the timeline; absolute centering only kicks in at lg */}
                   <span
                     className="relative z-[1] shrink-0 mt-1.5 flex h-7 w-7 lg:h-8 lg:w-8 items-center justify-center rounded-full border border-[#D4A455]/50 bg-[#0b1a2e] text-[0.65rem] lg:text-xs tracking-[0.08em] text-[#D4A455] font-['BruneyClassy'] transition-all duration-500 group-hover:border-[#f1d97c] group-hover:text-[#f1d97c] group-hover:shadow-[0_0_18px_rgba(241,217,124,0.35)] lg:absolute lg:left-1/2 lg:-translate-x-1/2"
                     aria-hidden="true"

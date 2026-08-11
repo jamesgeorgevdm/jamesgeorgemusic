@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// Read-only star row — half stars use the .star-half CSS fill trick
 const StarDisplay = ({ rating }) => (
   <div className="flex gap-[3px] mb-2" aria-label={`${rating} out of 5 stars`}>
     {[1, 2, 3, 4, 5].map(star => {
@@ -19,6 +20,7 @@ const StarDisplay = ({ rating }) => (
 
 const formatDate = (dateStr) => {
   if (!dateStr) return null;
+  // en-GB → "March 2024" — month/year only keeps cards uncluttered
   return new Date(dateStr).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 };
 
@@ -32,11 +34,14 @@ function ReviewText({ text, overlay }) {
     if (!el) return;
 
     const measure = () => {
+      // Skip while expanded — full height would always look "clamped"
       if (expanded) return;
+      // +1 tolerates sub-pixel rounding so the button doesn't flicker
       setNeedsClamp(el.scrollHeight > el.clientHeight + 1);
     };
 
     measure();
+    // ResizeObserver re-measures when card width changes (carousel / viewport)
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
@@ -47,6 +52,7 @@ function ReviewText({ text, overlay }) {
       <p
         ref={textRef}
         className={`text-sm max-md:text-xs leading-[1.65] text-[#eae8e1] italic${
+          // Overlay sits on the hero — fewer lines so cards stay compact
           !expanded ? (overlay ? ' line-clamp-4' : ' line-clamp-5') : ''
         }`}
       >
@@ -56,6 +62,7 @@ function ReviewText({ text, overlay }) {
         <button
           type="button"
           onClick={(e) => {
+            // Stop bubbling so parent card hover/click handlers don't fire
             e.stopPropagation();
             setExpanded(prev => !prev);
           }}
@@ -79,10 +86,11 @@ function Reviews({ overlay = false }) {
     fetch(`${import.meta.env.VITE_API}/api/reviews`)
       .then(res => res.json())
       .then(data => { setReviews(data); setLoading(false); })
+      // Still exit loading on failure so the empty-state UI can show
       .catch(() => setLoading(false));
   }, []);
 
-  // Track which card is most visible using IntersectionObserver
+  // Drive the dot indicators from whichever card is ≥50% visible in the track
   useEffect(() => {
     if (!trackRef.current || reviews.length === 0) return;
     const cards = trackRef.current.querySelectorAll('.review-card');
@@ -95,6 +103,7 @@ function Reviews({ overlay = false }) {
           }
         });
       },
+      // root is the scroll track so intersection is relative to the carousel, not the viewport
       { root: trackRef.current, threshold: 0.5 }
     );
 
@@ -107,12 +116,16 @@ function Reviews({ overlay = false }) {
     if (!track) return;
     const cards = track.querySelectorAll('.review-card');
     if (cards[index]) {
+      // inline: 'start' snaps the chosen card to the left of the horizontal track
       cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
     }
   };
 
   const skeletonClass = "flex-[0_0_290px] max-md:flex-[0_0_250px] max-sm:flex-[0_0_220px] h-[175px] max-md:h-[155px] rounded-[20px] bg-gradient-to-r from-white/[0.04] via-white/[0.09] to-white/[0.04] bg-[length:200%_100%] border border-[rgba(212,175,55,0.1)] backdrop-blur-[16px] animate-[reviews-skeleton-loading_1.5s_infinite]";
 
+  // overlay = hero footer mode; default = standalone section styling
+  // pointer-events-none on the overlay section lets clicks fall through to the video,
+  // then pointer-events-auto re-enables the track and dots
   const sectionClass = overlay
     ? "absolute bottom-0 left-0 right-0 z-[3] pb-4 bg-gradient-to-t from-[rgba(9,18,39,0.85)] to-transparent pointer-events-none"
     : "bg-gradient-to-b from-[#091227] to-[#0b1a2e] py-20 pb-24 text-center font-['Crimson_Pro'] text-[#fdfaf3]";

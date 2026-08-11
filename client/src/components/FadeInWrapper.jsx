@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 
-// Simple wrapper component that applies a fade-in effect to its children when mounted, using a combination of state and CSS classes to trigger the animation
+// Mounts children invisible, then flips to visible so CSS can animate the entrance.
+// Without the delay, the browser often paints the final state with no transition.
 const FadeInWrapper = ({ children }) => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 50); // slight delay
+    // ~1 frame delay lets the initial opacity-0 paint commit before we toggle
+    const timer = setTimeout(() => setVisible(true), 50);
     return () => clearTimeout(timer);
   }, []);
 

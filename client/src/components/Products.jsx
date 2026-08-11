@@ -58,6 +58,7 @@ function Products() {
           </p>
         </header>
 
+        {/* Pricing list — Book CTAs deep-link into /booking rather than duplicating the form */}
         <section
           className="max-w-4xl mx-auto mb-20 md:mb-28"
           aria-label="Available Packages"
@@ -91,6 +92,7 @@ function Products() {
           </ul>
         </section>
 
+        {/* Style samples open YouTube in a new tab — keeps visitors on-site via the packages CTA */}
         <section aria-labelledby="styles-heading" className="pb-8">
           <header className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
             <h2 id="styles-heading" className="font-['BruneyClassy'] text-3xl md:text-4xl text-[#f1d97c] mb-3">
@@ -107,11 +109,13 @@ function Products() {
                 key={style.title}
                 href={style.video}
                 target="_blank"
+                // noopener prevents the new tab from accessing window.opener
                 rel="noopener noreferrer"
                 aria-label={`Watch ${style.title} performance video on YouTube`}
                 className="group relative block overflow-hidden rounded-2xl border border-[#D4A455]/25 bg-[#0f2240] no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D4A455] transition-[transform,box-shadow,border-color] duration-500 hover:-translate-y-1.5 hover:border-[#D4A455]/60 hover:shadow-[0_20px_50px_rgba(0,0,0,0.45),0_0_40px_rgba(212,164,85,0.12)]"
               >
                 <div className="relative aspect-[16/10] lg:aspect-[4/5] overflow-hidden">
+                  {/* Empty alt — title below carries the accessible name for the card */}
                   <img
                     src={style.img}
                     alt=""
@@ -135,6 +139,7 @@ function Products() {
                     <h3 className="font-['BruneyClassy'] text-lg lg:text-2xl text-[#f1d97c] mb-1 lg:mb-2 leading-snug">
                       {style.title}
                     </h3>
+                    {/* Blurb only on large screens — mobile cards stay image-forward */}
                     <p className="hidden lg:block text-sm leading-relaxed text-[#F6F2ED]/80 mb-4">
                       {style.blurb}
                     </p>

@@ -11,12 +11,14 @@ function Home() {
         description="Professional vocalist, saxophonist and pianist available for weddings, corporate events, and private functions in South Africa. Real-time booking and tailored packages."
         path="/"
       />
+      {/* 100dvh avoids mobile browser chrome shrinking/growing the hero mid-scroll */}
       <section className="relative w-full h-[100dvh] overflow-hidden m-0 p-0 bg-black">
         <video
           className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 object-cover z-[1]"
           autoPlay
           loop
           muted
+          // playsInline required for iOS autoplay; muted + no controls keep it decorative
           playsInline
           poster="/images/poster.jpg"
           aria-hidden="true"
@@ -31,6 +33,7 @@ function Home() {
           </h1>
         </div>
 
+        {/* overlay packs the carousel into the hero footer instead of a separate section */}
         <Reviews overlay />
       </section>
     </FadeInWrapper>

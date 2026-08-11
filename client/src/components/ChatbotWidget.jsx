@@ -4,20 +4,24 @@ import { DefaultChatTransport } from "ai";
 import { FiMessageCircle, FiX, FiSend } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 
+// Empty-string fallback keeps relative /api/chat working behind same-origin proxies
 const chatApi = `${import.meta.env.VITE_API || ""}/api/chat`;
 
+// AI SDK messages are part-based; pull text parts only for Markdown rendering
 const getMessageText = (message) =>
   message.parts
     .filter((part) => part.type === "text")
     .map((part) => part.text)
     .join("");
 
+// Friendly copy for rate-limit / server errors — steers users to a human channel
 const RATE_LIMIT_MESSAGE =
   "It looks like either we are hitting a server error, or we've covered a lot of ground here! To make sure your specific dates and requirements get individual attention, please jump over to our Contact Form or drop James an email directly. He'd love to chat details with you.";
 
 function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  // Stable transport instance — recreating it would reset the chat session
   const transport = useMemo(
     () => new DefaultChatTransport({ api: chatApi }),
     []
@@ -25,11 +29,14 @@ function ChatbotWidget() {
 
   const { messages, sendMessage, status, error } = useChat({ transport });
 
+  // "submitted" = waiting for first token; "streaming" = tokens arriving
   const isLoading = status === "submitted" || status === "streaming";
 
   const handleSubmit = (e) => {
+    // Prevents default browser behaviour, which is to reload the page
     e.preventDefault();
     const text = input.trim();
+    // Block empty sends and double-submits while a reply is in flight
     if (!text || isLoading) return;
     sendMessage({ text });
     setInput("");
@@ -77,6 +84,7 @@ function ChatbotWidget() {
                 <ReactMarkdown>{getMessageText(message)}</ReactMarkdown>
               </div>
             ))}
+            {/* Show typing indicator only until the assistant message appears */}
             {isLoading && messages[messages.length - 1]?.role === "user" && (
               <div className="self-start px-[14px] py-[10px] bg-[#0f2240] border border-[rgba(212,164,85,0.2)] rounded-xl text-[rgba(246,242,237,0.6)] text-[0.9rem] italic">
                 Thinking...
@@ -84,6 +92,7 @@ function ChatbotWidget() {
             )}
           </div>
 
+          {/* Generic error UI — same copy for rate limits and unexpected failures */}
           {error && (
             <p className="mx-4 px-3 py-2 bg-[rgba(180,40,40,0.2)] border border-[rgba(220,80,80,0.4)] rounded-lg text-[#f5a5a5] text-[0.85rem]">
               {RATE_LIMIT_MESSAGE}

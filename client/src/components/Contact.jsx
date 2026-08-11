@@ -8,10 +8,12 @@ const Contact = () => {
   const [feedback, setFeedback] = useState("");
 
   const handleChange = (e) => {
+    // Controlled inputs — name attrs must match formData keys
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
+    // Prevents default browser behaviour, which is to reload the page
     e.preventDefault();
     setIsSending(true);
     setFeedback("");
@@ -25,6 +27,7 @@ const Contact = () => {
 
       if (response.ok) {
         setFeedback("Message sent successfully!");
+        // Clear fields so a refresh/resubmit doesn't resend the same message
         setFormData({ email: "", subject: "", message: "" });
       } else {
         setFeedback("Error sending message. Please try again.");
@@ -33,6 +36,7 @@ const Contact = () => {
       console.error(err);
       setFeedback("An unexpected error occurred. Please try again.");
     } finally {
+      // Always re-enable the button whether send succeeded or failed
       setIsSending(false);
     }
   };

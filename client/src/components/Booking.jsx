@@ -17,7 +17,8 @@ const times = Array.from({ length: 15 }, (_, i) => `${String(i + 8).padStart(2, 
 const inputClass = "font-['Crimson_Pro'] p-[0.9rem] rounded-lg border border-[rgba(212,175,55,0.4)] bg-[#0f2240] text-[#fdfaf3] text-base w-full focus:outline-none focus:border-[#d4af37] focus:shadow-[0_0_10px_rgba(212,175,55,0.2)]";
 
 function Booking() {
-  const [isLoading, setIsLoading] = useState(false);
+  // Start true so the first paint never shows empty slots as "all free"
+  const [isLoading, setIsLoading] = useState(true);
   const [availabilityError, setAvailabilityError] = useState(false);
   const [retryController, setRetryController] = useState(null);
 
@@ -40,28 +41,54 @@ function Booking() {
   const fetchAvailability = async (date, signal) => {
     setIsLoading(true);
     setAvailabilityError(false);
-    // en-CA gives YYYY-MM-DD format — unambiguous, matches backend expectation
-    const dateStr = date.toLocaleDateString("en-CA");
+    // Drop previous day's blocks immediately — never flash stale/empty as open
+    setBlockedTimes([]);
+    // Local Y-M-D — avoid toLocaleDateString("en-CA"), which is not reliable on all Windows locales
+    const dateStr = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+    ].join("-");
+    // Render cold-starts often kill the first proxied request; retry wakes the instance
+    const maxAttempts = 3;
+
     try {
-      const res = await fetch(
-        // signal allows AbortController to cancel this request if date changes mid-fetch
-        `${import.meta.env.VITE_API}/api/availability?date=${dateStr}`,
-        { signal }
-      );
-      const data = await res.json();
-      setBlockedTimes(data.blocked || []);
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        if (signal?.aborted) return;
+        try {
+          const res = await fetch(
+            // signal allows AbortController to cancel this request if date changes mid-fetch
+            `${import.meta.env.VITE_API || ""}/api/availability?date=${dateStr}`,
+            { signal }
+          );
+          if (!res.ok) throw new Error(`Availability HTTP ${res.status}`);
+          const data = await res.json();
+          if (signal?.aborted) return;
+          setBlockedTimes(Array.isArray(data.blocked) ? data.blocked : []);
+          return;
+        } catch (err) {
+          if (err.name === "AbortError") return; // ignore cancelled requests
+          if (attempt === maxAttempts) throw err;
+          await new Promise((resolve) => setTimeout(resolve, 1500 * attempt));
+        }
+      }
     } catch (err) {
-      if (err.name === "AbortError") return; // ignore cancelled requests
+      if (err.name === "AbortError" || signal?.aborted) return;
       console.error("Availability fetch error:", err);
       setAvailabilityError(true);
     } finally {
-      setIsLoading(false);
+      // Aborted fetch must NOT clear loading — a newer request owns that flag
+      if (!signal?.aborted) {
+        setIsLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     // New Abort Controller created each time for each request
     const controller = new AbortController();
+    // Clear timeslot when the date changes so a prior selection can't ride over
+    setFormData((prev) => ({ ...prev, startTime: "", endTime: "" }));
     fetchAvailability(selectedDate, controller.signal);
     return () => controller.abort();
   }, [selectedDate]);

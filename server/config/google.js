@@ -2,8 +2,11 @@ import "./env.js";
 import { google } from "googleapis";
 import pool from "./db.js";
 
-// Read-only is enough for availability + gig sync; never request write scopes
-const SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
+// Service account stays calendar-only. Owner OAuth also requests gmail.send so
+// Render can deliver mail over HTTPS (free instances block outbound SMTP).
+const CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
+const GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send";
+const SCOPES = CALENDAR_SCOPES;
 
 export function getOAuth2Client() {
   const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
@@ -105,9 +108,20 @@ export function getOAuthConsentUrl(state = "owner") {
     access_type: "offline",
     // Force consent so Google returns a refresh_token on re-connects
     prompt: "consent",
-    scope: SCOPES,
+    scope: [...CALENDAR_SCOPES, GMAIL_SEND_SCOPE],
     state,
   });
+}
+
+/** Owner OAuth only — service accounts cannot send as a personal Gmail. */
+export async function getGmailClient() {
+  const oauthClient = await getStoredOAuthClient();
+  if (!oauthClient) {
+    throw new Error(
+      "Google OAuth is not connected. Visit /api/oauth/google/start to grant Gmail send access."
+    );
+  }
+  return google.gmail({ version: "v1", auth: oauthClient });
 }
 
 export async function exchangeOAuthCode(code) {

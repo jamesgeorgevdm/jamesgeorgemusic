@@ -2,12 +2,12 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import timezone from "dayjs/plugin/timezone.js";
 import pool from "../config/db.js";
-import { transporter, validateBookingFields } from "../utils/email.js";
+import { sendMail, validateBookingFields } from "../utils/email.js";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-// Persist the booking, then send owner + client emails over SMTP in the same request.
+// Persist the booking, then email you immediately; client confirmation is secondary.
 export async function createBookingRequest(body) {
   const { name, email, phone, product, message, date, startTime, endTime } = body;
 
@@ -81,10 +81,10 @@ export async function createBookingRequest(body) {
 
   // Owner mail is required; client confirmation is best-effort and must not
   // block or fail the request once you have been notified.
-  await transporter.sendMail(ownerPayload);
+  await sendMail(ownerPayload);
 
   try {
-    await transporter.sendMail(clientPayload);
+    await sendMail(clientPayload);
   } catch (err) {
     console.error("Client confirmation email failed:", err);
   }

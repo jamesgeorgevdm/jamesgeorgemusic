@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { transporter } from "../utils/email.js";
+import { sendMail } from "../utils/email.js";
 import { bookingLimiter, contactLimiter } from "../middleware/rateLimiters.js";
 import { createBookingRequest } from "../services/bookingService.js";
 
@@ -23,7 +23,7 @@ router.post("/send-booking", bookingLimiter, async (req, res) => {
   }
 });
 
-// Lightweight contact form — sends immediately over SMTP for one-off enquiries
+// Lightweight contact form — emails you immediately for one-off enquiries
 router.post("/contact", contactLimiter, async (req, res) => {
   const { email, subject, message } = req.body;
 
@@ -42,7 +42,7 @@ router.post("/contact", contactLimiter, async (req, res) => {
 
   try {
     const ownerEmail = process.env.EMAIL_USER || "jamesv234@gmail.com";
-    await transporter.sendMail({
+    await sendMail({
       // From must be the authenticated Gmail account; use replyTo for the visitor
       from: { name: "James George Music", address: ownerEmail },
       replyTo: email,

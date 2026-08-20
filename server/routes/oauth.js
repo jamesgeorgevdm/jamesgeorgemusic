@@ -40,7 +40,7 @@ router.get("/oauth/google/callback", async (req, res) => {
   try {
     await exchangeOAuthCode(code);
     res.send(
-      "Google Calendar connected. You can close this tab. Availability will prefer this OAuth token."
+      "Google connected. You can close this tab. Calendar availability and booking/contact emails will use this account."
     );
   } catch (err) {
     console.error("OAuth callback error:", err);

@@ -123,15 +123,14 @@ function Reviews({ overlay = false }) {
 
   const skeletonClass = "flex-[0_0_290px] max-md:flex-[0_0_250px] max-sm:flex-[0_0_220px] h-[175px] max-md:h-[155px] rounded-[20px] bg-gradient-to-r from-white/[0.04] via-white/[0.09] to-white/[0.04] bg-[length:200%_100%] border border-[rgba(212,175,55,0.1)] backdrop-blur-[16px] animate-[reviews-skeleton-loading_1.5s_infinite]";
 
-  // overlay = hero footer mode; default = standalone section styling
-  // pointer-events-none on the overlay section lets clicks fall through to the video,
-  // then pointer-events-auto re-enables the track and dots
+  // overlay = hero footer mode (layout owned by Home); default = standalone section
+  // pointer-events-none lets clicks fall through to the video; track/dots re-enable them
   const sectionClass = overlay
-    ? "absolute bottom-0 left-0 right-0 z-[3] pb-4 bg-gradient-to-t from-[rgba(9,18,39,0.85)] to-transparent pointer-events-none"
+    ? "pointer-events-none"
     : "bg-gradient-to-b from-[#091227] to-[#0b1a2e] py-20 pb-24 text-center font-['Crimson_Pro'] text-[#fdfaf3]";
 
   const trackClass = overlay
-    ? "flex gap-4 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-3 px-8 max-md:px-4 pb-2 max-w-[1200px] mx-auto no-scrollbar pointer-events-auto"
+    ? "flex gap-4 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-1 px-0 pb-2 no-scrollbar pointer-events-auto"
     : "flex gap-6 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-4 px-12 pb-8 max-md:px-6 max-w-[1200px] mx-auto no-scrollbar";
 
   const cardClass = overlay
@@ -139,7 +138,7 @@ function Reviews({ overlay = false }) {
     : "review-card flex-[0_0_300px] max-md:flex-[0_0_260px] max-sm:flex-[0_0_230px] snap-start bg-white/[0.04] backdrop-blur-[12px] border border-[rgba(212,175,55,0.2)] rounded-[20px] p-6 max-md:p-5 px-[1.6rem] max-md:px-[1.2rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:shadow-[0_15px_40px_rgba(212,175,55,0.15)] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08]";
 
   const dotsClass = overlay
-    ? "flex justify-center gap-2 mt-3 pointer-events-auto"
+    ? "flex justify-start gap-2 mt-2 pointer-events-auto"
     : "flex justify-center gap-2 mt-8";
 
   if (loading) {

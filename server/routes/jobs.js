@@ -1,7 +1,6 @@
 import { Router } from "express";
 import crypto from "crypto";
 import { requireCronSecret } from "../middleware/cronAuth.js";
-import { processEmailOutbox } from "../services/emailOutbox.js";
 import { syncGigs } from "../utils/gigHelpers.js";
 import { getCalendarClient } from "../config/google.js";
 import pool from "../config/db.js";
@@ -9,16 +8,6 @@ import pool from "../config/db.js";
 const router = Router();
 
 // Hit by GitHub Actions on a schedule — also wakes a cold Render instance
-router.post("/jobs/process-outbox", requireCronSecret, async (req, res) => {
-  try {
-    const result = await processEmailOutbox();
-    res.json({ success: true, ...result });
-  } catch (err) {
-    console.error("Outbox job error:", err);
-    res.status(500).json({ error: "Failed to process email outbox." });
-  }
-});
-
 router.post("/jobs/sync-gigs", requireCronSecret, async (req, res) => {
   try {
     const added = await syncGigs();

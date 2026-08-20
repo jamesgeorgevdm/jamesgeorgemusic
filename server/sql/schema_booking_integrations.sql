@@ -20,21 +20,7 @@ CREATE TABLE IF NOT EXISTS booking_requests (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS email_outbox (
-  id SERIAL PRIMARY KEY,
-  booking_request_id INTEGER REFERENCES booking_requests(id),
-  kind TEXT NOT NULL,
-  payload JSONB NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending',
-  attempts INTEGER NOT NULL DEFAULT 0,
-  last_error TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  sent_at TIMESTAMPTZ
-);
-
-CREATE INDEX IF NOT EXISTS email_outbox_pending_idx
-  ON email_outbox (status, created_at)
-  WHERE status = 'pending';
+DROP TABLE IF EXISTS email_outbox;
 
 CREATE TABLE IF NOT EXISTS oauth_tokens (
   provider TEXT PRIMARY KEY,

@@ -5,7 +5,7 @@ import { createBookingRequest } from "../services/bookingService.js";
 
 const router = Router();
 
-// Persists the booking + queues emails; HTTP success does not wait on SMTP
+// Saves the booking, emails you immediately, then tries the client confirmation.
 router.post("/send-booking", bookingLimiter, async (req, res) => {
   try {
     const result = await createBookingRequest(req.body);
@@ -13,19 +13,17 @@ router.post("/send-booking", bookingLimiter, async (req, res) => {
       return res.status(result.status).json({ success: false, errors: result.errors });
     }
 
-    // Booking is durable even if the worker has not drained yet.
     res.status(200).json({
       success: true,
       bookingId: result.bookingId,
-      queued: true,
     });
   } catch (error) {
     console.error("Booking request failed:", error);
-    res.status(500).json({ success: false, error: "Booking failed to save. Please try again." });
+    res.status(500).json({ success: false, error: "Booking failed to send. Please try again." });
   }
 });
 
-// Lightweight contact form — sends immediately (no outbox) for one-off enquiries
+// Lightweight contact form — sends immediately over SMTP for one-off enquiries
 router.post("/contact", contactLimiter, async (req, res) => {
   const { email, subject, message } = req.body;
 

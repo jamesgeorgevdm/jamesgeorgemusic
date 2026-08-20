@@ -11,7 +11,6 @@ import oauthRoutes from "./routes/oauth.js";
 import webhookRoutes from "./routes/webhooks.js";
 import jobsRoutes from "./routes/jobs.js";
 import { ensureSchema } from "./utils/ensureSchema.js";
-import { processEmailOutbox } from "./services/emailOutbox.js";
 import { syncGigs } from "./utils/gigHelpers.js";
 
 const app = express();
@@ -59,16 +58,9 @@ async function start() {
 
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-  // In-process schedules (run while the Render instance is awake).
+  // In-process gig sync while the Render instance is awake.
   // GitHub Actions also hits the HTTP job routes to wake cold starts.
-  const outboxMs = Number(process.env.OUTBOX_POLL_MS || 60000);
   const syncMs = Number(process.env.SYNC_POLL_MS || 60 * 60 * 1000);
-
-  setInterval(() => {
-    processEmailOutbox().catch((err) => {
-      console.error("Outbox interval error:", err);
-    });
-  }, outboxMs);
 
   setInterval(() => {
     syncGigs().catch((err) => {

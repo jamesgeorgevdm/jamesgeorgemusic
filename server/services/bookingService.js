@@ -2,12 +2,12 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import timezone from "dayjs/plugin/timezone.js";
 import pool from "../config/db.js";
-import { validateBookingFields } from "../utils/email.js";
+import { transporter, validateBookingFields } from "../utils/email.js";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-// Single transaction: upsert client → booking row → two outbox emails (owner + ack)
+// Persist the booking, then send owner + client emails over SMTP in the same request.
 export async function createBookingRequest(body) {
   const { name, email, phone, product, message, date, startTime, endTime } = body;
 
@@ -29,6 +29,8 @@ export async function createBookingRequest(body) {
   const ownerEmail = process.env.EMAIL_USER || "jamesv234@gmail.com";
 
   const client = await pool.connect();
+  let bookingId;
+  let clientId;
   try {
     await client.query("BEGIN");
 
@@ -42,7 +44,7 @@ export async function createBookingRequest(body) {
        RETURNING id`,
       [name.trim(), email.trim().toLowerCase(), phone.trim()]
     );
-    const clientId = clientResult.rows[0].id;
+    clientId = clientResult.rows[0].id;
 
     const bookingResult = await client.query(
       `INSERT INTO booking_requests
@@ -51,39 +53,41 @@ export async function createBookingRequest(body) {
        RETURNING id`,
       [clientId, product, message, date || null, startTime, endTime]
     );
-    const bookingId = bookingResult.rows[0].id;
-
-    // From must be the authenticated Gmail account; use replyTo for the client.
-    const ownerPayload = {
-      from: { name: "James George Music Bookings", address: ownerEmail },
-      replyTo: email,
-      to: ownerEmail,
-      subject: `New Booking Request: ${product}`,
-      text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nProduct: ${product}\nDate: ${dateFormatted}\nTimeslot: ${startTime} - ${endTime}\nMessage: ${message}`,
-    };
-
-    const clientPayload = {
-      from: { name: "James George Music", address: ownerEmail },
-      to: email,
-      subject: "Booking Request Received",
-      text: `Hi ${name}!\n\nThanks so much for your booking request for a performance on ${dateFormatted} from (${startTime} - ${endTime}).\nI so appreciate your interest, and will confirm it on my end as soon as possible. Speak soon!\n\n Sincerely, \n James George.`,
-    };
-
-    // Queue both mails atomically with the booking — worker sends later
-    await client.query(
-      `INSERT INTO email_outbox (booking_request_id, kind, payload, status)
-       VALUES
-         ($1, 'owner', $2::jsonb, 'pending'),
-         ($1, 'client', $3::jsonb, 'pending')`,
-      [bookingId, JSON.stringify(ownerPayload), JSON.stringify(clientPayload)]
-    );
+    bookingId = bookingResult.rows[0].id;
 
     await client.query("COMMIT");
-    return { ok: true, bookingId, clientId };
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
   } finally {
     client.release();
   }
+
+  // From must be the authenticated Gmail account; use replyTo for the client.
+  const ownerPayload = {
+    from: { name: "James George Music Bookings", address: ownerEmail },
+    replyTo: email,
+    to: ownerEmail,
+    subject: `New Booking Request: ${product}`,
+    text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nProduct: ${product}\nDate: ${dateFormatted}\nTimeslot: ${startTime} - ${endTime}\nMessage: ${message}`,
+  };
+
+  const clientPayload = {
+    from: { name: "James George Music", address: ownerEmail },
+    to: email,
+    subject: "Booking Request Received",
+    text: `Hi ${name}!\n\nThanks so much for your booking request for a performance on ${dateFormatted} from (${startTime} - ${endTime}).\nI so appreciate your interest, and will confirm it on my end as soon as possible. Speak soon!\n\n Sincerely, \n James George.`,
+  };
+
+  // Owner mail is required; client confirmation is best-effort and must not
+  // block or fail the request once you have been notified.
+  await transporter.sendMail(ownerPayload);
+
+  try {
+    await transporter.sendMail(clientPayload);
+  } catch (err) {
+    console.error("Client confirmation email failed:", err);
+  }
+
+  return { ok: true, bookingId, clientId };
 }

@@ -43,11 +43,13 @@ router.post("/contact", contactLimiter, async (req, res) => {
   }
 
   try {
+    const ownerEmail = process.env.EMAIL_USER || "jamesv234@gmail.com";
     await transporter.sendMail({
-      // Gmail may rewrite From; body still carries the visitor address
-      from: email,
-      to: process.env.EMAIL_USER || "jamesv234@gmail.com",
-      subject: `Direct Contact: ${subject}`,
+      // From must be the authenticated Gmail account; use replyTo for the visitor
+      from: { name: "James George Music", address: ownerEmail },
+      replyTo: email,
+      to: ownerEmail,
+      subject: `Direct Contact: ${subject.trim()}`,
       text: `From: ${email}\n\nMessage:\n${message}`,
     });
     res.status(200).json({ success: true });

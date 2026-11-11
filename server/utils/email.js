@@ -1,68 +1,38 @@
 import "../config/env.js";
-import nodemailer from "nodemailer";
-import { getGmailClient } from "../config/google.js";
 
-// Local/dev only. Render free instances block outbound SMTP on 25/465/587, so
-// production sends via the Gmail HTTPS API instead (see sendMail).
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    // App password, not the account login password
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 20000,
-  greetingTimeout: 20000,
-  socketTimeout: 30000,
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+// Resend HTTPS API — an API key never expires, and HTTPS works on Render free
+// (which blocks outbound SMTP). Sends from the verified jamesgeorgemusic.com domain.
+const MAIL_FROM_ADDRESS = process.env.MAIL_FROM || "bookings@jamesgeorgemusic.com";
 
 function formatAddress(value) {
-  if (!value) return "";
+  if (!value) return undefined;
   if (typeof value === "string") return value;
   if (value.name) return `${value.name} <${value.address}>`;
-  return value.address || "";
+  return value.address;
 }
 
-function toBase64Url(value) {
-  return Buffer.from(value)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-}
+export async function sendMail({ from, to, replyTo, subject, text }) {
+  if (!process.env.RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
 
-function buildRfc822({ from, to, replyTo, subject, text }) {
-  const headers = [
-    `From: ${formatAddress(from)}`,
-    `To: ${formatAddress(to)}`,
-    replyTo ? `Reply-To: ${formatAddress(replyTo)}` : null,
-    `Subject: ${subject}`,
-    "MIME-Version: 1.0",
-    "Content-Type: text/plain; charset=UTF-8",
-  ].filter(Boolean);
-
-  return `${headers.join("\r\n")}\r\n\r\n${text || ""}`;
-}
-
-async function sendViaGmailApi(options) {
-  const gmail = await getGmailClient();
-  await gmail.users.messages.send({
-    userId: "me",
-    requestBody: { raw: toBase64Url(buildRfc822(options)) },
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      // Keep the caller's display name, but always send from the verified domain
+      from: `${from?.name || "James George Music"} <${MAIL_FROM_ADDRESS}>`,
+      to: [formatAddress(to)],
+      reply_to: formatAddress(replyTo),
+      subject,
+      text,
+    }),
   });
-}
 
-export async function sendMail(options) {
-  // RENDER is set on Render. SMTP cannot leave a free web service, so use HTTPS.
-  if (process.env.RENDER) {
-    return sendViaGmailApi(options);
+  if (!res.ok) {
+    throw new Error(`Resend ${res.status}: ${await res.text()}`);
   }
-  return transporter.sendMail(options);
 }
 
 // Shared by bookingService — returns a list so the client can show every issue at once

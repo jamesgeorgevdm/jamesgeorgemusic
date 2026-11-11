@@ -1,66 +1,75 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaInstagram, FaFacebookF, FaYoutube, FaEnvelope } from 'react-icons/fa';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+
+const LINKS = [
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about' },
+  { name: 'Packages', path: '/products' },
+  { name: 'Contact', path: '/contact' },
+];
 
 function Navbar() {
-  // isButton highlights the primary conversion path (booking) in the nav
-  const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Make a Booking', path: '/booking', isButton: true },
-    { name: 'About Me', path: '/about' },
-    { name: 'Products', path: '/products' },
-    { name: 'Contact', path: '/contact' },
-  ];
+  const { pathname } = useLocation();
+  const [open, setOpen] = useState(false);
+  const listRef = useRef(null);
+  const indRef = useRef(null);
 
-  // label used for accessible names — href alone isn't enough for icon-only links
-  const socialLinks = [
-    { icon: <FaInstagram />, href: "https://www.instagram.com/jamesgeorge.music/", label: "Instagram" },
-    { icon: <FaFacebookF />, href: "https://www.facebook.com/profile.php?id=61561533225129", label: "Facebook" },
-    { icon: <FaYoutube />, href: "https://www.youtube.com/@jamesgeorgemusic", label: "YouTube" },
-    { icon: <FaEnvelope />, href: "mailto:jamesv234@gmail.com", label: "Email" }
-  ];
+  // One gold underline slides between links instead of each link drawing its own
+  useLayoutEffect(() => {
+    const place = () => {
+      const active = listRef.current?.querySelector('a.l[aria-current="page"]');
+      const ind = indRef.current;
+      if (!ind) return;
+      if (!active) { ind.style.opacity = 0; return; }
+      ind.style.opacity = 1;
+      ind.style.transform = `translateX(${active.offsetLeft}px) scaleX(${active.offsetWidth})`;
+    };
+    place();
+    window.addEventListener('resize', place);
+    // Fonts can land after first paint and change link widths
+    document.fonts?.ready.then(place);
+    return () => window.removeEventListener('resize', place);
+  }, [pathname]);
+
+  useEffect(() => setOpen(false), [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const current = (path) => (pathname === path ? 'page' : undefined);
 
   return (
-    <header> 
-      {/* Fixed so content scrolls underneath; z-[1000] stays above page sections */}
-      <nav className="fixed top-0 left-0 w-full z-[1000] bg-[#0B1C2C] px-4 py-3 md:px-8 md:py-4 flex justify-between items-center font-['BruneyClassy'] shadow-lg border-b border-[#D4A455]/20">
-        
-        {/* Horizontal scroll on narrow screens instead of wrapping / hamburger */}
-        <div className="flex-1 overflow-x-auto no-scrollbar">
-          <ul className="flex items-center gap-5 md:gap-8 list-none m-0 p-0 whitespace-nowrap">
-            {navItems.map((item) => (
-              <li key={item.name}>
-                <Link 
-                  to={item.path}
-                  className={
-                    item.isButton 
-                      // Booking CTA styled as a button; other links stay text-only
-                      ? "bg-[#D4A455] !text-[#0B1C2C] px-8 py-2.5 rounded-full text-sm md:text-base font-bold no-underline transition-all duration-300 hover:bg-[#F6F2ED] hover:scale-105 shadow-md hover:shadow-[0_0_20px_rgba(212,164,85,0.4)] tracking-wide"
-                      : "!text-[#F6F2ED] text-sm md:text-base font-bold no-underline transition-all duration-300 hover:!text-[#D4A455] hover:drop-shadow-[0_0_8px_rgba(212,164,85,0.8)]"
-                  }
-                >
-                  {item.name}
-                </Link>
-              </li>
+    <header>
+      {/* Transparent over the home film, solid everywhere else */}
+      <nav className={`jg-nav ${pathname === '/' ? '' : 'solid'}`} aria-label="Main">
+        <div className="jg-wrap">
+          <Link className="jg-mark" to="/">James George</Link>
+          <ul className="jg-links" ref={listRef}>
+            {LINKS.map((l) => (
+              <li key={l.path}><Link className="l" to={l.path} aria-current={current(l.path)}>{l.name}</Link></li>
             ))}
+            <li><Link className="jg-btn jg-btn-line" to="/booking" aria-current={current('/booking')}>Book a date</Link></li>
+            <li className="jg-ind" ref={indRef} aria-hidden="true" />
           </ul>
+          <button
+            type="button"
+            className="jg-menu-btn"
+            aria-expanded={open}
+            aria-controls="jg-sheet"
+            onClick={() => setOpen((o) => !o)}
+          >
+            {open ? 'Close' : 'Menu'}
+          </button>
         </div>
-
-        <div className="flex items-center gap-4 md:gap-6 ml-6 flex-shrink-0" aria-label="Social Media Links">
-          {socialLinks.map((social) => (
-            <a 
-              key={social.label}
-              href={social.href} 
-              // New tab keeps the site open while visitors check social profiles
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={social.label === "Email" ? "Email James" : `Follow on ${social.label}`}
-              className="!text-[#F6F2ED] text-lg md:text-xl transition-all duration-300 hover:!text-[#D4A455] hover:scale-110"
-            >
-              {social.icon}
-            </a>
-          ))}
-        </div>
+      </nav>
+      <nav id="jg-sheet" className={`jg-sheet ${open ? 'open' : ''}`} aria-label="Pages" aria-hidden={!open}>
+        {[...LINKS.slice(0, 3), { name: 'Book a date', path: '/booking' }, LINKS[3]].map((l) => (
+          <Link key={l.path} to={l.path} aria-current={current(l.path)} tabIndex={open ? 0 : -1}>{l.name}</Link>
+        ))}
       </nav>
     </header>
   );

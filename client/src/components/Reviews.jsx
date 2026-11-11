@@ -1,218 +1,118 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+
+const ROTATE_MS = 7000;
 
 // Read-only star row — half stars use the .star-half CSS fill trick
 const StarDisplay = ({ rating }) => (
-  <div className="flex gap-[3px] mb-2" aria-label={`${rating} out of 5 stars`}>
-    {[1, 2, 3, 4, 5].map(star => {
+  <div className="jg-stars" aria-label={`${rating} out of 5 stars`}>
+    {[1, 2, 3, 4, 5].map((star) => {
       const full = rating >= star;
       const half = !full && rating >= star - 0.5;
-      return (
-        <span
-          key={star}
-          className={`text-[1.1rem] max-md:text-[1rem] leading-none ${full ? 'text-[#f1d97c]' : half ? 'star-half text-[rgba(241,217,124,0.2)]' : 'text-[rgba(241,217,124,0.2)]'}`}
-        >
-          ★
-        </span>
-      );
+      return <span key={star} className={full ? 'on' : half ? 'star-half off' : 'off'}>★</span>;
     })}
   </div>
 );
 
-const formatDate = (dateStr) => {
-  if (!dateStr) return null;
-  // en-GB → "March 2024" — month/year only keeps cards uncluttered
-  return new Date(dateStr).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-};
+const formatDate = (dateStr) =>
+  dateStr ? new Date(dateStr).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : null;
 
-function ReviewText({ text, overlay }) {
-  const [expanded, setExpanded] = useState(false);
-  const [needsClamp, setNeedsClamp] = useState(false);
-  const textRef = useRef(null);
-
-  useEffect(() => {
-    const el = textRef.current;
-    if (!el) return;
-
-    const measure = () => {
-      // Skip while expanded — full height would always look "clamped"
-      if (expanded) return;
-      // +1 tolerates sub-pixel rounding so the button doesn't flicker
-      setNeedsClamp(el.scrollHeight > el.clientHeight + 1);
-    };
-
-    measure();
-    // ResizeObserver re-measures when card width changes (carousel / viewport)
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [text, expanded, overlay]);
-
-  return (
-    <div className="mb-3">
-      <p
-        ref={textRef}
-        className={`text-sm max-md:text-xs leading-[1.65] text-[#eae8e1] italic${
-          // Overlay sits on the hero — fewer lines so cards stay compact
-          !expanded ? (overlay ? ' line-clamp-4' : ' line-clamp-5') : ''
-        }`}
-      >
-        "{text}"
-      </p>
-      {(needsClamp || expanded) && (
-        <button
-          type="button"
-          onClick={(e) => {
-            // Stop bubbling so parent card hover/click handlers don't fire
-            e.stopPropagation();
-            setExpanded(prev => !prev);
-          }}
-          className="mt-1.5 p-0 border-none bg-transparent cursor-pointer font-['Crimson_Pro'] text-[0.8rem] max-md:text-[0.72rem] text-[#f1d97c] hover:text-[#ffd700] underline underline-offset-2 decoration-[rgba(241,217,124,0.4)] hover:decoration-[#ffd700] transition-colors duration-200"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Show less' : 'Read more'}
-        </button>
-      )}
-    </div>
-  );
-}
-
-function Reviews({ overlay = false }) {
+// Compact review strip for the foot of the home hero: one review at a time, slow crossfade.
+function Reviews() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const trackRef = useRef(null);
+  const [index, setIndex] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const [clamped, setClamped] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const textRefs = useRef([]);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API}/api/reviews`)
-      .then(res => res.json())
-      .then(data => { setReviews(data); setLoading(false); })
-      // Still exit loading on failure so the empty-state UI can show
-      .catch(() => setLoading(false));
+      .then((res) => res.json())
+      .then((data) => setReviews(Array.isArray(data) ? data : []))
+      // Still exit loading on failure so the empty state can show
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  // Drive the dot indicators from whichever card is ≥50% visible in the track
+  // Auto-advance unless hovered, a review is open, or the visitor prefers less motion
   useEffect(() => {
-    if (!trackRef.current || reviews.length === 0) return;
-    const cards = trackRef.current.querySelectorAll('.review-card');
+    if (reviews.length < 2 || paused || expanded) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % reviews.length), ROTATE_MS);
+    return () => clearInterval(t);
+  }, [reviews.length, paused, expanded]);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setActiveIndex(Number(entry.target.dataset.index));
-          }
-        });
-      },
-      // root is the scroll track so intersection is relative to the carousel, not the viewport
-      { root: trackRef.current, threshold: 0.5 }
-    );
+  // "Read more" only when the active review overflows its two lines
+  useEffect(() => {
+    const el = textRefs.current[index];
+    if (!el || expanded) return;
+    setClamped(el.scrollHeight > el.clientHeight + 1);
+  }, [index, reviews, expanded]);
 
-    cards.forEach(card => observer.observe(card));
-    return () => observer.disconnect();
-  }, [reviews]);
-
-  const scrollToCard = (index) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cards = track.querySelectorAll('.review-card');
-    if (cards[index]) {
-      // inline: 'start' snaps the chosen card to the left of the horizontal track
-      cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-    }
+  const go = (step) => {
+    setExpanded(false);
+    setIndex((i) => (i + step + reviews.length) % reviews.length);
   };
-
-  const skeletonClass = "flex-[0_0_290px] max-md:flex-[0_0_250px] max-sm:flex-[0_0_220px] h-[175px] max-md:h-[155px] rounded-[20px] bg-gradient-to-r from-white/[0.04] via-white/[0.09] to-white/[0.04] bg-[length:200%_100%] border border-[rgba(212,175,55,0.1)] backdrop-blur-[16px] animate-[reviews-skeleton-loading_1.5s_infinite]";
-
-  // overlay = hero footer mode (layout owned by Home); default = standalone section
-  // pointer-events-none lets clicks fall through to the video; track/dots re-enable them
-  const sectionClass = overlay
-    ? "pointer-events-none"
-    : "bg-gradient-to-b from-[#091227] to-[#0b1a2e] py-20 pb-24 text-center font-['Crimson_Pro'] text-[#fdfaf3]";
-
-  const trackClass = overlay
-    ? "flex gap-4 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-1 px-0 pb-2 no-scrollbar pointer-events-auto"
-    : "flex gap-6 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch] pt-4 px-12 pb-8 max-md:px-6 max-w-[1200px] mx-auto no-scrollbar";
-
-  const cardClass = overlay
-    ? "review-card flex-[0_0_290px] max-md:flex-[0_0_250px] max-sm:flex-[0_0_220px] snap-start bg-[rgba(9,18,39,0.55)] backdrop-blur-[16px] border border-[rgba(212,175,55,0.25)] rounded-[20px] p-5 max-md:p-4 px-[1.4rem] max-md:px-[1.1rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:bg-[rgba(9,18,39,0.75)]"
-    : "review-card flex-[0_0_300px] max-md:flex-[0_0_260px] max-sm:flex-[0_0_230px] snap-start bg-white/[0.04] backdrop-blur-[12px] border border-[rgba(212,175,55,0.2)] rounded-[20px] p-6 max-md:p-5 px-[1.6rem] max-md:px-[1.2rem] text-left transition-all duration-[400ms] ease-in-out hover:-translate-y-[6px] hover:shadow-[0_15px_40px_rgba(212,175,55,0.15)] hover:border-[rgba(212,175,55,0.5)] hover:bg-white/[0.08]";
-
-  const dotsClass = overlay
-    ? "flex justify-start gap-2 mt-2 pointer-events-auto"
-    : "flex justify-center gap-2 mt-8";
 
   if (loading) {
     return (
-      <div className={sectionClass}>
-        {!overlay && (
-          <div className="mb-[3.5rem]">
-            <h2 className="font-['BruneyClassy'] text-[2.8rem] text-[#f1d97c] mb-4">Reviews</h2>
-            <div className="w-20 h-[3px] mx-auto bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
-          </div>
-        )}
-        <div className={trackClass}>
-          {[1, 2, 3].map(i => <div key={i} className={skeletonClass} />)}
-        </div>
+      <div className="jg-reviews" aria-busy="true">
+        <div className="jg-skel" style={{ height: 14, width: 90 }} />
+        <div className="jg-skel" style={{ height: 40, marginTop: 10 }} />
       </div>
     );
   }
 
   if (reviews.length === 0) {
     return (
-      <div className={sectionClass}>
-        {!overlay && (
-          <div className="mb-[3.5rem]">
-            <h2 className="font-['BruneyClassy'] text-[2.8rem] max-md:text-[2.2rem] text-[#f1d97c] mb-4">Reviews</h2>
-            <div className="w-20 h-[3px] mx-auto bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
-          </div>
-        )}
-        <p className="text-center text-[rgba(234,232,225,0.45)] text-[1.35rem] max-md:text-[1.15rem] py-12">Reviews coming soon.</p>
+      <div className="jg-reviews">
+        <p className="jg-rv-ctrl" style={{ margin: 0 }}>
+          Played at your event? <Link to="/leave-review">Leave the first review</Link>
+        </p>
       </div>
     );
   }
 
   return (
-    <div className={sectionClass}>
-      {!overlay && (
-        <div className="mb-[3.5rem]">
-          <h2 className="font-['BruneyClassy'] text-[2.8rem] max-md:text-[2.2rem] text-[#f1d97c] mb-4">Reviews</h2>
-          <div className="w-20 h-[3px] mx-auto bg-gradient-to-r from-[#ffd700] to-[#f1d97c] rounded-sm" aria-hidden="true" />
-        </div>
-      )}
-
-      <div className={trackClass} ref={trackRef}>
-        {reviews.map((review, i) => (
-          <article key={review.id} className={cardClass} data-index={i}>
-            <div className="flex flex-col gap-[0.2rem] border-b border-[rgba(212,175,55,0.15)] pb-2 mb-2">
-              <span className="font-['BruneyClassy'] text-[1rem] max-md:text-[0.9rem] text-[#f1d97c]">{review.name}</span>
-              {review.event_date && (
-                <span className="text-[0.8rem] max-md:text-[0.72rem] text-[rgba(234,232,225,0.55)]">{formatDate(review.event_date)}</span>
+    <div
+      className="jg-reviews"
+      aria-roledescription="carousel"
+      aria-label="Reviews"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <StarDisplay rating={reviews[index].rating} />
+      <div className="jg-rv-stage" aria-live="polite">
+        {reviews.map((r, i) => (
+          <figure key={r.id} className={`jg-rv ${i === index ? 'on' : ''}`} aria-hidden={i !== index}>
+            <blockquote ref={(el) => (textRefs.current[i] = el)} className={i === index && expanded ? '' : 'clamp'}>
+              “{r.review}”
+            </blockquote>
+            <figcaption>
+              {r.name}{r.event_date ? `, ${formatDate(r.event_date)}` : ''}
+              {i === index && (clamped || expanded) && (
+                <button type="button" className="more" aria-expanded={expanded} onClick={() => setExpanded((e) => !e)}>
+                  {expanded ? 'Show less' : 'Read more'}
+                </button>
               )}
-            </div>
-            <StarDisplay rating={review.rating} />
-            <ReviewText text={review.review} overlay={overlay} />
-          </article>
+            </figcaption>
+          </figure>
         ))}
       </div>
-
-      {reviews.length > 1 && (
-        <div className={dotsClass} role="tablist" aria-label="Review navigation">
-          {reviews.map((_, i) => (
-            <button
-              key={i}
-              className={`w-[7px] h-[7px] rounded-full border-none cursor-pointer p-0 transition-[background,transform] duration-300
-                ${i === activeIndex
-                  ? "bg-[#f1d97c] scale-[1.3]"
-                  : "bg-[rgba(212,175,55,0.25)] hover:bg-[rgba(212,175,55,0.55)]"
-                }`}
-              onClick={() => scrollToCard(i)}
-              aria-label={`Go to review ${i + 1}`}
-              role="tab"
-              aria-selected={i === activeIndex}
-            />
-          ))}
-        </div>
-      )}
+      <div className="jg-rv-ctrl">
+        {reviews.length > 1 && (
+          <>
+            <button type="button" onClick={() => go(-1)} aria-label="Previous review">←</button>
+            <span>{index + 1} / {reviews.length}</span>
+            <button type="button" onClick={() => go(1)} aria-label="Next review">→</button>
+          </>
+        )}
+        <Link to="/leave-review">Leave a review</Link>
+      </div>
     </div>
   );
 }

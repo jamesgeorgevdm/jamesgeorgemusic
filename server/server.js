@@ -7,7 +7,6 @@ import availabilityRoutes from "./routes/availability.js";
 import contactRoutes from "./routes/contact.js";
 import chatRoutes from "./routes/chat.js";
 import reviewsRoutes from "./routes/reviews.js";
-import oauthRoutes from "./routes/oauth.js";
 import webhookRoutes from "./routes/webhooks.js";
 import jobsRoutes from "./routes/jobs.js";
 import { ensureSchema } from "./utils/ensureSchema.js";
@@ -44,7 +43,6 @@ app.use("/api", availabilityRoutes);
 app.use("/api", contactRoutes);
 app.use("/api", chatRoutes);
 app.use("/api", reviewsRoutes);
-app.use("/api", oauthRoutes);
 app.use("/api", webhookRoutes);
 app.use("/api", jobsRoutes);
 

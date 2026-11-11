@@ -47,7 +47,7 @@ The `/api/availability` route reads the day's events and returns blocked hourly 
 
 ### Email confirmations over a full booking platform
 
-Nodemailer sends me the request and the client a "got it, I'll confirm" message. No PayStack checkout, no auto-hold on the calendar.
+Resend emails me the request and the client a "got it, I'll confirm" message. No PayStack checkout, no auto-hold on the calendar.
 
 **Why:** There are many logistics to confirm with a client personally regarding actual times, needs, sound equipment, travel etc. - adding payment before it can be confirmed on my side is dangerous. Additionally the forms are rate-limited (10/hour per IP) so I'm not drowning in spam while I still sleep.
 
@@ -99,7 +99,7 @@ Nothing fancy — four folders so future-me (or a reviewer) can find things:
 
 **Frontend:** React 19, Vite, Tailwind 4, React Router, React Calendar, Vercel AI SDK (`@ai-sdk/react`), React Markdown, custom `FadeInWrapper` page transitions.
 
-**Backend:** Express, `pg`, Google Calendar API (`googleapis`), Nodemailer, Vercel AI SDK + `@ai-sdk/google`, `express-rate-limit`.
+**Backend:** Express, `pg`, Google Calendar API (`googleapis`), Resend (email over HTTPS), Vercel AI SDK + `@ai-sdk/google`, `express-rate-limit`.
 
 **Tooling:** Concurrently for local dual-process dev, Dayjs (with timezone) for SA time (`Africa/Johannesburg`).
 
@@ -111,7 +111,7 @@ Nothing fancy — four folders so future-me (or a reviewer) can find things:
 2. **Gig tracker / stats** — keyword sync from Calendar → Neon → animated counters on About.
 3. **AI chat** — streaming Gemini answers scoped to the business.
 4. **Reviews** — public carousel + token-gated `/leave-review`.
-5. **Contact / booking emails** — rate-limited Nodemailer paths.
+5. **Contact / booking emails** — rate-limited Resend paths.
 
 ---
 
@@ -123,14 +123,14 @@ Put these in `server/.env`:
 | :--- | :--- |
 | `CALENDAR_ID` | Google Calendar ID used for availability + gig sync |
 | `DATABASE_URL` | Neon Postgres connection string |
-| `GOOGLE_CREDS` | Stringified JSON for the Google service account (fallback auth) |
-| `EMAIL_USER` / `EMAIL_PASS` | SMTP account + app password for Nodemailer |
+| `GOOGLE_CREDS` | Stringified JSON for the Google service account — all calendar reads (share the calendar with its email) |
+| `EMAIL_USER` | Inbox that receives booking/contact emails |
+| `RESEND_API_KEY` | Resend API key (sending access) |
+| `MAIL_FROM` | Optional sender address, defaults to `bookings@jamesgeorgemusic.com` |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini key ([Google AI Studio](https://aistudio.google.com/app/apikey)) |
-| `ADMIN_SECRET` | Header secret for review tokens + OAuth start |
+| `ADMIN_SECRET` | Header secret for review tokens |
 | `CLIENT_URL` | Base URL for generated review links (defaults to production) |
 | `CRON_SECRET` | Header `x-cron-secret` for `/api/jobs/*` and `/api/sync-gigs` |
-| `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` | Owner Calendar OAuth client |
-| `GOOGLE_OAUTH_REDIRECT_URI` | e.g. `https://<render-host>/api/oauth/google/callback` |
 | `GOOGLE_CALENDAR_WEBHOOK_URL` | e.g. `https://<render-host>/api/webhooks/google-calendar` |
 
 Client uses `VITE_API` (see `client/.env.local`) — empty/same-origin in production thanks to the Vercel rewrite; point it at `http://localhost:5000` locally.

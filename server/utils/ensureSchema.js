@@ -22,13 +22,6 @@ const STATEMENTS = [
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
   `DROP TABLE IF EXISTS email_outbox`,
-  `CREATE TABLE IF NOT EXISTS oauth_tokens (
-    provider TEXT PRIMARY KEY,
-    refresh_token TEXT,
-    access_token TEXT,
-    expiry TIMESTAMPTZ,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  )`,
   `CREATE TABLE IF NOT EXISTS processed_webhook_events (
     delivery_id TEXT PRIMARY KEY,
     processed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

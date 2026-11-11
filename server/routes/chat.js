@@ -45,6 +45,7 @@ Sound Equipment/Gear:
 Prefer getPackages tool output. Do not negotiate custom rates.
 Travel is an additional cost if outside of the Cape Town area (${TRAVEL_RATE}).
 Performance rates are charged at a minimum of 3 hours.
+Restaurant gigs are charged at standard local rates — never quote a number for restaurants; direct them to the Contact page for a quote.
 
 # AVAILABILITY & BOOKING CAUTIONS
 - Live Sync: The website features a live calendar sync with Google Calendar to block out times dynamically.

@@ -1,8 +1,8 @@
 // Canonical rates for the chat getPackages tool — keep in sync with client Products copy
 export const PACKAGES = [
-  { name: "Restaurants", rate: "R500 / hour", notes: "Minimum 3 hours." },
-  { name: "Corporate Events", rate: "R1,200 / hour", notes: "Minimum 3 hours." },
-  { name: "Private Events", rate: "R1,000 / hour", notes: "Minimum 3 hours." },
+  { name: "Restaurants", rate: "Standard local rates", notes: "Depends on venue and location." },
+  { name: "Corporate Events", rate: "R1,800 / hour", notes: "Minimum 3 hours." },
+  { name: "Private Events", rate: "R1,500 / hour", notes: "Minimum 3 hours." },
   {
     name: "Weddings",
     rate: "R3,500 flat",

@@ -28,8 +28,8 @@ function IntroMask() {
         <defs>
           <mask id="jg-mask-port">
             <rect x="-2000" y="-2000" width="4900" height="5600" fill="#fff" />
-            <text x="450" y="650" fontSize="300" textLength="780" {...letters}>James</text>
-            <text x="450" y="950" fontSize="300" textLength="840" {...letters}>George</text>
+            <text x="450" y="690" fontSize="210" textLength="530" {...letters}>James</text>
+            <text x="450" y="900" fontSize="210" textLength="570" {...letters}>George</text>
           </mask>
         </defs>
         <rect x="-2000" y="-2000" width="4900" height="5600" fill="#0B1C2C" fillOpacity="0.8" mask="url(#jg-mask-port)" />

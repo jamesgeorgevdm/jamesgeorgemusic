@@ -147,7 +147,12 @@
   .jg-hero-title h1 { font-size: clamp(2.6rem, 10.5vw, 8.5rem); text-transform: uppercase; letter-spacing: 0.02em; line-height: 0.9; white-space: nowrap; text-shadow: 0 2px 24px rgba(7, 18, 29, 0.55); color: var(--cream); }
   .jg-hero-foot { position: relative; z-index: 2; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; padding-block: 26px 36px; border-top: 1px solid rgba(212, 164, 85, 0.18); }
   @media (min-width: 761px) { .jg-hero-foot { padding-right: max(96px, env(safe-area-inset-right, 0px)); } }
-  @media (max-width: 760px) { .jg-hero-foot { grid-template-columns: 1fr; gap: 18px; padding-bottom: 96px; } .jg-sess { justify-self: start; } }
+  @media (max-width: 760px) {
+    .jg-hero-foot { grid-template-columns: minmax(0, 1fr); gap: 18px; padding-bottom: 96px; }
+    /* Phones: title takes the space above the footer instead of centring over it,
+       so a tall review can never slide under the name */
+    .jg-hero-title { position: relative; inset: auto; flex: 1; padding-top: var(--nav-h); }
+  }
 
   .jg-reviews { min-width: 0; max-width: 680px; }
   .jg-stars { display: flex; gap: 4px; font-size: 1.1rem; line-height: 1; }
@@ -174,6 +179,13 @@
   .jg-sess-txt { display: grid; gap: 4px; }
   .jg-sess-txt b { font-family: var(--display); font-weight: 400; font-size: clamp(1.3rem, 1.9vw, 1.7rem); color: var(--gold-2); }
   .jg-sess-txt > span { font-size: 1.05rem; color: var(--cream-dim); }
+  /* After the base .jg-sess rules so these win on phones */
+  @media (max-width: 760px) {
+    .jg-sess { justify-self: stretch; min-width: 0; gap: 14px; padding: 8px 14px 8px 8px; }
+    .jg-sess-thumb { width: min(96px, 24vw); }
+    .jg-sess-txt { min-width: 0; }
+    .jg-sess-txt b { font-size: min(1.2rem, 4.8vw); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  }
 
   /* ── About ── */
   .jg-tally { background: var(--ink); padding-block: 34px; margin-top: 28px; }

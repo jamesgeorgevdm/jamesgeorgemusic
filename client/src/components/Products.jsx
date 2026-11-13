@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import Seo from "./Seo";
 
 import smoothJazzImg from "./images/smooth-jazz.jpg";
 import popImg from "./images/pop-contemporary.jpg";
-import classicalImg from "./images/classical-orchestral.jpg";
+import classicalImg from "./images/classical-operatic.jpg";
 
 // Rates mirror server/config/packages.js (used by the chat assistant) — keep in sync
 const packages = [
@@ -15,38 +15,28 @@ const packages = [
   { name: "Musical showcase", price: "Negotiable", note: "Curated or ticketed performances across styles and genres." },
 ];
 
-// A wedding runs in this order, so the tabs are a real sequence
-const acts = [
+const styles = [
   {
-    tab: "Ceremony",
-    style: "Classical & opera",
-    title: "The walk down the aisle",
-    copy: "Refined classical and operatic repertoire for the processional, the signing and the moment you walk out married.",
-    img: classicalImg,
-    video: "https://youtu.be/DQ2kdlt41Hs",
-  },
-  {
-    tab: "Cocktail hour",
-    style: "Background & classic jazz",
-    title: "Drinks on the lawn",
-    copy: "Warm, easy-listening jazz on saxophone and piano that fills the space without competing with conversation.",
+    title: "Background / Classic Jazz",
     img: smoothJazzImg,
     video: "https://www.youtube.com/watch?v=qLJJZcFYeXQ",
+    blurb: "Warm, easy-listening jazz that fills a room without competing with conversation.",
   },
   {
-    tab: "Reception",
-    style: "Pop & contemporary",
-    title: "Dinner, speeches, dancing",
-    copy: "Familiar hits and modern favourites that carry the reception from the first course to the last song.",
+    title: "Pop & Contemporary",
     img: popImg,
-    video: "https://youtu.be/y-GxjBkyJ34",
+    video: "https://www.youtube.com/watch?v=ZuUglV4z0zw",
+    blurb: "Familiar hits and modern favourites for receptions, parties and lively venues.",
+  },
+  {
+    title: "Classical / Operatic",
+    img: classicalImg,
+    video: "https://youtu.be/DQ2kdlt41Hs",
+    blurb: "Refined classical and operatic repertoire for sophisticated occasions and special requests.",
   },
 ];
 
 function Products() {
-  const [active, setActive] = useState(0);
-  const act = acts[active];
-
   return (
     <div className="jg-page jg-page-top">
       <Seo
@@ -79,40 +69,33 @@ function Products() {
         </div>
       </div>
 
-      <section className="jg-acts" aria-labelledby="acts-title">
+      <section className="jg-acts" aria-labelledby="styles-title">
         <div className="jg-wrap">
-          <h2 id="acts-title" className="jg-display">A wedding in three acts</h2>
-          <p className="jg-lead" style={{ marginTop: 14 }}>One musician from the aisle to the last dance.</p>
-          <div className="jg-act-tabs" role="tablist" aria-label="Wedding acts">
-            {acts.map((a, i) => (
-              <button
-                key={a.tab}
-                type="button"
-                role="tab"
-                id={`act-tab-${i}`}
-                aria-selected={i === active}
-                aria-controls="act-panel"
-                className="jg-act-tab"
-                onClick={() => setActive(i)}
-              >
-                {a.tab}
-              </button>
+          <h2 id="styles-title" className="jg-display">Styles on offer</h2>
+          <p className="jg-lead" style={{ marginTop: 14 }}>Hear each style in performance on YouTube.</p>
+          <ul className="jg-styles">
+            {styles.map((s) => (
+              <li key={s.title}>
+                <a
+                  className="jg-style"
+                  href={s.video}
+                  target="_blank"
+                  // noopener prevents the new tab from accessing window.opener
+                  rel="noopener noreferrer"
+                  aria-label={`Watch a ${s.title} performance on YouTube`}
+                >
+                  {/* Empty alt: the card's label names it */}
+                  <div className="pic"><img src={s.img} alt="" loading="lazy" /></div>
+                  <div className="txt">
+                    <h3 className="jg-display">{s.title}</h3>
+                    <p>{s.blurb}</p>
+                    <span className="go">Watch on YouTube <span className="jg-arrow" aria-hidden="true">→</span></span>
+                  </div>
+                </a>
+              </li>
             ))}
-          </div>
-          {/* key remounts the panel so its crossfade replays on every tab change */}
-          <div className="jg-act-panel" id="act-panel" role="tabpanel" aria-labelledby={`act-tab-${active}`} key={active}>
-            <div className="pic"><img src={act.img} alt="" /></div>
-            <div className="txt">
-              <span className="when">{act.style}</span>
-              <h3 className="jg-display">{act.title}</h3>
-              <p>{act.copy}</p>
-              <a className="jg-btn jg-btn-line" href={act.video} target="_blank" rel="noopener noreferrer">
-                Listen <span className="jg-arrow" aria-hidden="true">→</span>
-              </a>
-            </div>
-          </div>
-          <div className="jg-included">
-            <span>All three acts are included in the R3,500 wedding package.</span>
+          </ul>
+          <div className="jg-styles-cta">
             <Link className="jg-btn jg-btn-solid" to="/booking">Book a date <span className="jg-arrow" aria-hidden="true">→</span></Link>
           </div>
         </div>

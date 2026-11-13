@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Seo from "./Seo";
-import portraitImg from "./images/smooth-jazz.jpg";
+import portraitImg from "./images/about-portrait.jpg";
 
 // Static bio copy — kept out of the component so re-renders don't recreate the array
 const bioPillars = [
@@ -151,7 +151,7 @@ const About = ({ prefetchedStats }) => (
     <div className="jg-wrap">
       <div className="jg-about-grid">
         <figure className="jg-portrait rise" style={{ "--i": 2 }}>
-          <img src={portraitImg} alt="James George playing tenor saxophone on stage under red light" />
+          <img src={portraitImg} alt="James George smiling with his saxophone on an outdoor stage" />
         </figure>
         <div>
           <div className="jg-notes rise" style={{ "--i": 3 }}>

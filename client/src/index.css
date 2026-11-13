@@ -181,6 +181,14 @@
   .jg-sess-txt > span { font-size: 1.05rem; color: var(--cream-dim); }
   /* After the base .jg-sess rules so these win on phones */
   @media (max-width: 760px) {
+    /* Reviews stay a small caption so the video carries the screen */
+    .jg-stars { font-size: 0.85rem; gap: 2px; }
+    .jg-rv blockquote { font-size: 0.95rem; line-height: 1.4; }
+    .jg-rv blockquote.clamp { -webkit-line-clamp: 1; }
+    .jg-rv blockquote:not(.clamp) { max-height: 30dvh; overflow-y: auto; }
+    .jg-rv figcaption, .jg-rv .more { font-size: 0.85rem; margin-top: 2px; }
+    .jg-rv-ctrl { margin-top: 6px; gap: 8px; font-size: 0.85rem; }
+    .jg-rv-ctrl button { width: 28px; height: 28px; font-size: 0.85rem; }
     .jg-sess { justify-self: stretch; min-width: 0; gap: 14px; padding: 8px 14px 8px 8px; }
     .jg-sess-thumb { width: min(96px, 24vw); }
     .jg-sess-txt { min-width: 0; }

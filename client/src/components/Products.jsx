@@ -60,6 +60,7 @@ function Products() {
           <div className="rise" style={{ "--i": 1 }}>
             <p className="jg-lead">Every booking includes professional sound equipment and lighting, with a repertoire shaped around your event.</p>
             <p className="jg-lead" style={{ marginTop: 18 }}>Hourly bookings have a three-hour minimum.</p>
+            <p className="jg-lead" style={{ marginTop: 18 }}>Based in Cape Town and occasionally in Gqeberha, with travel further afield for larger events.</p>
           </div>
           <section className="jg-card rise" style={{ "--i": 2 }} aria-label="Fees">
             <div className="jg-card-head">This Season</div>

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 const ROTATE_MS = 7000;
 
@@ -65,15 +64,8 @@ function Reviews() {
     );
   }
 
-  if (reviews.length === 0) {
-    return (
-      <div className="jg-reviews">
-        <p className="jg-rv-ctrl" style={{ margin: 0 }}>
-          Played at your event? <Link to="/leave-review">Leave the first review</Link>
-        </p>
-      </div>
-    );
-  }
+  // Reviews come in via personal links, so no public prompt when there are none
+  if (reviews.length === 0) return null;
 
   return (
     <div
@@ -103,16 +95,13 @@ function Reviews() {
           </figure>
         ))}
       </div>
-      <div className="jg-rv-ctrl">
-        {reviews.length > 1 && (
-          <>
-            <button type="button" onClick={() => go(-1)} aria-label="Previous review">←</button>
-            <span>{index + 1} / {reviews.length}</span>
-            <button type="button" onClick={() => go(1)} aria-label="Next review">→</button>
-          </>
-        )}
-        <Link to="/leave-review">Leave a review</Link>
-      </div>
+      {reviews.length > 1 && (
+        <div className="jg-rv-ctrl">
+          <button type="button" onClick={() => go(-1)} aria-label="Previous review">←</button>
+          <span>{index + 1} / {reviews.length}</span>
+          <button type="button" onClick={() => go(1)} aria-label="Next review">→</button>
+        </div>
+      )}
     </div>
   );
 }

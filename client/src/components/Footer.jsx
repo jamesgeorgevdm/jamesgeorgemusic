@@ -32,7 +32,7 @@ function Footer() {
           </div>
         </div>
         <div className="base">
-          <span>James George Music</span>
+          <span>James George Music · Based in Cape Town, occasionally in Gqeberha, travelling for larger events</span>
           <a href="mailto:jamesv234@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>jamesv234@gmail.com</a>
         </div>
       </div>

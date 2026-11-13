@@ -9,57 +9,34 @@ const ISITHATHA_PLAYLIST =
 // The splash plays once per visit; coming back to Home goes straight to the film
 let introPlayed = false;
 
-// Navy layer with the name cut out of it, so the film is first seen through the letters
-function IntroMask() {
-  const letters = { fill: "#000", stroke: "#000", strokeWidth: 10, textAnchor: "middle", dominantBaseline: "central", lengthAdjust: "spacingAndGlyphs" };
-  return (
-    <div className="jg-intro" aria-hidden="true">
-      <svg className="land" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
-        <defs>
-          <mask id="jg-mask-land">
-            <rect x="-2000" y="-2000" width="5600" height="4900" fill="#fff" />
-            <text x="800" y="300" fontSize="400" textLength="1140" {...letters}>James</text>
-            <text x="800" y="640" fontSize="400" textLength="1300" {...letters}>George</text>
-          </mask>
-        </defs>
-        <rect x="-2000" y="-2000" width="5600" height="4900" fill="#0B1C2C" fillOpacity="0.8" mask="url(#jg-mask-land)" />
-      </svg>
-      <svg className="port" viewBox="0 0 900 1600" preserveAspectRatio="xMidYMid slice">
-        <defs>
-          <mask id="jg-mask-port">
-            <rect x="-2000" y="-2000" width="4900" height="5600" fill="#fff" />
-            <text x="450" y="690" fontSize="210" textLength="530" {...letters}>James</text>
-            <text x="450" y="900" fontSize="210" textLength="570" {...letters}>George</text>
-          </mask>
-        </defs>
-        <rect x="-2000" y="-2000" width="4900" height="5600" fill="#0B1C2C" fillOpacity="0.8" mask="url(#jg-mask-port)" />
-      </svg>
-    </div>
-  );
-}
+// Cumulative hero classes per intro stage, with when each starts (ms after fonts load)
+const INTRO = [
+  ["name", 300, "intro pre s1"],                // name comes up on black
+  ["cap", 650, "intro pre s1 s2"],              // credit line follows
+  ["fade", 1300, "intro pre s1 s2 s3"],         // film fades up through navy to colour
+  ["go", 2900, "intro s1 s2 s3 go"],            // reviews and session card rise
+  ["done", 4600, "go"],                         // black layer and tint removed
+];
 
 function Home() {
   // Decided once per mount; introPlayed flips during the intro and must not change this
   const [skip] = useState(() => introPlayed || window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  // pre: letters only · open: mask scales away · go: title and strip rise · done: mask removed
-  const [stage, setStage] = useState(skip ? "done" : "pre");
+  const [stage, setStage] = useState(skip ? "done" : "wait");
 
   useEffect(() => {
     if (stage === "done") return;
     introPlayed = true;
     const timers = [];
-    // Wait for BruneyClassy so the cut-out letters are the real face, not a fallback
+    // Wait for BruneyClassy so the name comes up in the real face, not a fallback
     const fontsReady = Promise.race([document.fonts?.ready, new Promise((r) => setTimeout(r, 1500))]);
     fontsReady.then(() => {
-      timers.push(setTimeout(() => setStage("open"), 1400));
-      timers.push(setTimeout(() => setStage("go"), 1400 + 950));
-      timers.push(setTimeout(() => setStage("done"), 1400 + 1800));
+      INTRO.forEach(([name, at]) => timers.push(setTimeout(() => setStage(name), at)));
     });
     return () => timers.forEach(clearTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const heroClass = { pre: "pre", open: "pre open", go: "open go", done: skip ? "" : "go" }[stage];
+  const heroClass = stage === "wait" ? "intro pre" : skip ? "" : INTRO.find(([name]) => name === stage)[2];
 
   return (
     <div className="jg-page">
@@ -80,10 +57,16 @@ function Home() {
         >
           <source src="/videos/banner.mp4" type="video/mp4" />
         </video>
-        {stage !== "done" && <IntroMask />}
+        {stage !== "done" && (
+          <>
+            <div className="jg-intro-tint" aria-hidden="true" />
+            <div className="jg-intro" aria-hidden="true" />
+          </>
+        )}
 
         <div className="jg-hero-title">
-          <h1 className="jg-display rise" style={{ "--i": 0 }}>James George</h1>
+          <h1 className={`jg-display${skip ? " rise" : ""}`} style={{ "--i": 0 }}>James George</h1>
+          <p className={`jg-hero-cap${skip ? " rise" : ""}`} style={{ "--i": 1 }}>Vocalist · Saxophone · Cape Town</p>
         </div>
 
         <div className="jg-hero-foot jg-wrap rise" style={{ "--i": 2 }}>

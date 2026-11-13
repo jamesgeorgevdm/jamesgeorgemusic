@@ -96,6 +96,10 @@ function Products() {
             ))}
           </ul>
           <div className="jg-styles-cta">
+            <div>
+              <h2 className="jg-display">Have a date in mind?</h2>
+              <p>See which dates are open and book online.</p>
+            </div>
             <Link className="jg-btn jg-btn-solid" to="/booking">Book a date <span className="jg-arrow" aria-hidden="true">→</span></Link>
           </div>
         </div>

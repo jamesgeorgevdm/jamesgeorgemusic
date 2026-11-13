@@ -148,7 +148,7 @@
   .jg-hero-foot { position: relative; z-index: 2; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; padding-block: 26px 36px; border-top: 1px solid rgba(212, 164, 85, 0.18); }
   @media (min-width: 761px) { .jg-hero-foot { padding-right: max(96px, env(safe-area-inset-right, 0px)); } }
   @media (max-width: 760px) {
-    .jg-hero-foot { grid-template-columns: minmax(0, 1fr); gap: 18px; padding-bottom: 96px; }
+    .jg-hero-foot { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-top: 18px; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
     /* Phones: title takes the space above the footer instead of centring over it,
        so a tall review can never slide under the name */
     .jg-hero-title { position: relative; inset: auto; flex: 1; padding-top: var(--nav-h); }
@@ -189,7 +189,8 @@
     .jg-rv figcaption, .jg-rv .more { font-size: 0.85rem; margin-top: 2px; }
     .jg-rv-ctrl { margin-top: 6px; gap: 8px; font-size: 0.85rem; }
     .jg-rv-ctrl button { width: 28px; height: 28px; font-size: 0.85rem; }
-    .jg-sess { justify-self: stretch; min-width: 0; gap: 14px; padding: 8px 14px 8px 8px; }
+    /* margin-right leaves the chat button its corner now the strip sits at the bottom */
+    .jg-sess { justify-self: stretch; min-width: 0; gap: 14px; padding: 8px 14px 8px 8px; margin-right: 72px; }
     .jg-sess-thumb { width: min(96px, 24vw); }
     .jg-sess-txt { min-width: 0; }
     .jg-sess-txt b { font-size: min(1.2rem, 4.8vw); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -52,7 +52,7 @@ function Home() {
     <div className="jg-page">
       <Seo
         title="James George Music | Professional Musician & Entertainer"
-        description="Professional vocalist, saxophonist and pianist available for weddings, corporate events, and private functions. Based in Cape Town, performing across South Africa. Real-time booking and tailored packages."
+        description="Professional vocalist and saxophonist available for weddings, corporate events, and private functions. Based in Cape Town, performing across South Africa. Real-time booking and tailored packages."
         path="/"
       />
       <section className={`jg-hero ${heroClass}`}>

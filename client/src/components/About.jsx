@@ -6,19 +6,19 @@ import portraitImg from "./images/about-portrait.jpg";
 const bioPillars = [
   {
     title: "Versatile performer",
-    desc: "Performed extensively in contemporary, jazz, musical theatre and even operatic styles across a wide range of settings, from birthday parties and weddings to sold-out solo shows.",
+    desc: "I've played everything from intimate private events to sold-out solo shows, and I put each set together around the event and the people in the room.",
   },
   {
-    title: "Multi-instrumentalist",
-    desc: "A seasoned and fully qualified professional vocalist, saxophonist and pianist with multiple other weird and wonderful instruments at my disposal.",
+    title: "Vocalist & saxophonist",
+    desc: "Singing and sax are my main instruments, and I'll pick the mix that suits your event.",
   },
   {
     title: "Professional equipment",
-    desc: "Quality and reliable equipment is an investment. Sound gremlins are, in fact, a myth.",
+    desc: "I've invested in good, reliable gear. Sound gremlins are, in fact, a myth.",
   },
   {
     title: "Proven reputation",
-    desc: "Performing as regularly as I do is the result of reliable professionalism. Consider the entertainment side of your event completely taken care of.",
+    desc: "I perform regularly, and the secret ingredient to that is being reliable and professional. Once you've booked me, consider the music taken care of.",
   },
 ];
 
@@ -134,7 +134,7 @@ const About = ({ prefetchedStats }) => (
   <div className="jg-page jg-page-top">
     <Seo
       title="About James George | Professional Musician in South Africa"
-      description="Meet James George, a fully qualified vocalist, saxophonist and pianist performing contemporary, jazz, musical theatre and operatic styles at weddings, corporate events and private functions."
+      description="Meet James George, an experienced vocalist and saxophonist performing contemporary, jazz, musical theatre and operatic styles at weddings, corporate events and private functions."
       path="/about"
     />
     <div className="jg-wrap">
@@ -156,13 +156,14 @@ const About = ({ prefetchedStats }) => (
         <div>
           <div className="jg-notes rise" style={{ "--i": 3 }}>
             <p>
-              I am a fully qualified vocalist, saxophonist and pianist, with a few other weird and wonderful
-              instruments at my disposal. I have performed extensively in contemporary, jazz, musical theatre
-              and operatic styles.
+              Hi there! I'm James George, an experienced vocalist and saxophonist, with a few other weird and
+              wonderful instruments at my disposal. Over the years I've performed extensively in contemporary,
+              jazz, musical theatre and operatic styles.
             </p>
             <p>
-              The settings range from birthday parties and weddings to sold-out solo shows, and every booking
-              comes with professional sound equipment.
+              I've played weddings, corporate functions, private events and my own sold-out solo shows across
+              the country. I also bring my own professional sound setup to every gig, so that's one less thing
+              for you to organise.
             </p>
           </div>
           <div className="jg-credits">

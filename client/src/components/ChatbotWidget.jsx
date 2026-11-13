@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { FiMessageCircle, FiX, FiSend } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
+import { useLocation } from "react-router-dom";
 
 // Empty-string fallback keeps relative /api/chat working behind same-origin proxies
 const chatApi = `${import.meta.env.VITE_API || ""}/api/chat`;
@@ -21,6 +22,22 @@ const RATE_LIMIT_MESSAGE =
 function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  // "Ask the concierge" label: shown once per visit for 5s, then tucks into the round button.
+  // Never on Home, where the pill would cover the Isithatha card, so it waits for the first other page.
+  const { pathname } = useLocation();
+  const [label, setLabel] = useState("idle"); // idle → shown → done
+
+  useEffect(() => {
+    if (label === "idle" && pathname !== "/") setLabel("shown");
+  }, [pathname, label]);
+
+  useEffect(() => {
+    if (label !== "shown") return;
+    const timer = setTimeout(() => setLabel("done"), 5000);
+    return () => clearTimeout(timer);
+  }, [label]);
+
+  const tucked = label !== "shown";
   // Stable transport instance — recreating it would reset the chat session
   const transport = useMemo(
     () => new DefaultChatTransport({ api: chatApi }),
@@ -43,7 +60,7 @@ function ChatbotWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] font-['Crimson_Pro']">
+    <div className="jg-chat fixed bottom-6 right-6 z-[9999] font-['Crimson_Pro']">
       {isOpen && (
         <div
           className="absolute bottom-[72px] right-0 w-[380px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-120px)] bg-[var(--navy)] border border-[rgba(212,164,85,0.35)] rounded-2xl flex flex-col overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.45),0_0_24px_rgba(212,164,85,0.15)] animate-[chatbot-slide-up_0.25s_ease]"
@@ -127,11 +144,17 @@ function ChatbotWidget() {
       {/* FAB */}
       <button
         type="button"
-        className="w-14 h-14 rounded-full border-2 border-[var(--gold)] bg-[var(--navy)] text-[var(--gold)] cursor-pointer flex items-center justify-center text-[1.5rem] shadow-[0_4px_20px_rgba(0,0,0,0.35),0_0_16px_rgba(212,164,85,0.25)] transition-[transform,box-shadow,background] duration-200 hover:scale-[1.05] hover:bg-[#0f2240] hover:shadow-[0_6px_24px_rgba(0,0,0,0.4),0_0_20px_rgba(212,164,85,0.35)]"
-        onClick={() => setIsOpen((prev) => !prev)}
+        className={`min-w-14 h-14 rounded-full border-2 border-[var(--gold)] bg-[var(--navy)] text-[var(--gold)] cursor-pointer flex items-center justify-center text-[1.5rem] shadow-[0_4px_20px_rgba(0,0,0,0.35),0_0_16px_rgba(212,164,85,0.25)] transition-[transform,box-shadow,background,padding,gap] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-[1.05] hover:bg-[#0f2240] hover:shadow-[0_6px_24px_rgba(0,0,0,0.4),0_0_20px_rgba(212,164,85,0.35)] ${tucked || isOpen ? "px-0 gap-0" : "px-4 gap-2.5"}`}
+        onClick={() => { setLabel("done"); setIsOpen((prev) => !prev); }}
         aria-label={isOpen ? "Close chat" : "Open chat"}
       >
         {isOpen ? <FiX /> : <FiMessageCircle />}
+        <span
+          aria-hidden="true"
+          className={`overflow-hidden whitespace-nowrap text-[1rem] font-semibold tracking-[0.03em] text-[var(--cream)] transition-[max-width,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${tucked || isOpen ? "max-w-0 opacity-0" : "max-w-[12em] opacity-100"}`}
+        >
+          Ask the concierge
+        </span>
       </button>
     </div>
   );

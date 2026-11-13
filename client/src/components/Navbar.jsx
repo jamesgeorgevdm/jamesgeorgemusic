@@ -52,18 +52,28 @@ function Navbar() {
             {LINKS.map((l) => (
               <li key={l.path}><Link className="l" to={l.path} aria-current={current(l.path)}>{l.name}</Link></li>
             ))}
-            <li><Link className="jg-btn jg-btn-line" to="/booking" aria-current={current('/booking')}>Book a date</Link></li>
+            <li>
+              <Link className="jg-btn jg-btn-solid jg-nav-book" to="/booking" aria-current={current('/booking')}>
+                Book a date <span className="jg-arrow" aria-hidden="true">→</span>
+              </Link>
+            </li>
             <li className="jg-ind" ref={indRef} aria-hidden="true" />
           </ul>
-          <button
-            type="button"
-            className="jg-menu-btn"
-            aria-expanded={open}
-            aria-controls="jg-sheet"
-            onClick={() => setOpen((o) => !o)}
-          >
-            {open ? 'Close' : 'Menu'}
-          </button>
+          {/* Phones: booking stays one tap away beside the menu */}
+          <div className="jg-nav-end">
+            <Link className="jg-btn jg-btn-solid jg-nav-book" to="/booking" aria-current={current('/booking')}>
+              Book <span className="jg-arrow" aria-hidden="true">→</span>
+            </Link>
+            <button
+              type="button"
+              className="jg-menu-btn"
+              aria-expanded={open}
+              aria-controls="jg-sheet"
+              onClick={() => setOpen((o) => !o)}
+            >
+              {open ? 'Close' : 'Menu'}
+            </button>
+          </div>
         </div>
       </nav>
       <nav id="jg-sheet" className={`jg-sheet ${open ? 'open' : ''}`} aria-label="Pages" aria-hidden={!open}>

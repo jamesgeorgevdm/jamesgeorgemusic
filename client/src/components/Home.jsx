@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import Reviews from "./Reviews";
 import Seo from "./Seo";
 import isithathaImg from "./images/Isithatha Sessions.png";
@@ -35,6 +35,16 @@ function Home() {
     return () => timers.forEach(clearTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // While the splash plays, <html data-intro> hides the chat button and holds back the nav sweep;
+  // cleared when it finishes or if the visitor leaves Home early
+  const introOn = stage !== "done";
+  useLayoutEffect(() => {
+    if (!introOn) return;
+    const root = document.documentElement;
+    root.dataset.intro = "";
+    return () => { delete root.dataset.intro; };
+  }, [introOn]);
 
   const heroClass = stage === "wait" ? "intro pre" : skip ? "" : INTRO.find(([name]) => name === stage)[2];
 
